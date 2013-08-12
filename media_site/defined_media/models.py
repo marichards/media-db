@@ -122,6 +122,7 @@ class Products(models.Model):
     compid = models.ForeignKey(Compounds, db_column='compID') # Field name made lowercase.
     class Meta:
         db_table = 'products'
+# some comment
 
 class Reactants(models.Model):
     rxntid = models.IntegerField(primary_key=True, db_column='rxntID') # Field name made lowercase.
