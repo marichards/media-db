@@ -17,6 +17,10 @@ class Biomass(models.Model):
     sourceid = models.ForeignKey('Sources', null=True, db_column='sourceID', blank=True) # Field name made lowercase.
     class Meta:
         db_table = 'biomass'
+        verbose_name_plural = 'biomass compositions'
+    #Return the organism for the biomass
+    def __unicode__(self):
+        return '%s %s' %(self.genus.capitalize(),self.species.lower())
 
 class BiomassCompounds(models.Model):
     biocompid = models.IntegerField(primary_key=True, db_column='biocompID') # Field name made lowercase.
@@ -48,12 +52,21 @@ class Compounds(models.Model):
     user_identifier = models.CharField(max_length=255L, blank=True)
     class Meta:
         db_table = 'compounds'
+	verbose_name_plural = 'compounds'
+    #Return the first compound name for each thing
+    def __unicode__(self):
+        #This is work in progress
+        first_compound_name = self.namesofcompounds_set.all()[0]
+        return '%s' %first_compound_name
 
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
     last_name = models.CharField(max_length=255L, unique=True, db_column='Last_Name', blank=True) # Field name made lowercase.
     class Meta:
         db_table = 'contributors'
+        verbose_name_plural = 'contributors'
+    def __unicode__(self):
+        return '%s' %self.last_name.capitalize()
 
 class GrowthData(models.Model):
     growthid = models.IntegerField(primary_key=True, db_column='growthID') # Field name made lowercase.
@@ -68,12 +81,18 @@ class GrowthData(models.Model):
     additional_notes = models.CharField(max_length=255L, db_column='Additional_Notes', blank=True) # Field name made lowercase.
     class Meta:
         db_table = 'growth_data'
+	verbose_name_plural = 'growth data'
+    #Method: Python calls Growth Object and Returns the ID instead of just "GrowthData Object" 
+    def __unicode__(self):
+        return '%s on %s' %(self.strainid,self.medid)   
 
 class Measurements(models.Model):
     measureid = models.IntegerField(primary_key=True, db_column='measureID') # Field name made lowercase.
     measurement_technique = models.CharField(max_length=255L, unique=True, db_column='Measurement_Technique', blank=True) # Field name made lowercase.
     class Meta:
         db_table = 'measurements'
+    def __unicode__(self):
+        return '%s' %self.measurement_technique
 
 class MediaCompounds(models.Model):
     medcompid = models.IntegerField(primary_key=True, db_column='medcompID') # Field name made lowercase.
@@ -90,6 +109,9 @@ class MediaNames(models.Model):
     is_minimal = models.CharField(max_length=1L, db_column='Is_minimal', blank=True) # Field name made lowercase.
     class Meta:
         db_table = 'media_names'
+	verbose_name_plural = 'media names'
+    def __unicode__(self):
+        return '%s' %self.media_name
 
 class NamesOfCompounds(models.Model):
     nameid = models.IntegerField(primary_key=True, db_column='nameID') # Field name made lowercase.
@@ -97,6 +119,9 @@ class NamesOfCompounds(models.Model):
     name = models.CharField(max_length=255L, unique=True, db_column='Name', blank=True) # Field name made lowercase.
     class Meta:
         db_table = 'names_of_compounds'
+    #Return the name, not the name ID or compound ID
+    def __unicode__(self):
+        return '%s' %self.name
 
 class Organisms(models.Model):
     strainid = models.IntegerField(primary_key=True, db_column='strainID') # Field name made lowercase.
@@ -107,6 +132,10 @@ class Organisms(models.Model):
     typeid = models.ForeignKey('TypesOfOrganisms', null=True, db_column='typeID', blank=True) # Field name made lowercase.
     class Meta:
         db_table = 'organisms'
+        verbose_name_plural = 'organisms'
+    #Call the Organisms object and return the Strain Name and such instead
+    def __unicode__(self):
+        return '%s %s %s' %(self.genus.capitalize(),self.species.lower(),self.strain)
 
 class OrganismsSources(models.Model):
     strainsourceid = models.IntegerField(primary_key=True, db_column='strainsourceID') # Field name made lowercase.
@@ -163,6 +192,9 @@ class Sources(models.Model):
     link = models.CharField(max_length=255L, unique=True, db_column='Link', blank=True) # Field name made lowercase.
     class Meta:
         db_table = 'sources'
+        verbose_name_plural = 'sources'
+    def __unicode__(self):
+        return '%s et al, %d' %(self.first_author.capitalize(),self.year)   
 
 class TypesOfOrganisms(models.Model):
     typeid = models.IntegerField(primary_key=True, db_column='typeID') # Field name made lowercase.
