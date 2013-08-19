@@ -2,7 +2,7 @@ from django.contrib import admin
 from defined_media.models import Biomass, BiomassCompounds, Compounds , Contributors, GrowthData, MediaNames,Organisms, Sources 
 
 #Inline things
-#class BiomassCompoundsInline(admin.StackedInline):
+#class BiomassCompoundsInline(admin.TabularInline):
 #	model = BiomassCompounds
 
 class BiomassAdmin(admin.ModelAdmin):
@@ -49,7 +49,7 @@ class OrganismsAdmin(admin.ModelAdmin):
 	fieldsets = [
 		(None, {'fields': ['genus','species','strain']}),
 	]
-
+	search_fields = ['genus','species','strain']
 admin.site.register(Organisms,OrganismsAdmin)
 
 class SourcesAdmin(admin.ModelAdmin):

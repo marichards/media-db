@@ -18,6 +18,7 @@ class Biomass(models.Model):
     class Meta:
         db_table = 'biomass'
         verbose_name_plural = 'biomass compositions'
+    	#order_with_respect_to = 'genus'
     #Return the organism for the biomass
     def __unicode__(self):
         return '%s %s' %(self.genus.capitalize(),self.species.lower())
