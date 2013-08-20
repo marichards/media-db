@@ -77,8 +77,8 @@ class Measurements(models.Model):
 
 class MediaCompounds(models.Model):
     medcompid = models.IntegerField(primary_key=True, db_column='medcompID') # Field name made lowercase.
-    medid = models.ForeignKey('MediaNames', db_column='medID') # Field name made lowercase.
-    compid = models.ForeignKey(Compounds, db_column='compID') # Field name made lowercase.
+    medid = models.ManyToManyField('MediaNames', db_column='medID') # Field name made lowercase.
+    compid = models.ManyToManyField('Compounds', db_column='compID') # Field name made lowercase.
     amount_mm = models.FloatField(null=True, db_column='Amount_mM', blank=True) # Field name made lowercase.
     class Meta:
         db_table = 'media_compounds'

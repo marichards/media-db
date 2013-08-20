@@ -112,7 +112,14 @@ class MediaNames(models.Model):
         db_table = 'media_names'
 	verbose_name_plural = 'media names'
     def __unicode__(self):
-        return '%s' %self.media_name
+        #Define a method that grabs everything in a given medium
+        compounds_list = MediaCompounds.objects.filter(medid=self.medid)
+        compounds_str = '%s contains: ' %self.media_name
+	for item in compounds_list:
+            compounds_str += '%s:\t%s mM\n' %(item.compid,item.amount_mm)
+        return '%s' %compounds_str
+
+    
 
 class NamesOfCompounds(models.Model):
     nameid = models.IntegerField(primary_key=True, db_column='nameID') # Field name made lowercase.
