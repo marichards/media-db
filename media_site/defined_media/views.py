@@ -1,9 +1,14 @@
-# Create your views here.
-
+# Views of Pages!
 from django.http import HttpResponse
+#Template Loader
+from django.template import RequestContext, loader
 
+#Bring in models I might need
+from defined_media.models import Compounds,MediaNames,MediaCompounds,Organisms,Sources,Biomass,BiomassCompounds,GrowthData
+ 
 #Define the main page of the site
 def main(request):
+	#Basic Return; Placeholder
 	return HttpResponse('This will be the main page someday!')
 
 #Define the compounds index
@@ -12,7 +17,16 @@ def compounds(request):
 
 #Define the media index
 def media(request):
-	return HttpResponse('This is the main media index')
+	
+	#List all the media, limit to 10 records for now!
+	media_list = MediaNames.objects.order_by('media_name')[:10]
+	
+	#Put it into the template
+	template = loader.get_template('defined_media/media.html')
+	context = RequestContext(request, {
+		'media_list': media_list,
+	})
+	return HttpResponse(template.render(context))
 
 #Define the organisms index
 def organisms(request):
@@ -36,7 +50,21 @@ def organism_record(request, strainid):
 
 #Define Record-Specific Media View
 def media_record(request, medid):
-	return HttpResponse('This is the page for media %s' %medid)
+	#Simple Response...let's do something more fun!
+#	return HttpResponse('This is the page for media %s' %medid)
+	
+	#Grab that media record like in the model file
+	#Specify the media name
+	media_name = MediaNames.objects.get(medid=medid).media_name.capitalize()
+	#Find the list of compounds for a medium
+	compound_list = MediaCompounds.objects.filter(medid=medid)
+	#Put it in a template
+	template = loader.get_template('defined_media/media_record.html')
+	context = RequestContext(request, {
+		'compound_list': compound_list,
+		'media_name': media_name
+	})
+	return HttpResponse(template.render(context))
 
 #Define Record-Specific Biomass View
 def biomass_record(request, biomassid):

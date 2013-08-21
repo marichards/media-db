@@ -1,0 +1,11 @@
+{% if media_list %}
+	<p>Here are the first 10 media</p>
+
+	<ul>
+	{% for media in media_list %}
+		<li><a href='/defined_media/media/{{ media.medid }}/'>{{ media.media_name }}</a></li>
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No media are available.</p>
+{% endif %}

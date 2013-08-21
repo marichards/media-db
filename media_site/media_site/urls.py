@@ -14,4 +14,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
      url(r'^admin/', include(admin.site.urls)),
+    
+    # I added this to point to the defined_media app
+     url(r'^defined_media/', include('defined_media.urls')), 
 )
