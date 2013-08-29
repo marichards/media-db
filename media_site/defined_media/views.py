@@ -2,6 +2,8 @@
 from django.http import HttpResponse
 #Template Loader
 from django.template import RequestContext, loader
+#Shortcut to render templates and raise error if not there
+from django.shortcuts import render,get_object_or_404
 
 #Bring in models I might need
 from defined_media.models import Compounds,MediaNames,MediaCompounds,Organisms,Sources,Biomass,BiomassCompounds,GrowthData
