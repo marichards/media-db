@@ -60,13 +60,13 @@ def media_record(request, medid):
 	media_name = MediaNames.objects.get(medid=medid).media_name.capitalize()
 	#Find the list of compounds for a medium
 	compound_list = MediaCompounds.objects.filter(medid=medid)
-	#Put it in a template
-	template = loader.get_template('defined_media/media_record.html')
-	context = RequestContext(request, {
+	#Create context for template
+	context = {
 		'compound_list': compound_list,
 		'media_name': media_name
-	})
-	return HttpResponse(template.render(context))
+	}
+	#Shortcut method puts context into template
+	return render(request, 'defined_media/media_record.html',context)
 
 #Define Record-Specific Biomass View
 def biomass_record(request, biomassid):
