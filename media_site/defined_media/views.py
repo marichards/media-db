@@ -57,7 +57,8 @@ def media_record(request, medid):
 	
 	#Grab that media record like in the model file
 	#Specify the media name
-	media_name = MediaNames.objects.get(medid=medid).media_name.capitalize()
+	#Use shortcut for Raise404
+	media_name = get_object_or_404(MediaNames,medid=medid).media_name.capitalize()
 	#Find the list of compounds for a medium
 	compound_list = MediaCompounds.objects.filter(medid=medid)
 	#Create context for template
