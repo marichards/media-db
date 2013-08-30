@@ -3,7 +3,7 @@
 
 	<ul>
 	{% for media in media_list %}
-		<li><a href='/defined_media/media/{{ media.medid }}/'>{{ media.media_name }}</a></li>
+		<li><a href="{% url 'media_record' media.medid %}"> {{ media.media_name }}</a></li>
 	{% endfor %}
 	</ul>
 {% else %}
