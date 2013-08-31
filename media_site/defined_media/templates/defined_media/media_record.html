@@ -3,7 +3,7 @@
 
 	<ul>
 	{% for compound in compound_list %}
-		<li><a href='/defined_media/compounds/{{compound.compid }}/'>{{compound.compid }}</a></li>
+		<li><a href="{% url 'compound_record' compound.compid %}">{{compound.compid }}</a></li>
 	{% endfor %}
 	</ul>
 {% else %}

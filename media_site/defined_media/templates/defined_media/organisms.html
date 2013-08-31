@@ -1,0 +1,11 @@
+{% if organism_list %}
+	<p>Here are the first 10 organisms</p>
+
+	<ul>
+	{% for organism in organism_list %}
+		<li><a href="{% url 'organism_record' organism.strainid %}"> {{ organism.genus }} {{organism.species}} {{organism.strain}}</a></li>
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No organisms are available.</p>
+{% endif %}

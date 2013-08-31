@@ -1,0 +1,11 @@
+{% if compound_list %}
+	<p>Here are the first 50 compounds</p>
+
+	<ul>
+	{% for compound in compound_list %}
+		<li><a href="{% url 'compound_record' compound.compid %}"> {{ compound.compid }}</a></li>
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No compounds are available.</p>
+{% endif %}

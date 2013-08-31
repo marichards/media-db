@@ -56,9 +56,10 @@ class Compounds(models.Model):
 	verbose_name_plural = 'compounds'
     #Return the first compound name for each thing
     def __unicode__(self):
-        #This is work in progress
-        first_compound_name = self.namesofcompounds_set.all()[0]
-        return '%s' %first_compound_name
+	return '%s' %self.compid
+        #This causes name/id problems...comment it out for now
+        #first_compound_name = self.namesofcompounds_set.all()[0]
+        #return '%s' %first_compound_name
 
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.

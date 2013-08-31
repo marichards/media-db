@@ -10,12 +10,29 @@ from defined_media.models import Compounds,MediaNames,MediaCompounds,Organisms,S
  
 #Define the main page of the site
 def main(request):
+		
+	#Put into basic template
+	template = loader.get_template('defined_media/main.html')
+	context = RequestContext(request, {
+
+	})
+	return HttpResponse(template.render(context))
+
 	#Basic Return; Placeholder
-	return HttpResponse('This will be the main page someday!')
+	#return HttpResponse('This will be the main page someday!')
 
 #Define the compounds index
 def compounds(request):
-	return HttpResponse('This is the main compounds index')
+
+	#List all the compounds, limit to 50 for now!
+	compound_list = Compounds.objects.order_by('compid')[:10]
+
+	#Put it into the template
+	template = loader.get_template('defined_media/compounds.html')
+	context = RequestContext(request, {
+		'compound_list': compound_list,
+	})
+	return HttpResponse(template.render(context))
 
 #Define the media index
 def media(request):
@@ -32,7 +49,16 @@ def media(request):
 
 #Define the organisms index
 def organisms(request):
-	return HttpResponse('This is the main organisms index')
+	
+	#List all the organisms, limit to 10 for now!
+	organism_list = Organisms.objects.order_by('genus')[:10]
+
+	#Put it into a template
+	template = loader.get_template('defined_media/organisms.html')
+	context = RequestContext(request, {
+		'organism_list': organism_list,
+	})
+	return HttpResponse(template.render(context))
 
 #Define the biomass index
 def biomass(request):
