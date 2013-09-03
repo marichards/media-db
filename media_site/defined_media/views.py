@@ -25,7 +25,7 @@ def main(request):
 def compounds(request):
 
 	#List all the compounds, limit to 50 for now!
-	compound_list = Compounds.objects.order_by('compid')[:10]
+	compound_list = Compounds.objects.order_by('compid')[:50]
 
 	#Put it into the template
 	template = loader.get_template('defined_media/compounds.html')
@@ -62,11 +62,29 @@ def organisms(request):
 
 #Define the biomass index
 def biomass(request):
-	return HttpResponse('This is the main biomass index')
+
+	#List all the biomasses (there are only 4)
+	biomass_list = Biomass.objects.order_by('genus')
+
+	#Put it into a template
+	template = loader.get_template('defined_media/biomass.html')
+	context = RequestContext(request, {
+		'biomass_list': biomass_list,
+	})
+	return HttpResponse(template.render(context))
 
 #Define the sources index
 def sources(request):
-	return HttpResponse('This is the main sources index')
+	
+	#List all the sources, limit to 10 for now
+	source_list = Sources.objects.order_by('first_author')[:10]
+
+	#Put it into a template
+	template = loader.get_template('defined_media/sources.html')
+	context = RequestContext(request, {
+		'source_list': source_list,
+	})
+	return HttpResponse(template.render(context))
 
 #Define Record-Specific Compound View
 def compound_record(request,compid):

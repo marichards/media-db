@@ -1,0 +1,11 @@
+{% if biomass_list %}
+	<p>Here are the biomass compositions</p>
+
+	<ul>
+	{% for biomass in biomass_list %}
+		<li><a href="{% url 'biomass_record' biomass.biomassid %}"> {{ biomass.genus}} {{biomass.species}}</a></li>
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No biomasses are available.</p>
+{% endif %}

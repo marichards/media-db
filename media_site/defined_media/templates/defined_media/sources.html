@@ -1,0 +1,11 @@
+{% if source_list %}
+	<p>Here are the first 10 sources</p>
+
+	<ul>
+	{% for source in source_list %}
+		<li><a href="{% url 'source_record' source.sourceid %}"> {{ source.first_author}} {{source.year}}</a></li>
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No sources are available.</p>
+{% endif %}
