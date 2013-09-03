@@ -12,11 +12,10 @@ from defined_media.models import Compounds,MediaNames,MediaCompounds,Organisms,S
 def main(request):
 		
 	#Put into basic template
-	template = loader.get_template('defined_media/main.html')
 	context = RequestContext(request, {
 
 	})
-	return HttpResponse(template.render(context))
+	return render(request, 'defined_media/main.html', context)
 
 	#Basic Return; Placeholder
 	#return HttpResponse('This will be the main page someday!')
@@ -28,11 +27,10 @@ def compounds(request):
 	compound_list = Compounds.objects.order_by('compid')[:50]
 
 	#Put it into the template
-	template = loader.get_template('defined_media/compounds.html')
 	context = RequestContext(request, {
 		'compound_list': compound_list,
 	})
-	return HttpResponse(template.render(context))
+	return render(request, 'defined_media/compounds.html', context)
 
 #Define the media index
 def media(request):
@@ -41,11 +39,10 @@ def media(request):
 	media_list = MediaNames.objects.order_by('media_name')[:10]
 	
 	#Put it into the template
-	template = loader.get_template('defined_media/media.html')
 	context = RequestContext(request, {
 		'media_list': media_list,
 	})
-	return HttpResponse(template.render(context))
+	return render(request, 'defined_media/media.html', context)
 
 #Define the organisms index
 def organisms(request):
@@ -54,11 +51,10 @@ def organisms(request):
 	organism_list = Organisms.objects.order_by('genus')[:10]
 
 	#Put it into a template
-	template = loader.get_template('defined_media/organisms.html')
 	context = RequestContext(request, {
 		'organism_list': organism_list,
 	})
-	return HttpResponse(template.render(context))
+	return render(request, 'defined_media/organisms.html', context)
 
 #Define the biomass index
 def biomass(request):
@@ -67,11 +63,10 @@ def biomass(request):
 	biomass_list = Biomass.objects.order_by('genus')
 
 	#Put it into a template
-	template = loader.get_template('defined_media/biomass.html')
 	context = RequestContext(request, {
 		'biomass_list': biomass_list,
 	})
-	return HttpResponse(template.render(context))
+	return render(request, 'defined_media/biomass.html', context)
 
 #Define the sources index
 def sources(request):
@@ -80,11 +75,10 @@ def sources(request):
 	source_list = Sources.objects.order_by('first_author')[:10]
 
 	#Put it into a template
-	template = loader.get_template('defined_media/sources.html')
 	context = RequestContext(request, {
 		'source_list': source_list,
 	})
-	return HttpResponse(template.render(context))
+	return render(request, 'defined_media/sources.html', context)
 
 #Define Record-Specific Compound View
 def compound_record(request,compid):
@@ -111,11 +105,21 @@ def media_record(request, medid):
 		'media_name': media_name
 	}
 	#Shortcut method puts context into template
-	return render(request, 'defined_media/media_record.html',context)
+	return render(request, 'defined_media/media_record.html', context)
 
 #Define Record-Specific Biomass View
 def biomass_record(request, biomassid):
-	return HttpResponse('This is the page for biomass %s' %biomassid)
+	#Copy the media record one
+
+	biomass_name = get_object_or_404(Biomass,biomassid=biomassid).genus.capitalize()
+	#Find the list of compounds for a biomass composition
+	compound_list = BiomassCompounds.objects.filter(biomassid=biomassid)
+	#Create context for template
+	context = {
+		'compound_list': compound_list,
+		'biomass_name': biomass_name
+	}
+	return render(request, 'defined_media/biomass_record.html', context)
 
 #Define Record-Specific Source View
 def source_record(request, sourceid):
