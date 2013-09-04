@@ -1,0 +1,24 @@
+{% if compound %}
+	<p>Compound ID: {{ compound.compid  }}</p>
+	<p>KEGG ID: {{ compound.kegg_id }}</p>
+	<p>BiGG ID: {{ compound.bigg_id }}</p>
+	
+	
+{% else %}
+	<p>No compound sent.</p>
+{% endif %}
+
+
+{% if names_list %}
+	<p>Common names:</p>
+
+	<ul>
+	{% for name in names_list %}
+	<p>{{ name.name}}</p>	
+	
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No names sent.</p>
+
+{% endif %}

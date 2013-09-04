@@ -1,14 +1,19 @@
+{% load staticfiles %}
 
-	<p>Welcome to the Media Database</p>
+<link rel="stylesheet" type="text/css" href"{% static 'defined_media/style.css' %}" />
 
-	<ul>
+<title>Defined Media Database</title>
+
+<head>Welcome to the Defined Media Database</title>
+
+<ul>
 
 	
-	<li><a href="{% url 'organisms' %}"> Organisms </a></li>
-	<li><a href="{% url 'sources' %}"> Sources </a></li>
-	<li><a href="{% url 'compounds' %}"> Compounds </a></li>
-	<li><a href="{% url 'media' %}"> Media Formulations </a></li>
-	<li><a href="{% url 'biomass' %}"> Biomass Compositions </a></li>
+<li><a href="{% url 'organisms' %}"> Organisms </a></li>
+<li><a href="{% url 'sources' %}"> Sources </a></li>
+<li><a href="{% url 'compounds' %}"> Compounds </a></li>
+<li><a href="{% url 'media' %}"> Media Formulations </a></li>
+<li><a href="{% url 'biomass' %}"> Biomass Compositions </a></li>
+<li><a href="{% url 'downloads' %}"> Download the Schema </a></li>
 
-
-	</ul>
+</ul>
