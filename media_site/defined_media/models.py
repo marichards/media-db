@@ -57,9 +57,6 @@ class Compounds(models.Model):
     #Return the first compound name for each thing
     def __unicode__(self):
 	return '%s' %self.compid
-        #This causes name/id problems...comment it out for now
-        #first_compound_name = self.namesofcompounds_set.all()[0]
-        #return '%s' %first_compound_name
 
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
@@ -187,7 +184,7 @@ class SecretionUptakeKey(models.Model):
 
 class SeedCompounds(models.Model):
     seedkeggid = models.IntegerField(primary_key=True, db_column='seedkeggID') # Field name made lowercase.
-    kegg = models.ForeignKey(Compounds, db_column='KEGG_ID') # Field name made lowercase.
+    kegg_id = models.ForeignKey(Compounds, db_column='KEGG_ID') # Field name made lowercase.
     seed_id = models.CharField(max_length=45L, db_column='Seed_ID') # Field name made lowercase.
     class Meta:
         db_table = 'seed_compounds'

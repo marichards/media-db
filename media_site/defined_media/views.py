@@ -12,9 +12,8 @@ from defined_media.models import Compounds,MediaNames,MediaCompounds,Organisms,S
 def main(request):
 		
 	#Put into basic template
-	context = RequestContext(request, {
-
-	})
+	context = {
+	}
 	return render(request, 'defined_media/main.html', context)
 
 	#Basic Return; Placeholder
@@ -27,9 +26,9 @@ def compounds(request):
 	compound_list = Compounds.objects.order_by('compid')[:50]
 
 	#Put it into the template
-	context = RequestContext(request, {
+	context = {
 		'compound_list': compound_list,
-	})
+	}
 	return render(request, 'defined_media/compounds.html', context)
 
 #Define the media index
@@ -39,9 +38,9 @@ def media(request):
 	media_list = MediaNames.objects.order_by('media_name')[:10]
 	
 	#Put it into the template
-	context = RequestContext(request, {
+	context = {
 		'media_list': media_list,
-	})
+	}
 	return render(request, 'defined_media/media.html', context)
 
 #Define the organisms index
@@ -51,9 +50,9 @@ def organisms(request):
 	organism_list = Organisms.objects.order_by('genus')[:10]
 
 	#Put it into a template
-	context = RequestContext(request, {
+	context ={
 		'organism_list': organism_list,
-	})
+	}
 	return render(request, 'defined_media/organisms.html', context)
 
 #Define the biomass index
@@ -63,9 +62,9 @@ def biomass(request):
 	biomass_list = Biomass.objects.order_by('genus')
 
 	#Put it into a template
-	context = RequestContext(request, {
+	context = {
 		'biomass_list': biomass_list,
-	})
+	}
 	return render(request, 'defined_media/biomass.html', context)
 
 #Define the sources index
@@ -75,18 +74,43 @@ def sources(request):
 	source_list = Sources.objects.order_by('first_author')[:10]
 
 	#Put it into a template
-	context = RequestContext(request, {
+	context = {
 		'source_list': source_list,
-	})
+	}
 	return render(request, 'defined_media/sources.html', context)
+
+#Define the downloads page
+def downloads(request):
+	
+	#Return something dumb for now
+	return HttpResponse('This page houses the downloads')
 
 #Define Record-Specific Compound View
 def compound_record(request,compid):
-	return HttpResponse('This is the page for compound %s.' %compid)
+
+	#Pick out the compound object here
+	compound = get_object_or_404(Compounds, compid=compid)
+	#Grab the names of the compound
+	names_list = compound.namesofcompounds_set.all() 	
+
+	context ={
+		'compound': compound,
+		'names_list': names_list,
+	}
+        
+	return render(request, 'defined_media/compound_record.html', context)
 
 #Define Record-Specific Organisms View
 def organism_record(request, strainid):
-	return HttpResponse('This is the page for organism %s' %strainid)
+
+	#Pick out the organism object
+	organism = get_object_or_404(Organisms, strainid=strainid)
+	#Put in context
+	context = {
+		'organism': organism,
+	}
+
+	return render(request, 'defined_media/organism_record.html', context)
 
 #Define Record-Specific Media View
 def media_record(request, medid):
@@ -123,4 +147,10 @@ def biomass_record(request, biomassid):
 
 #Define Record-Specific Source View
 def source_record(request, sourceid):
-	return HttpResponse('This is the page for source %s' %sourceid)
+	#Fish out the source object
+	source = get_object_or_404(Sources, sourceid=sourceid)
+	#Create context
+	context = {
+		'source': source,
+	}
+	return render(request, 'defined_media/source_record.html', context)

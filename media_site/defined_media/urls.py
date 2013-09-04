@@ -22,6 +22,7 @@ urlpatterns = patterns('',
 	url(r'^media/$', views.media, name='media'),
 	url(r'^biomass/$', views.biomass, name='biomass'),
 	url(r'^sources/$', views.sources, name='sources'),
+	url(r'^downloads/$', views.downloads, name='downloads'),
 
 	#Record-Specific Views
 	url(r'^compounds/(?P<compid>\d+)/$', views.compound_record, name='compound_record'),
@@ -29,7 +30,7 @@ urlpatterns = patterns('',
 	url(r'^media/(?P<medid>\d+)/$', views.media_record, name='media_record'),
 	url(r'^biomass/(?P<biomassid>\d+)/$', views.biomass_record, name='biomass_record'),
 	url(r'^sources/(?P<sourceid>\d+)/$', views.source_record, name='source_record'),
-)
+	)
 
 #Define the Admin URL too, but in the main media_site directory
 
