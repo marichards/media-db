@@ -1,0 +1,10 @@
+{% if source %}
+	<p>Title: {{ source.title }}</p>
+	<p>First Author: {{ source.first_author }}</p>
+	<p>Year of Publication: {{ source.year }}</p>
+	<p>Journal: {{ source.journal }}</p>
+	<p>Web Address: {{ source.link }}</p>
+	
+{% else %}
+	<p>No source sent.</p>
+{% endif %}

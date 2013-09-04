@@ -1,0 +1,19 @@
+{% load staticfiles %}
+
+<link rel="stylesheet" type="text/css" href"{% static 'defined_media/style.css' %}" />
+
+<title>Schema Download</title>
+
+<head>Click on the link below</head>
+
+<ul>
+
+	
+<li><a href="{% url 'organisms' %}"> Organisms </a></li>
+<li><a href="{% url 'sources' %}"> Sources </a></li>
+<li><a href="{% url 'compounds' %}"> Compounds </a></li>
+<li><a href="{% url 'media' %}"> Media Formulations </a></li>
+<li><a href="{% url 'biomass' %}"> Biomass Compositions </a></li>
+<li><a href="{% url 'downloads' %}"> Download the Schema </a></li>
+
+</ul>
