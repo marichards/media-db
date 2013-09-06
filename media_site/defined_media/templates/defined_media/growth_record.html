@@ -1,0 +1,12 @@
+{% if growth %}
+	<p>Organism: {{organism}}</p>
+	<p>Media: {{media}}</p>
+	<p>Growth Rate: {{growth.growth_rate}} ({{growth.growth_units}})</p>
+	<p>pH: {{growth.ph}}</p>
+	<p>Temperature: {{growth.temperature_c}} C</p>
+	
+	
+{% else %}
+	<p>No growth condition sent.</p>
+{% endif %}
+

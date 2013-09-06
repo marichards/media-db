@@ -17,14 +17,15 @@ urlpatterns = patterns('',
 	url(r'^$', views.main, name='main'),
 	
 	#Main Indices
+	url(r'^growth/$', views.growth, name='growth'),
 	url(r'^compounds/$', views.compounds, name='compounds'),
 	url(r'^organisms/$', views.organisms, name='organisms'),
 	url(r'^media/$', views.media, name='media'),
 	url(r'^biomass/$', views.biomass, name='biomass'),
 	url(r'^sources/$', views.sources, name='sources'),
 	url(r'^downloads/$', views.downloads, name='downloads'),
-
 	#Record-Specific Views
+	url(r'^growth/(?P<growthid>\d+)/$', views.growth_record, name = 'growth_record'),
 	url(r'^compounds/(?P<compid>\d+)/$', views.compound_record, name='compound_record'),
 	url(r'^organisms/(?P<strainid>\d+)/$', views.organism_record, name='organism_record'),
 	url(r'^media/(?P<medid>\d+)/$', views.media_record, name='media_record'),
