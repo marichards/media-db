@@ -7,6 +7,9 @@ from django.shortcuts import render,get_object_or_404
 
 #Bring in models I might need
 from defined_media.models import Compounds,MediaNames,MediaCompounds,Organisms,Sources,Biomass,BiomassCompounds,GrowthData
+
+from django.views.generic.list import ListView
+
  
 #Define the main page of the site
 def main(request):
@@ -21,7 +24,7 @@ def main(request):
 
 #Define the compounds index
 def compounds(request):
-
+	print 'compounds() called'
 	#List all the compounds, limit to 50 for now!
 	compound_list = Compounds.objects.order_by('compid')[:50]
 
@@ -30,6 +33,27 @@ def compounds(request):
 		'compound_list': compound_list,
 	}
 	return render(request, 'defined_media/compounds.html', context)
+
+
+class CompoundsListView(ListView):
+	model=Compounds
+	paginate_by=150
+
+	def get_context_data(self, **kwargs):
+		print 'CompoundsListView.get_context_data() called'
+#		print 'GET is %s' % self.request.GET
+#		for d in dir(self):
+#			print 'self.%s:' % (d)
+		cd=super(CompoundsListView, self).get_context_data(**kwargs)
+#		for k,v in cd.items():
+#			print '%s: %s' % (k,v)
+#		print 'next page number: %d' % cd['page_obj'].next_page_number()
+		return cd
+
+	def get(self, *args, **kwargs):
+#		print 'get: args are %s' % args
+		print 'get: kwargs are %s' % kwargs
+		return super(CompoundsListView, self).get(*args, **kwargs)
 
 #Define the media index
 def media(request):

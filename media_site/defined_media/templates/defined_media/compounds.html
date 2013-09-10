@@ -1,8 +1,8 @@
+{% extends "defined_media/base.html" %}
 
-{% load staticfiles %}
+{% block title %}Media database: Compounds{% endblock %}
 
-<link rel='stylesheet' type='text/css' href"{% static 'defined_media/style.css' %}" />
-
+{% block content %}
 {% if compound_list %}
 	<p>Here are the first 50 compounds</p>
 
@@ -14,3 +14,4 @@
 {% else %}
 	<p>No compounds are available.</p>
 {% endif %}
+{% endblock %}

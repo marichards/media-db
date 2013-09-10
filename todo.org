@@ -1,0 +1,3 @@
+* Todo:
+- Design and create header, footer, and nav bar
+- Create paged displays (eg, for organism)

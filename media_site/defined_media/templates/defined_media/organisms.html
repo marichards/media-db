@@ -1,3 +1,8 @@
+{% extends "defined_media/base.html" %}
+
+{% block title %}Media database: Organisms{% endblock %}
+
+{% block content %}
 {% if organism_list %}
 	<p>Here are the first 10 organisms</p>
 
@@ -9,3 +14,5 @@
 {% else %}
 	<p>No organisms are available.</p>
 {% endif %}
+{% endblock %}
+

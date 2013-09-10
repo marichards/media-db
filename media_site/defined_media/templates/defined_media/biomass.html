@@ -1,3 +1,8 @@
+{% extends "defined_media/base.html" %}
+
+{% block title %}Media database: Biomass{% endblock %}
+
+{% block content %}
 {% if biomass_list %}
 	<p>Here are the biomass compositions</p>
 
@@ -9,3 +14,4 @@
 {% else %}
 	<p>No biomasses are available.</p>
 {% endif %}
+{% endblock %}

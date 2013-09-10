@@ -1,3 +1,8 @@
+{% extends "defined_media/base.html" %}
+
+{% block title %}Media database: Media{% endblock %}
+
+{% block content %}
 {% if media_list %}
 	<p>Here are the first 10 media</p>
 
@@ -9,3 +14,4 @@
 {% else %}
 	<p>No media are available.</p>
 {% endif %}
+{% endblock %}
