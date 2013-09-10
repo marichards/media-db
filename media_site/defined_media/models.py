@@ -23,6 +23,10 @@ class Biomass(models.Model):
     def __unicode__(self):
         return '%s %s' %(self.genus.capitalize(),self.species.lower())
 
+    #Define searchable terms
+    def keywords(self):
+	return [self.genus, self.species]
+
 class BiomassCompounds(models.Model):
     biocompid = models.IntegerField(primary_key=True, db_column='biocompID') # Field name made lowercase.
     biomassid = models.ForeignKey(Biomass, db_column='biomassID') # Field name made lowercase.
@@ -57,6 +61,10 @@ class Compounds(models.Model):
     #Return the first compound name for each thing
     def __unicode__(self):
 	return '%s' %self.compid
+
+    #Define searchable terms
+    def keywords(self):
+    	return self.namesofcompounds_set.all()
 
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
@@ -117,7 +125,10 @@ class MediaNames(models.Model):
         #    compounds_str += '%s:\t%s mM\n' %(item.compid,item.amount_mm)
         #return '%s' %compounds_str
 	return '%s' %self.media_name.capitalize()
-    
+
+    #Define searchable terms
+    def keywords(self):
+	return [self.media_name]
 
 class NamesOfCompounds(models.Model):
     nameid = models.IntegerField(primary_key=True, db_column='nameID') # Field name made lowercase.
@@ -142,6 +153,10 @@ class Organisms(models.Model):
     #Call the Organisms object and return the Strain Name and such instead
     def __unicode__(self):
         return '%s %s %s' %(self.genus.capitalize(),self.species.lower(),self.strain)
+
+    #Define searchable terms
+    def keywords(self):
+	return [self.genus,self.species,self.strain]
 
 class OrganismsSources(models.Model):
     strainsourceid = models.IntegerField(primary_key=True, db_column='strainsourceID') # Field name made lowercase.
@@ -201,6 +216,10 @@ class Sources(models.Model):
         verbose_name_plural = 'sources'
     def __unicode__(self):
         return '%s et al, %d' %(self.first_author.capitalize(),self.year)   
+
+    #Define searchable terms
+    def keywords(self):
+	return [self.first_author]
 
 class TypesOfOrganisms(models.Model):
     typeid = models.IntegerField(primary_key=True, db_column='typeID') # Field name made lowercase.
