@@ -9,6 +9,9 @@
 from __future__ import unicode_literals
 
 from django.db import models
+import re
+
+from django.core.urlresolvers import reverse
 
 class Biomass(models.Model):
     biomassid = models.IntegerField(primary_key=True, db_column='biomassID') # Field name made lowercase.
@@ -57,6 +60,9 @@ class Compounds(models.Model):
     #Return the first compound name for each thing
     def __unicode__(self):
 	return '%s' %self.compid
+
+    def keywords(self):
+        return [x.name for x in self.namesofcompounds_set.all()]
 
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
@@ -208,3 +214,35 @@ class TypesOfOrganisms(models.Model):
     class Meta:
         db_table = 'types_of_organisms'
 
+
+
+class SearchResult(models.Model):
+    keyword=models.CharField(max_length=255, db_index=True, editable=False)
+    classname=models.CharField(max_length=64, editable=False)
+    obj_id=models.IntegerField(editable=False)
+    
+    bad_chars=r'[@+*!]'
+
+    class2view={
+        'Compounds' : 'compound_record',
+        'Organisms' : 'organism_record',
+        'MediaNames' : 'media_record',
+        'Biomass' : 'biomass_record',
+        'Sources' : 'source_record',
+        }
+
+    class Meta:
+        db_table='search_results'
+
+    def __repr__(self):
+        return '<pk=%s> %s-%s-%s' % (self.id, self.keyword, self.classname, self.obj_id)
+
+    def __unicode__(self):
+        return '%s: %s' % (self.classname, self.keyword)
+
+    def clean(self):
+        self.keyword=re.sub(self.bad_chars, '', self.keyword.lower())
+        return self
+
+    def obj_url(self):
+        return reverse(self.class2view[self.classname], args=[self.obj_id])

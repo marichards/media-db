@@ -6,9 +6,12 @@ from django.template import RequestContext, loader
 from django.shortcuts import render,get_object_or_404
 
 #Bring in models I might need
-from defined_media.models import Compounds,MediaNames,MediaCompounds,Organisms,Sources,Biomass,BiomassCompounds,GrowthData
+from defined_media.models import Compounds,MediaNames,MediaCompounds,Organisms,Sources,Biomass,BiomassCompounds,GrowthData, SearchResult
 
 from django.views.generic.list import ListView
+from django.views.generic.edit import FormView
+from django.core.urlresolvers import reverse
+
 
  
 #Define the main page of the site
@@ -37,23 +40,8 @@ def compounds(request):
 
 class CompoundsListView(ListView):
 	model=Compounds
-	paginate_by=150
+	paginate_by=100
 
-	def get_context_data(self, **kwargs):
-		print 'CompoundsListView.get_context_data() called'
-#		print 'GET is %s' % self.request.GET
-#		for d in dir(self):
-#			print 'self.%s:' % (d)
-		cd=super(CompoundsListView, self).get_context_data(**kwargs)
-#		for k,v in cd.items():
-#			print '%s: %s' % (k,v)
-#		print 'next page number: %d' % cd['page_obj'].next_page_number()
-		return cd
-
-	def get(self, *args, **kwargs):
-#		print 'get: args are %s' % args
-		print 'get: kwargs are %s' % kwargs
-		return super(CompoundsListView, self).get(*args, **kwargs)
 
 #Define the media index
 def media(request):
@@ -178,3 +166,44 @@ def source_record(request, sourceid):
 		'source': source,
 	}
 	return render(request, 'defined_media/source_record.html', context)
+
+from defined_media.forms import SearchForm
+class SearchView(FormView):
+	form_class=SearchForm
+	template_name='defined_media/searchresult_list.html'
+
+class SearchResultsView(ListView, FormView):
+	template_name='defined_media/searchresult_list.html'
+
+	def get(self, request, *args, **kwargs):
+
+		form_class=SearchForm
+		form=self.get_form(form_class)
+
+		self.object_list=[]
+		c={'form':form, 'object_list':self.object_list}
+		st=self._get_search_term()
+		if st:
+			self.object_list=self.get_queryset()
+			c.update({'object_list' : self.object_list,
+				  'search_term' : st})
+				  
+		context=self.get_context_data(**c)
+		return self.render_to_response(context)
+
+	def post(self, request, *args, **kwargs):
+		return self.get(request, *args, **kwargs)
+
+	def get_queryset(self):
+		st=self._get_search_term()
+		return SearchResult.objects.filter(keyword__contains=st).order_by('keyword')
+						   
+
+	def _get_search_term(self):
+		try:
+			return self.request.POST['search_term'].lower()
+		except KeyError:
+			try: return self.request.GET['search_term'].lower()
+			except KeyError:
+				return None
+		

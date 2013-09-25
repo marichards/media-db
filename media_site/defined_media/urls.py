@@ -17,8 +17,8 @@ urlpatterns = patterns('',
                        url(r'^$', views.main, name='main'),
                        
                        #Main Indices
-                       	url(r'^compounds/$', views.compounds, name='compounds'),
-#                       url(r'^compounds/$', views.CompoundsListView.as_view(), name='compounds'),
+                       url(r'^compounds/$', views.compounds, name='compounds'),
+                       #                       url(r'^compounds/$', views.CompoundsListView.as_view(), name='compounds'),
                        url(r'^compounds/page/(?P<page>\d+)', views.CompoundsListView.as_view(), name='compounds_paged'),
                        url(r'^organisms/$', views.organisms, name='organisms'),
                        url(r'^media/$', views.media, name='media'),
@@ -32,6 +32,10 @@ urlpatterns = patterns('',
                        url(r'^media/(?P<medid>\d+)/$', views.media_record, name='media_record'),
                        url(r'^biomass/(?P<biomassid>\d+)/$', views.biomass_record, name='biomass_record'),
                        url(r'^sources/(?P<sourceid>\d+)/$', views.source_record, name='source_record'),
+
+                       # Search views:
+                       url(r'^search/$', views.SearchResultsView.as_view(), name='search'),
+                       url(r'^search_results/$', views.SearchResultsView.as_view(), name='search_results')
                        )
 
 #Define the Admin URL too, but in the main media_site directory

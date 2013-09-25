@@ -1,0 +1,15 @@
+{% extends "defined_media/base.html" %}
+{% block title %}Defined Media: Search{% endblock %}
+
+{% block content %}
+{% include 'defined_media/search.html' %}
+
+{% if search_term %}
+<p>
+Search term: '{{ search_term }}': {{ object_list|length }} match{% if object_list|length != 1 %}es{% endif %}:
+</p>
+<ol>
+{% for sr in object_list %}<li><a href='{{ sr.obj_url }}'>{{ sr }}</a></li>{% endfor %}
+</ol>
+{% endif %}
+{% endblock %}
