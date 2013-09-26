@@ -56,6 +56,13 @@ def media(request):
 	}
 	return render(request, 'defined_media/media.html', context)
 
+class MediaList(ListView):
+	model=MediaNames
+	paginate_by=100
+
+	def get_queryset(self, *args, **kwargs):
+		return MediaNames.objects.all().order_by('media_name')
+
 #Define the organisms index
 def organisms(request):
 	
@@ -92,6 +99,11 @@ def sources(request):
 	}
 	return render(request, 'defined_media/sources.html', context)
 
+
+class SourcesList(ListView):
+	model=Sources
+	paginate_by=100
+
 #Define the downloads page
 def downloads(request):
 	
@@ -112,6 +124,9 @@ def compound_record(request,compid):
 	}
         
 	return render(request, 'defined_media/compound_record.html', context)
+
+class CompoundsDetail(DetailView):
+	model=Compounds
 
 #Define Record-Specific Organisms View
 def organism_record(request, strainid):
@@ -155,6 +170,10 @@ def media_record(request, medid):
 	#Shortcut method puts context into template
 	return render(request, 'defined_media/media_record.html', context)
 
+class MediaDetail(DetailView):
+	model=MediaNames
+
+
 #Define Record-Specific Biomass View
 def biomass_record(request, biomassid):
 	#Copy the media record one
@@ -181,6 +200,22 @@ def source_record(request, sourceid):
 		'source': source,
 	}
 	return render(request, 'defined_media/source_record.html', context)
+
+class SourceDetail(DetailView):
+	model=Sources
+
+
+class GrowthDataListView(ListView):
+	model=GrowthData
+	paginate_by=100
+
+	def get_queryset(self, *args, **kwargs):
+		return GrowthData.objects.all().order_by('strainid__genus', 'medid__media_name')
+
+
+class GrowthDataDetail(DetailView):
+	model=GrowthData
+
 
 from defined_media.forms import SearchForm
 class SearchView(FormView):

@@ -1,0 +1,29 @@
+{% extends 'defined_media/base.html' %}
+
+{% block title %}Growth Data: {{ growthdata }}{% endblock %}
+
+{% block content %}
+<p>Growth Data: {{ growthdata }}
+</p>
+
+<table>
+<tr><td>Organism: </td>
+<td><a href='{% url 'organism_record' growthdata.strainid_id%}'>{{ growthdata.strainid }}</a></td></tr>
+<tr><td>Media: </td>
+<td><a href='{% url 'media_record' growthdata.medid_id %}'>{{ growthdata.medid  }}</a></td></tr>
+<tr><td>Source: </td>
+<td><a href='{% url 'source_record' growthdata.sourceid_id %}'>{{ growthdata.sourceid  }}</a></td></tr>
+<tr><td>Growth Rate: </td>
+<td>{{ growthdata.growth_rate  }} ({{ growthdata.growth_units }})</td></tr>
+<tr><td>pH: </td>
+<td>{{ growthdata.ph  }}</td></tr>
+<tr><td>Temperature: </td>
+<td>{{ growthdata.temperature_c  }}</td></tr>
+<tr><td>Secretion Rate: </td>
+<td>{{ growthdata.measureid  }}</td></tr>
+<tr><td>Uptake Rate: </td>
+<td>{{ growthdata.additional_notes  }}</td></tr>
+</table>
+
+
+{% endblock %}

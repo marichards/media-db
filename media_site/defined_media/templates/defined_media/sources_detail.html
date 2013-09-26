@@ -1,0 +1,13 @@
+{% extends 'defined_media/base.html' %}
+
+{% block title %}Source: {{ sources }}{% endblock %}
+
+{% block content %}
+<ul>
+<li>First author: {{ sources.first_author|capfirst }}</li>
+<li>Journal: {{ sources.journal_cap }}</li>
+<li>Year: {{ sources.year }}</li>
+<li>Title: {{ sources.title }}</li>
+<li>Link to <a href='{{ sources.link }}'>Article</a>
+</ul>
+{% endblock %}

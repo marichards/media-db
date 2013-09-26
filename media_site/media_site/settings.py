@@ -126,6 +126,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'defined_media',
+    'django_nose',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -156,3 +157,6 @@ LOGGING = {
         },
     }
 }
+
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

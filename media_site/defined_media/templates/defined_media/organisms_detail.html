@@ -6,9 +6,9 @@
 Organism: {{ organisms }}
 
 {% with growth_data=organisms.growthdata_set.all %}
-{{ growth_data|length }} Growth Conditions
 
-<ol>{% for gd in growth_data %}
+<ol>{{ growth_data|length }} Growth Conditions:
+{% for gd in growth_data %}
   <li>
     Media: {{ gd.medid.media_name }}<br/>
     Source: <a href='{{ gd.sourceid.link }}'>{{ gd.sourceid }}</a>  

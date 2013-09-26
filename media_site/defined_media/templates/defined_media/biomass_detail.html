@@ -5,6 +5,7 @@
 {% block content %}
 Biomass: {{ biomass }}  (<a href="{{ biomass.sourceid.link }}">Source</a>)
 
+<div>
 {% with biocompound_list=biomass.biomasscompounds_set.all %}
 
 	<table class='biocompounds'>{{ biocompound_list|length }} Bio-Compounds:
@@ -17,5 +18,5 @@ Biomass: {{ biomass }}  (<a href="{{ biomass.sourceid.link }}">Source</a>)
 </tr>
 	{% endfor %}</table>
 {% endwith %}
-
+</div>
 {% endblock %}
