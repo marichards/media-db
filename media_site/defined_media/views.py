@@ -9,6 +9,7 @@ from django.shortcuts import render,get_object_or_404
 from defined_media.models import Compounds,MediaNames,MediaCompounds,Organisms,Sources,Biomass,BiomassCompounds,GrowthData, SearchResult
 
 from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.core.urlresolvers import reverse
 
@@ -124,6 +125,17 @@ def organism_record(request, strainid):
 
 	return render(request, 'defined_media/organism_record.html', context)
 
+
+class OrganismsListView(ListView):
+	model=Organisms
+	paginate_by=100
+
+	def get_queryset(self, *args, **kwargs):
+		return Organisms.objects.all().order_by('genus', 'species', 'strain')
+
+class OrganismDetail(DetailView):
+	model=Organisms
+
 #Define Record-Specific Media View
 def media_record(request, medid):
 	#Simple Response...let's do something more fun!
@@ -156,6 +168,9 @@ def biomass_record(request, biomassid):
 		'biomass_name': biomass_name
 	}
 	return render(request, 'defined_media/biomass_record.html', context)
+
+class BiomassDetail(DetailView):
+	model=Biomass
 
 #Define Record-Specific Source View
 def source_record(request, sourceid):

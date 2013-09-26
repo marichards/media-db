@@ -1,0 +1,21 @@
+{% extends 'defined_media/base.html' %}
+
+{% block title %}Biomass {{ biomass }}{% endblock %}
+
+{% block content %}
+Biomass: {{ biomass }}  (<a href="{{ biomass.sourceid.link }}">Source</a>)
+
+{% with biocompound_list=biomass.biomasscompounds_set.all %}
+
+	<table class='biocompounds'>{{ biocompound_list|length }} Bio-Compounds:
+	{% for bio_compound in biocompound_list %} <tr>
+	    {% with compound=bio_compound.compid %}
+	  <td><a href="{% url 'compound_record' compound.compid %}">{{ compound.namesofcompounds_set.all|first }}</a></td>
+	  <td>{{ bio_compound.coefficient }}</td>
+	      {% endwith %}
+
+</tr>
+	{% endfor %}</table>
+{% endwith %}
+
+{% endblock %}

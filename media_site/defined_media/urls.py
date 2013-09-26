@@ -17,10 +17,12 @@ urlpatterns = patterns('',
                        url(r'^$', views.main, name='main'),
                        
                        #Main Indices
-                       url(r'^compounds/$', views.compounds, name='compounds'),
-                       #                       url(r'^compounds/$', views.CompoundsListView.as_view(), name='compounds'),
+                       #url(r'^compounds/$', views.compounds, name='compounds'),
+                       url(r'^compounds/$', views.CompoundsListView.as_view(), name='compounds'),
                        url(r'^compounds/page/(?P<page>\d+)', views.CompoundsListView.as_view(), name='compounds_paged'),
-                       url(r'^organisms/$', views.organisms, name='organisms'),
+#                       url(r'^organisms/$', views.organisms, name='organisms'),
+                       url(r'^organisms/$', views.OrganismsListView.as_view(), name='organisms'),
+                       url(r'^organisms/page/(?P<page>\d+)', views.OrganismsListView.as_view(), name='organisms_paged'),
                        url(r'^media/$', views.media, name='media'),
                        url(r'^biomass/$', views.biomass, name='biomass'),
                        url(r'^sources/$', views.sources, name='sources'),
@@ -28,9 +30,11 @@ urlpatterns = patterns('',
 
                        #Record-Specific Views
                        url(r'^compounds/(?P<compid>\d+)/$', views.compound_record, name='compound_record'),
-                       url(r'^organisms/(?P<strainid>\d+)/$', views.organism_record, name='organism_record'),
+                       url(r'^organisms/(?P<pk>\d+)/$', views.OrganismDetail.as_view(), name='organism_record'),
+#                       url(r'^organisms/(?P<strainid>\d+)/$', views.organism_record, name='organism_record'),
                        url(r'^media/(?P<medid>\d+)/$', views.media_record, name='media_record'),
-                       url(r'^biomass/(?P<biomassid>\d+)/$', views.biomass_record, name='biomass_record'),
+                       url(r'^biomass/(?P<pk>\d+)/$', views.BiomassDetail.as_view(), name='biomass_record'),
+#                       url(r'^biomass/(?P<biomassid>\d+)/$', views.biomass_record, name='biomass_record'),
                        url(r'^sources/(?P<sourceid>\d+)/$', views.source_record, name='source_record'),
 
                        # Search views:

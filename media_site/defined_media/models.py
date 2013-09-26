@@ -64,6 +64,10 @@ class Compounds(models.Model):
     def keywords(self):
         return [x.name for x in self.namesofcompounds_set.all()]
 
+    def names(self):
+        return ', '.join(self.keywords())
+
+
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
     last_name = models.CharField(max_length=255L, unique=True, db_column='Last_Name', blank=True) # Field name made lowercase.
@@ -149,6 +153,13 @@ class Organisms(models.Model):
     def __unicode__(self):
         return '%s %s %s' %(self.genus.capitalize(),self.species.lower(),self.strain)
 
+    def __cmp__(self, other):
+        ''' thought I would need this for sorting, but instead we sort in views.OrganismsListView '''
+        for attr in ['genus', 'species', 'strain']:
+            if getattr(self, attr).capitalize() > getattr(other,attr).capitalize(): return 1
+            if getattr(self, attr).capitalize() < getattr(other,attr).capitalize(): return -1
+        return 0
+
 class OrganismsSources(models.Model):
     strainsourceid = models.IntegerField(primary_key=True, db_column='strainsourceID') # Field name made lowercase.
     strainid = models.ForeignKey(Organisms, null=True, db_column='strainID', blank=True) # Field name made lowercase.
@@ -202,6 +213,10 @@ class Sources(models.Model):
     year = models.TextField(db_column='Year', blank=True) # Field name made lowercase. This field type is a guess.
     title = models.CharField(max_length=255L, unique=True, db_column='Title', blank=True) # Field name made lowercase.
     link = models.CharField(max_length=255L, unique=True, db_column='Link', blank=True) # Field name made lowercase.
+
+    def is_pdf(self):
+        return self.link.lower().endswith('pdf')
+
     class Meta:
         db_table = 'sources'
         verbose_name_plural = 'sources'

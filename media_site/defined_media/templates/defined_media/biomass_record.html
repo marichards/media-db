@@ -1,11 +1,20 @@
-{% if compound_list %}
-	<p>{{ biomass_name }}</p>
+{% extends 'defined_media/base.html' %}
 
-	<ul>
+{% block title %}Biomass {{ biomass.compid }}{% endblock %}
+
+{% block content %}
+{% if compound_list %}
+	<p>Name: {{ biomass_name }}</p>
+
+	<ul>{{ compound_list|length }} Compounds:
 	{% for compound in compound_list %}
-		<li><a href="{% url 'compound_record' compound.compid %}">{{compound.compid }}</a></li>
+		<li><a href="{% url 'compound_record' compound.compid %}">{{ compound.compid }}</a>
+		  KEGG: {{ compound.kegg_id }}
+		</li>
 	{% endfor %}
 	</ul>
 {% else %}
 	<p>No compound list sent.</p>
 {% endif %}
+
+{% endblock %}

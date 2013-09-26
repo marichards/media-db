@@ -1,3 +1,9 @@
+{% extends 'defined_media/base.html' %}
+
+{% block title %}Compound {{ compound.compid }}{% endblock %}
+
+{% block content %}
+
 {% if compound %}
 	<p>Compound ID: {{ compound.compid  }}</p>
 	<p>KEGG ID: {{ compound.kegg_id }}</p>
@@ -22,3 +28,4 @@
 	<p>No names sent.</p>
 
 {% endif %}
+{% endblock %}

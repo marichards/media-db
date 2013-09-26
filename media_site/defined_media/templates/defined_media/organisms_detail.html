@@ -1,0 +1,21 @@
+{% extends 'defined_media/base.html' %}
+
+{% block title %}Organism: {{ organisms }}{% endblock %}
+
+{% block content %}
+Organism: {{ organisms }}
+
+{% with growth_data=organisms.growthdata_set.all %}
+{{ growth_data|length }} Growth Conditions
+
+<ol>{% for gd in growth_data %}
+  <li>
+    Media: {{ gd.medid.media_name }}<br/>
+    Source: <a href='{{ gd.sourceid.link }}'>{{ gd.sourceid }}</a>  
+    {% if gd.sourceid.is_pdf %}(.pdf){% endif %}
+    <br/>
+  </li>
+{% endfor %}</ol>
+{% endwith %}
+
+{% endblock %}
