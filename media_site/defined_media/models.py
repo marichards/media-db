@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 import re
+from lazy import lazy
 
 from django.core.urlresolvers import reverse
 
@@ -25,6 +26,10 @@ class Biomass(models.Model):
     #Return the organism for the biomass
     def __unicode__(self):
         return '%s %s' %(self.genus.capitalize(),self.species.lower())
+
+    #Define searchable terms
+    def keywords(self):
+	return [self.genus, self.species]
 
 class BiomassCompounds(models.Model):
     biocompid = models.IntegerField(primary_key=True, db_column='biocompID') # Field name made lowercase.
@@ -62,8 +67,15 @@ class Compounds(models.Model):
 #	return '%s' %self.compid
         return self.keywords()[0]
 
+
     def keywords(self):
-        return [x.name for x in self.namesofcompounds_set.all()]
+        try:
+            return self._keywords
+        except AttributeError:
+            self._keywords=[x.name for x in self.namesofcompounds_set.all()]
+            return self._keywords
+
+#    	return self.namesofcompounds_set.all() # matt's version
 
     def names(self):
         return ', '.join(self.keywords())
@@ -72,6 +84,10 @@ class Compounds(models.Model):
         mcs=MediaCompounds.objects.filter(compid=self.compid)
         mednames=list(set([x.medid for x in mcs]))
         return sorted(mednames, key=lambda mc: mc.media_name)
+
+#    @property
+    def name0(self):
+        return self.keywords()[0]
 
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
@@ -137,9 +153,13 @@ class MediaNames(models.Model):
         #return '%s' %compounds_str
 	return '%s' %self.media_name.capitalize()
 
+    #Define searchable terms
+    def keywords(self):
+	return [self.media_name]
+
     def __repr__(self):
         return '%s: id=%d, media_name=%s' % (type(self), self.medid, self.media_name)
-    
+
 
     def sorted_compounds(self):
         return sorted(self.mediacompounds_set.all(), key=lambda c: c.compid.keywords()[0])
@@ -173,6 +193,10 @@ class Organisms(models.Model):
     #Call the Organisms object and return the Strain Name and such instead
     def __unicode__(self):
         return '%s %s %s' %(self.genus.capitalize(),self.species.lower(),self.strain)
+
+    #Define searchable terms
+    def keywords(self):
+	return [self.genus,self.species,self.strain]
 
     def __cmp__(self, other):
         ''' thought I would need this for sorting, but instead we sort in views.OrganismsListView '''
@@ -243,6 +267,11 @@ class Sources(models.Model):
         verbose_name_plural = 'sources'
     def __unicode__(self):
         return '%s et al, %d' %(self.first_author.capitalize(),self.year)   
+
+
+    #Define searchable terms
+    def keywords(self):
+	return [self.first_author]
 
     @property
     def journal_cap(self):

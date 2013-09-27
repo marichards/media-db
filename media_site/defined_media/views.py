@@ -26,6 +26,18 @@ def main(request):
 	#Basic Return; Placeholder
 	#return HttpResponse('This will be the main page someday!')
 
+#Define the growth index
+def growth(request):
+
+	#List all the growth conditions, limit to 50 for now
+	growth_list = GrowthData.objects.order_by('growthid')[:50]
+
+	#Put into template
+	context = {
+		'growth_list': growth_list,
+	}
+	return render(request, 'defined_media/growth.html', context)
+
 #Define the compounds index
 def compounds(request):
 	print 'compounds() called'
@@ -43,6 +55,10 @@ class CompoundsListView(ListView):
 	model=Compounds
 	paginate_by=100
 
+	def get_queryset_broken(self):
+		''' Trying to sort compounds by their first name '''
+		comps=list(Compounds.objects.all())
+		return sorted(comps, key=name0)
 
 #Define the media index
 def media(request):
@@ -109,6 +125,25 @@ def downloads(request):
 	
 	#Return something dumb for now
 	return HttpResponse('This page houses the downloads')
+
+#Define the growth record page
+def growth_record(request, growthid):
+
+	#Grab the growth object
+	growth = get_object_or_404(GrowthData, growthid=growthid)
+	#Grab the name of the strain
+	#First grab strainid...right now this is the name, so leave it
+	organism = growth.strainid
+	#Grab the name of the media...this is also the name, so leave it
+	media = growth.medid
+	#Put into template
+	context = {
+		'media': media,
+		'organism': organism,
+		'growth': growth,
+	}
+
+	return render(request, 'defined_media/growth_record.html', context)
 
 #Define Record-Specific Compound View
 def compound_record(request,compid):
