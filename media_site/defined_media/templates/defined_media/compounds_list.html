@@ -17,7 +17,7 @@
 
 	<ul>
 	{% for compound in object_list %}
-		<li><a href="{% url 'compound_record' compound.compid %}"> {{ compound.compid }}</a></li>
+		<li><a href="{% url 'compound_record' compound.compid %}"> {{ compound }}</a></li>
 	{% endfor %}
 	</ul>
 {% else %}

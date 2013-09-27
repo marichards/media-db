@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 import re
+from lazy import lazy
 
 from django.core.urlresolvers import reverse
 
@@ -63,11 +64,30 @@ class Compounds(models.Model):
 	verbose_name_plural = 'compounds'
     #Return the first compound name for each thing
     def __unicode__(self):
-	return '%s' %self.compid
+#	return '%s' %self.compid
+        return self.keywords()[0]
+
 
     def keywords(self):
-        return [x.name for x in self.namesofcompounds_set.all()]
+        try:
+            return self._keywords
+        except AttributeError:
+            self._keywords=[x.name for x in self.namesofcompounds_set.all()]
+            return self._keywords
+
 #    	return self.namesofcompounds_set.all() # matt's version
+
+    def names(self):
+        return ', '.join(self.keywords())
+
+    def media_names(self):
+        mcs=MediaCompounds.objects.filter(compid=self.compid)
+        mednames=list(set([x.medid for x in mcs]))
+        return sorted(mednames, key=lambda mc: mc.media_name)
+
+#    @property
+    def name0(self):
+        return self.keywords()[0]
 
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
@@ -112,6 +132,10 @@ class MediaCompounds(models.Model):
     class Meta:
         db_table = 'media_compounds'
 
+    def __unicode__(self):
+        return self.compid.__unicode__()
+
+
 class MediaNames(models.Model):
     medid = models.IntegerField(primary_key=True, db_column='medID') # Field name made lowercase.
     media_name = models.CharField(max_length=255L, db_column='Media_name', blank=True) # Field name made lowercase.
@@ -132,6 +156,19 @@ class MediaNames(models.Model):
     #Define searchable terms
     def keywords(self):
 	return [self.media_name]
+
+    def __repr__(self):
+        return '%s: id=%d, media_name=%s' % (type(self), self.medid, self.media_name)
+
+
+    def sorted_compounds(self):
+        return sorted(self.mediacompounds_set.all(), key=lambda c: c.compid.keywords()[0])
+
+    def sorted_organisms(self):
+        return sorted(list(set([gd.strainid for gd in self.growthdata_set.all()]))) # list(set(..)) removes dups
+
+    def sources(self):
+        return [x.sourceid for x in self.growthdata_set.all()]
 
 class NamesOfCompounds(models.Model):
     nameid = models.IntegerField(primary_key=True, db_column='nameID') # Field name made lowercase.
@@ -160,6 +197,13 @@ class Organisms(models.Model):
     #Define searchable terms
     def keywords(self):
 	return [self.genus,self.species,self.strain]
+
+    def __cmp__(self, other):
+        ''' thought I would need this for sorting, but instead we sort in views.OrganismsListView '''
+        for attr in ['genus', 'species', 'strain']:
+            if getattr(self, attr).capitalize() > getattr(other,attr).capitalize(): return 1
+            if getattr(self, attr).capitalize() < getattr(other,attr).capitalize(): return -1
+        return 0
 
 class OrganismsSources(models.Model):
     strainsourceid = models.IntegerField(primary_key=True, db_column='strainsourceID') # Field name made lowercase.
@@ -214,15 +258,24 @@ class Sources(models.Model):
     year = models.TextField(db_column='Year', blank=True) # Field name made lowercase. This field type is a guess.
     title = models.CharField(max_length=255L, unique=True, db_column='Title', blank=True) # Field name made lowercase.
     link = models.CharField(max_length=255L, unique=True, db_column='Link', blank=True) # Field name made lowercase.
+
+    def is_pdf(self):
+        return self.link.lower().endswith('pdf')
+
     class Meta:
         db_table = 'sources'
         verbose_name_plural = 'sources'
     def __unicode__(self):
         return '%s et al, %d' %(self.first_author.capitalize(),self.year)   
 
+
     #Define searchable terms
     def keywords(self):
 	return [self.first_author]
+
+    @property
+    def journal_cap(self):
+        return ' '.join([x.capitalize() for x in self.journal.split(' ')])
 
 class TypesOfOrganisms(models.Model):
     typeid = models.IntegerField(primary_key=True, db_column='typeID') # Field name made lowercase.

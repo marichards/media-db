@@ -9,6 +9,7 @@ from django.shortcuts import render,get_object_or_404
 from defined_media.models import Compounds,MediaNames,MediaCompounds,Organisms,Sources,Biomass,BiomassCompounds,GrowthData, SearchResult
 
 from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.core.urlresolvers import reverse
 
@@ -54,6 +55,10 @@ class CompoundsListView(ListView):
 	model=Compounds
 	paginate_by=100
 
+	def get_queryset_broken(self):
+		''' Trying to sort compounds by their first name '''
+		comps=list(Compounds.objects.all())
+		return sorted(comps, key=name0)
 
 #Define the media index
 def media(request):
@@ -66,6 +71,13 @@ def media(request):
 		'media_list': media_list,
 	}
 	return render(request, 'defined_media/media.html', context)
+
+class MediaList(ListView):
+	model=MediaNames
+	paginate_by=100
+
+	def get_queryset(self, *args, **kwargs):
+		return MediaNames.objects.all().order_by('media_name')
 
 #Define the organisms index
 def organisms(request):
@@ -102,6 +114,11 @@ def sources(request):
 		'source_list': source_list,
 	}
 	return render(request, 'defined_media/sources.html', context)
+
+
+class SourcesList(ListView):
+	model=Sources
+	paginate_by=100
 
 #Define the downloads page
 def downloads(request):
@@ -143,6 +160,9 @@ def compound_record(request,compid):
         
 	return render(request, 'defined_media/compound_record.html', context)
 
+class CompoundsDetail(DetailView):
+	model=Compounds
+
 #Define Record-Specific Organisms View
 def organism_record(request, strainid):
 
@@ -154,6 +174,17 @@ def organism_record(request, strainid):
 	}
 
 	return render(request, 'defined_media/organism_record.html', context)
+
+
+class OrganismsListView(ListView):
+	model=Organisms
+	paginate_by=100
+
+	def get_queryset(self, *args, **kwargs):
+		return Organisms.objects.all().order_by('genus', 'species', 'strain')
+
+class OrganismDetail(DetailView):
+	model=Organisms
 
 #Define Record-Specific Media View
 def media_record(request, medid):
@@ -174,6 +205,10 @@ def media_record(request, medid):
 	#Shortcut method puts context into template
 	return render(request, 'defined_media/media_record.html', context)
 
+class MediaDetail(DetailView):
+	model=MediaNames
+
+
 #Define Record-Specific Biomass View
 def biomass_record(request, biomassid):
 	#Copy the media record one
@@ -188,6 +223,9 @@ def biomass_record(request, biomassid):
 	}
 	return render(request, 'defined_media/biomass_record.html', context)
 
+class BiomassDetail(DetailView):
+	model=Biomass
+
 #Define Record-Specific Source View
 def source_record(request, sourceid):
 	#Fish out the source object
@@ -197,6 +235,22 @@ def source_record(request, sourceid):
 		'source': source,
 	}
 	return render(request, 'defined_media/source_record.html', context)
+
+class SourceDetail(DetailView):
+	model=Sources
+
+
+class GrowthDataListView(ListView):
+	model=GrowthData
+	paginate_by=100
+
+	def get_queryset(self, *args, **kwargs):
+		return GrowthData.objects.all().order_by('strainid__genus', 'medid__media_name')
+
+
+class GrowthDataDetail(DetailView):
+	model=GrowthData
+
 
 from defined_media.forms import SearchForm
 class SearchView(FormView):

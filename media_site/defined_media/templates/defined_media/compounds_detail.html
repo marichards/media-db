@@ -1,0 +1,43 @@
+{% extends 'defined_media/base.html' %}
+
+{% block title %}Compound {{ compound.compid }}{% endblock %}
+
+{% block content %}
+
+<div>
+{% if compounds %}
+	<p>Compound ID: {{ compound.compid  }}</p>
+	<p>KEGG ID: {{ compound.kegg_id }}</p>
+	<p>BiGG ID: {{ compound.bigg_id }}</p>
+	
+	
+{% else %}
+	<p>No compound sent.</p>
+{% endif %}
+</div>
+
+<div>
+{% with names_list=compounds.namesofcompounds_set.all %}
+<p>{{ names_list|length }} Common names:</p>
+
+<ul>
+  {% for name in names_list %}
+  <li>{{ name.name}}</li>	
+  {% endfor %}
+</ul>
+{% endwith %}
+</div>
+
+<div>Media:
+{% with media=compounds.media_names %}
+{{ media|length }} Media:
+<ol>
+{% for med in media %}
+  <li>
+    <a href='{% url 'media_record' med.medid %}'>{{ med }}</a>
+  </li>
+{% endfor %}
+</ol>
+{% endwith %}
+</div>
+{% endblock %}

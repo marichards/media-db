@@ -1,0 +1,26 @@
+{% extends "defined_media/base.html" %}
+
+{% block title %}Media database: Sources{% endblock %}
+
+{% block content %}
+<p>
+{% if page_obj %}
+<a href="{% url 'sources_paged' 1 %}">First</a>
+{% if page_obj.has_previous %}<a href="{% url 'sources_paged' page_obj.previous_page_number %}">Prev</a>{% else %}Prev{% endif %}
+{% if page_obj.has_next %}<a href="{% url 'sources_paged' page_obj.next_page_number %}">Next</a>{% else %}Next{% endif %}
+<a href="{% url 'sources_paged' page_obj.paginator.num_pages %}">Last</a>
+{% endif %}
+</p>
+
+{% if object_list %}
+	<p>Here are sources {{ page_obj.start_index }} - {{ page_obj.end_index }}</p>
+
+	<ul>
+	{% for source in object_list %}
+		<li><a href="{% url 'source_record' source.sourceid %}"> {{ source }}</a></li>
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No sources are available.</p>
+{% endif %}
+{% endblock %}
