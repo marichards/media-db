@@ -1,0 +1,16 @@
+
+{% load staticfiles %}
+
+<link rel='stylesheet' type='text/css' href"{% static 'defined_media/style.css' %}" />
+
+{% if growth_list %}
+	<head>Here are the first 50 growth conditions</head>
+
+	<ul>
+	{% for item in growth_list %}
+		<li><a href="{% url 'growth_record' item.growthid %}"> {{ item.strainid }} on {{item.medid}}</a></li>
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No growth conditions are available.</p>
+{% endif %}
