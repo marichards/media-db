@@ -10,7 +10,13 @@
 <body>
 
 <div class='header'>
-  {% block header %}Media Database
+  {% block header %}Media Database 3
+
+<form method='POST' action='{% url 'search_results' %}'>{% csrf_token %}
+{{ form.as_p }}
+<input type='submit' value='Search'>
+</form>
+
   {% endblock %}
 </div>
 
