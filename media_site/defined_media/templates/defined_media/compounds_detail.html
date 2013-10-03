@@ -1,14 +1,14 @@
 {% extends 'defined_media/base.html' %}
 
-{% block title %}Compound {{ compound.compid }}{% endblock %}
+{% block title %}Compound {{ compounds.compid }}{% endblock %}
 
 {% block content %}
 
 <div>
 {% if compounds %}
-	<p>Compound ID: {{ compound.compid  }}</p>
-	<p>KEGG ID: {{ compound.kegg_id }}</p>
-	<p>BiGG ID: {{ compound.bigg_id }}</p>
+	<p>Compound ID: {{ compounds.compid  }}</p>
+	<p>KEGG ID: {{ compounds.kegg_id|default:'<i>&lt;None&gt;</i>' }}</p>
+	<p>BiGG ID: {{ compounds.bigg_id|default:'<i>&lt;None&gt;</i>' }}</p>
 	
 	
 {% else %}
