@@ -1,17 +1,15 @@
 * Todo:
-- Design and create header, footer, and nav bar
-- Create paged displays (eg, for organism)
+- Polish style
+- Add external links to Kegg, etc.
+- Research authentication capabilities for django
+
+Wednesday: talk with Matt about style, presentation, etc.
 
 ** Search:
-- Get list of searchable classes from Matt; implement keywords(self) for each
-- Create search page/block/widget (input)
 - test suite?
-- Define a search result block
-- Include search form on search results page (ie, combine search.html and searchresults.html)
 - Partition results based on class
-- Implement 'LIKE' matches
 - Paginate Results?
-
+  
 ** Things (Detail Pages):
 ORGANISM_RECORD:
 -Organism genus, species, strain
@@ -48,3 +46,13 @@ GROWTH_RECORD:
 -Link to source record
 -Growth rate, pH, temperature
 -Secretion and uptake rates associated with the growth rate, with units
+
+* Done:
+- Design and create header, footer, and nav bar
+- Create paged displays (eg, for organism)
+** Search:
+- Get list of searchable classes from Matt; implement keywords(self) for each
+- Create search page/block/widget (input)
+- Define a search result block
+- Include search form on search results page (ie, combine search.html and searchresults.html)
+- Implement 'LIKE' matches

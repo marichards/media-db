@@ -4,9 +4,11 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
+import defined_media.views
+
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'media_site.views.home', name='home'),
+    url(r'^$', defined_media.views.main, name='home'),
     # url(r'^media_site/', include('media_site.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
