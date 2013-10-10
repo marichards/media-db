@@ -1,6 +1,7 @@
 * Todo:
 - Design and create header, footer, and nav bar
 - Create paged displays (eg, for organism)
+- MANY BASIC URLS (eg '/', '/defined_media') ARE NOT WORKING!!!!!
 
 ** Search:
 - Get list of searchable classes from Matt; implement keywords(self) for each
