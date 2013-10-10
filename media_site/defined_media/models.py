@@ -89,6 +89,13 @@ class Compounds(models.Model):
     def name0(self):
         return self.keywords()[0]
 
+
+    def kegg_url(self):
+        return 'http://www.genome.jp/dbget-bin/www_bget?%s' % self.kegg_id
+
+    def seed_url(self):
+        return 'http://seed-viewer.theseed.org/seedviewer.cgi?page=CompoundViewer&compound=%s&model=' % self.seed_id
+
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
     last_name = models.CharField(max_length=255L, unique=True, db_column='Last_Name', blank=True) # Field name made lowercase.

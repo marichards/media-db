@@ -2,6 +2,7 @@
 - Polish style
 - Add external links to Kegg, etc.
 - Research authentication capabilities for django
+- alphabetize compounds (also needed on biomass_detail)
 
 Wednesday: talk with Matt about style, presentation, etc.
 
