@@ -1,3 +1,8 @@
+{% extends 'defined_media/base.html' %}
+
+{% block title %}Biomass {{ biomass }}{% endblock %}
+
+{% block content %}
 {% load staticfiles %}
 
 <link rel="stylesheet" type="text/css" href"{% static 'defined_media/style.css' %}" />
@@ -8,7 +13,7 @@
 
 <ul>
 
-<li><a href="{% url 'growth' %}"> Growth Conditions </a></li>	
+<li><a href="{% url 'growthdata' %}"> Growth Conditions </a></li>	
 <li><a href="{% url 'organisms' %}"> Organisms </a></li>
 <li><a href="{% url 'sources' %}"> Sources </a></li>
 <li><a href="{% url 'compounds' %}"> Compounds </a></li>
@@ -17,3 +22,4 @@
 <li><a href="{% url 'downloads' %}"> Download the Schema </a></li>
 
 </ul>
+{% endblock %}
