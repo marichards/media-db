@@ -56,17 +56,23 @@ class CompoundReplacements(models.Model):
 
 class Compounds(models.Model):
     compid = models.IntegerField(primary_key=True, db_column='compID') # Field name made lowercase.
-    kegg_id = models.CharField(max_length=255L, unique=True, db_column='KEGG_ID', blank=True) # Field name made lowercase.
-    bigg_id = models.CharField(max_length=255L, db_column='BiGG_ID', blank=True) # Field name made lowercase.
-    user_identifier = models.CharField(max_length=255L, blank=True)
+    kegg_id = models.CharField(max_length=255L, unique=True, db_column='KEGG_ID', blank=True, null=True) # Field name made lowercase.
+    bigg_id = models.CharField(max_length=255L, db_column='BiGG_ID', blank=True, null=True) # Field name made lowercase.
+    user_identifier = models.CharField(max_length=255L, blank=True, null=True)
     class Meta:
         db_table = 'compounds'
 	verbose_name_plural = 'compounds'
     #Return the first compound name for each thing
     def __unicode__(self):
 #	return '%s' %self.compid
-        return self.keywords()[0]
+        try:
+            return self.keywords()[0]
+        except IndexError:
+            return self.compid
 
+    def __repr__(self):
+        return 'compound %d: kegg_id=%s, bigg_id=%s, user_identifier=%s' % \
+        (self.compid, self.kegg_id, self.bigg_id, self.user_identifier)
 
     def keywords(self):
         try:
@@ -234,6 +240,7 @@ class Reactants(models.Model):
     similar_compounds = models.ForeignKey(Compounds, null=True, db_column='Similar Compounds',related_name='similar_id', blank=True) # Field name made lowercase. Field renamed to remove unsuitable characters.
     class Meta:
         db_table = 'reactants'
+
 
 class SecretionUptake(models.Model):
     secretionuptakeid = models.IntegerField(primary_key=True, db_column='secretionuptakeID') # Field name made lowercase.

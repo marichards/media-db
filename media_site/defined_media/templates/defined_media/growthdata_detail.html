@@ -19,9 +19,17 @@
 <td>{{ growthdata.ph  }}</td></tr>
 <tr><td>Temperature: </td>
 <td>{{ growthdata.temperature_c  }}</td></tr>
-<tr><td>Secretion Rate: </td>
+
+<!-- this needs to be a list! 
+- One <li> for each secretion/uptake/yield rate:
+<compound name> @ <rate>/<units>
+-->
+
+
+<tr><td>Rate measurement technique: </td>
 <td>{{ growthdata.measureid  }}</td></tr>
-<tr><td>Uptake Rate: </td>
+
+<tr><td>Additional notes: </td>
 <td>{{ growthdata.additional_notes  }}</td></tr>
 </table>
 

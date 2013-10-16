@@ -1,12 +1,27 @@
-import unittest
-print 'fart2'
+from models import *
+from search import *
+from cPickle import load 
+import os
 
-#from media_site.defined_media.tests import media_names
-import media_names
+def setup():
+    reuse_db=os.environ['REUSE_DB'] if 'REUSE_DB' in os.environ else None # was printing this out, no longer
+    fixture_fn=os.path.abspath(os.path.join(os.path.dirname(__file__), 'fixture.pk'))
+    print 'using fixtures in %s' % fixture_fn
 
-def suite():
-    print 'suite called'
-    tests_loader = unittest.TestLoader().loadTestsFromModule
-    test_suites = []
-    test_suites.append(tests_loader(media_names))
-    return unittest.TestSuite(test_suites)
+    stats={}
+    def add_stat(key):
+        try:             stats[key]+=1
+        except KeyError: stats[key]=1
+
+    with open(fixture_fn) as f:
+        media_objs=load(f)
+#        print 'tests: %d media_objs' % len(media_objs)
+        for obj in media_objs:
+            obj.save()
+            add_stat(obj.__class__.__name__)
+
+#    for k,v in stats.items():
+#        print '%s: %d' % (k,v)
+
+def teardown():
+    pass
