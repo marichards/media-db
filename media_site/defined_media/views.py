@@ -294,3 +294,16 @@ class SearchResultsView(ListView, FormView):
 		
 ##
 
+from django.contrib.auth.views import login, logout
+
+def df_login(request):
+	print 'df_login called: request.GET is %s' % request.GET
+	print 'df_login called: request.POST is %s' % request.POST
+	
+	return render(request, 'defined_media/login_page.html', {})
+
+#	return login(request)
+
+def df_logout(request):
+	print 'df_logout called'
+	return logout(request)
