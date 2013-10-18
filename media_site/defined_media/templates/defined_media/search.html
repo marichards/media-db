@@ -1,6 +1,7 @@
-<form method='POST' action='{% url 'search_results' %}'>{% csrf_token %}
-{{ form.as_p }}
-<input type='submit' value='Search'>
-</form>
-
-
+<div class='search_form_inner'>
+  <form method='POST' action='{% url 'search_results' %}'>
+    {% csrf_token %}
+    {{ form.search_term }}
+    <input type='submit' value='Search' />
+  </form>
+</div>

@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from django.contrib.auth.views import login, logout
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -18,7 +19,11 @@ urlpatterns = patterns('',
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-     url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls)),
+
+    # login and logout
+    url(r'^accounts/login/$',  login, name='login'),
+    url(r'^accounts/logout/$', logout, name='logout'),
     
     # I added this to point to the defined_media app
      url(r'^defined_media/', include('defined_media.urls')), 

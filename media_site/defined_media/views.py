@@ -292,3 +292,5 @@ class SearchResultsView(ListView, FormView):
 			except KeyError:
 				return None
 		
+##
+

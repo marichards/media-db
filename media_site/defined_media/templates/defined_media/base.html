@@ -9,12 +9,16 @@
 </head>
 <body>
 
+{% block header %}
 <div class='header'>
-  {% block header %}Media Database
-  {% load search_form %}
-  {% search_form %}
-  {% endblock %}
+Media Database
 </div>
+
+<div class='header2'>
+  {% load login_form %}{% login_form %}
+  {% load search_form %}<div class='search_form_outer'>{% search_form %}</div>
+</div>
+{% endblock %}
 
 <div class='main'>
   <div class='nav'>{% include "defined_media/navigation.html" %}</div>
