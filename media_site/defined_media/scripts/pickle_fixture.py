@@ -1,4 +1,4 @@
-import os, cPickle, shutil
+import os, cPickle, shutil, sys
 
 from django_env import init_django_env
 root_dir=os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'))
@@ -8,15 +8,20 @@ import django
 from defined_media.models import *
 
 attrs=[a for a in dir(Compounds) if a.endswith('_set')]
+attrs.remove('seedcompounds_set')
 
 def n_related(self):
     try: return self._n_related
     except AttributeError: 
+        import pdb
+#        pdb.set_trace()
         n=0
         for attr in attrs:
             other_getter=getattr(self, attr)
+#            print '%s: %s' % (self, attr)
             l=list(other_getter.all())
             n+=len(l)
+                
         return n
 
 Compounds.n_related=n_related
@@ -28,11 +33,12 @@ def main():
 
     print 'calculating n_related() for compounds...'
     for c in compounds:
-        try:
+         try:
             c.n_related()
 #            print '%s: n_related=%d' % (c, c.n_related())
-        except Exception, e:
-            print 'caught %s' % e
+         except Exception, e:
+            print 'compound %s: caught %s' % (c, e)
+
 
     print 'sorting compounds...'
     compounds=sorted(compounds, key=n_related)
