@@ -4,6 +4,7 @@
 <form action='{% url 'logout' %}' method='POST'>
 {% else %}
 <form action='{% url 'login' %}' method='POST'>
+<input type='hidden' name='next' value='{{ request.get_full_path }}' />
 {% endif %}
 {% csrf_token %}
 {% if request.user.is_authenticated %}

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.auth.views import login, logout
-from defined_media.views import df_login, df_logout
+from defined_media.views import df_login, df_logout, CreateContributor
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -28,5 +28,8 @@ urlpatterns = patterns('',
 
                        # login and logout
                        url(r'^login/$',  df_login, name='login'),
-                       url(r'^logout/$', df_logout, name='logout'),
+                       url(r'^logout/$', df_logout,  
+                           {'login_messages':'You are now logged out.'},
+                           name='logout'),
+                       url(r'^register/$', CreateContributor.as_view(), name='register'),
                        )
