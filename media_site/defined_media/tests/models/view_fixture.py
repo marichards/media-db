@@ -4,6 +4,7 @@ import defined_media.models as models
 from django.db.models import Model
 
 class ViewFixture(TestCase):
+    fixtures=['fixture.json']
     def test_view_fixtures(self):
         '''
         loop through classes defined in models.py, report number of rows in table for that class
