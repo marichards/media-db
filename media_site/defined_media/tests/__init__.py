@@ -3,7 +3,7 @@ from search import *
 from cPickle import load 
 import os
 
-def setup():
+def setup_old():
     reuse_db=os.environ['REUSE_DB'] if 'REUSE_DB' in os.environ else None # was printing this out, no longer
     fixture_fn=os.path.abspath(os.path.join(os.path.dirname(__file__), 'fixture.pk'))
     print 'using fixtures in %s' % fixture_fn

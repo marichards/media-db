@@ -3,7 +3,15 @@ from django.test import TestCase
 import defined_media.models as models
 from django.db.models import Model
 
+'''
+can call as:
+py manage.py test defined_media.tests.models.view_fixture
+py manage.py test defined_media.tests.models.view_fixture:ViewFixture
+py manage.py test defined_media.tests.models.view_fixture:ViewFixture.test_view_fixtures
+'''
+
 class ViewFixture(TestCase):
+    fixtures=['fixture.json']
     def test_view_fixtures(self):
         '''
         loop through classes defined in models.py, report number of rows in table for that class
@@ -15,5 +23,6 @@ class ViewFixture(TestCase):
             except TypeError: continue
 
             count=cls.objects.count()
+            print '%s: %d' % (d, count)
             if count>0:
                 print '%s: %d rows' % (d, count) 
