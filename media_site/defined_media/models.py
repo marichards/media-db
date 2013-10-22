@@ -39,6 +39,9 @@ class BiomassCompounds(models.Model):
     class Meta:
         db_table = 'biomass_compounds'
 
+    def __repr__(self):
+        return 'biomass compound: biocompid=%d, biomassid=%s, compid=%s, coef=%g' % (self.biocompid, self.biomassid, self.compid, self.coefficient)
+
 class CompoundExceptions(models.Model):
     pk = models.IntegerField(primary_key=True)
     compid = models.ForeignKey('Compounds', db_column='compID') # Field name made lowercase.
