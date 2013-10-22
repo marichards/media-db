@@ -13,6 +13,7 @@ from defined_media import views
 
 #Define ALL the urls!
 view_prefix=''
+
 urlpatterns = patterns(view_prefix,
                        #Simple Response url (Main Page)
                        url(r'^$', views.main, name='main'),

@@ -10,7 +10,7 @@ from django.core.context_processors import csrf
 class LoginFormTag(template.Node):
     def render(self, context):
         context.update({'form': AuthenticationForm()})
-        return get_template('defined_media/login.html').render(context)
+        return get_template('defined_media/login_tag.html').render(context)
 
 def do_login_form(parser, token):
     return LoginFormTag()

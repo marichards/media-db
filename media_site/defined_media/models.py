@@ -39,6 +39,9 @@ class BiomassCompounds(models.Model):
     class Meta:
         db_table = 'biomass_compounds'
 
+    def __repr__(self):
+        return 'biomass compound: biocompid=%d, biomassid=%s, compid=%s, coef=%g' % (self.biocompid, self.biomassid, self.compid, self.coefficient)
+
 class CompoundExceptions(models.Model):
     pk = models.IntegerField(primary_key=True)
     compid = models.ForeignKey('Compounds', db_column='compID') # Field name made lowercase.
@@ -329,3 +332,83 @@ class SearchResult(models.Model):
 
     def obj_url(self):
         return reverse(self.class2view[self.classname], args=[self.obj_id])
+
+class Lab(models.Model):
+    name=models.CharField(max_length=64)
+    institution=models.CharField(max_length=255)
+    url=models.URLField()
+
+    class Meta:
+        db_table='labs'
+
+    def __unicode__(self):
+        return name
+
+
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.utils.http import urlquote
+from django.core.mail import send_mail
+
+from django.contrib.auth.models import BaseUserManager
+from django.utils import timezone
+
+class ContributorManager(BaseUserManager):
+    def _create_user(self, email, password, first_name, last_name, lab,
+                     is_staff, is_superuser, **extra_fields):
+        if not email:
+            raise ValueError('missing email')
+        email=self.normalize_email(email)
+        now=timezone.now()
+        user=self.model(email=email,
+                        is_staff=is_staff,
+                        is_active=True,
+                        is_superuser=is_superuser,
+                        last_login=now, date_joined=now,
+                        **extra_fields)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_user(self, email, password=None,  **extra_fields):
+        return self._create_user(email, password, False, False, **extra_field)
+
+    def create_superuser(self, email, password, **extra_fields):
+        return self._create_user(email, password, True, True, **extra_field)
+
+
+class Contributor(AbstractBaseUser, PermissionsMixin):
+    email=models.EmailField(unique=True)
+    first_name=models.CharField(max_length=64)
+    last_name=models.CharField(max_length=64)
+    lab=models.ForeignKey(Lab)
+
+    objects=ContributorManager()
+
+    USERNAME_FIELD='email'
+    REQUIRED_FIELDS=['first_name', 'last_name']
+
+    def __unicode__(self):
+        return '%s %s' % (self.first_name, self.last_name)
+
+    class Meta:
+#        db_table='contributors'
+        verbose_name = 'user'
+        verbose_name_plural = 'user'
+
+    def get_absolute_url(self):
+        return '/users/%s/' % urlquote(self.email)
+
+    def get_full_name(self):
+        return ('%s %s' % (self.first_name, self.lastname)).strip()
+    
+    def get_short_name(self):
+        return self.first_name
+    
+    def email_user(self, subject, message, from_email=None):
+        send_mail(subject, message, from_email, [self.email])
+    
+
+
+        
+

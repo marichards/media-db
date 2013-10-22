@@ -28,11 +28,10 @@ div.header2 {
     height: 100%;
     padding-top: 30px;
     padding-bottom: 30px;
-    color: white;
-    background-color: #44F;
     position:relative;
     overflow:auto;
-
+    color: white;
+    background-color: #44F;
 }
 
 a.header2:link { color: white; }
