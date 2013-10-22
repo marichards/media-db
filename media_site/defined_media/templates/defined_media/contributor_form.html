@@ -1,0 +1,9 @@
+{% extends 'defined_media/base.html' %}
+{% block content %}
+<h2>New Contributor Registration:</h2>
+<form action='' method='POST'>
+{% csrf_token %}
+{{ form.as_p }}
+<input type='submit' value='Submit' />
+</form>
+{% endblock %}

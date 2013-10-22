@@ -112,7 +112,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/users/mrichard/MediaDB/media_site/templates'
+#    '/users/mrichard/MediaDB/media_site/templates'
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -143,6 +143,9 @@ INSTALLED_APPS = (
     'defined_media',
     'django_nose',
 )
+
+AUTH_USER_MODEL='defined_media.Contributor'     
+#AUTH_USER_MODEL='auth.User'     # this will change...
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

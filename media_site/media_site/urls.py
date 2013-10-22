@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.auth.views import login, logout
+from defined_media.views import df_login, df_logout, CreateContributor
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -8,23 +9,27 @@ from defined_media.views import main
 
 import defined_media.views
 
+
 urlpatterns = patterns('',
-    # Examples:
+                       # Examples:
 
-    url(r'^$', defined_media.views.main, name='home'),
+                       url(r'^$', defined_media.views.main, name='home'),
+                       
+                       # url(r'^media_site/', include('media_site.foo.urls')),
+                       
+                       # Uncomment the admin/doc line below to enable admin documentation:
+                           # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+                       
+                       # Uncomment the next line to enable the admin:
+                       url(r'^admin/', include(admin.site.urls)),
 
-    # url(r'^media_site/', include('media_site.foo.urls')),
+                       # I added this to point to the defined_media app
+                       url(r'^defined_media/', include('defined_media.urls')), 
 
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    url(r'^admin/', include(admin.site.urls)),
-
-    # login and logout
-    url(r'^accounts/login/$',  login, name='login'),
-    url(r'^accounts/logout/$', logout, name='logout'),
-    
-    # I added this to point to the defined_media app
-     url(r'^defined_media/', include('defined_media.urls')), 
-)
+                       # login and logout
+                       url(r'^login/$',  df_login, name='login'),
+                       url(r'^logout/$', df_logout,  
+                           {'login_messages':'You are now logged out.'},
+                           name='logout'),
+                       url(r'^register/$', CreateContributor.as_view(), name='register'),
+                       )

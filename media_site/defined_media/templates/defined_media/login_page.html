@@ -1,0 +1,40 @@
+{% extends 'defined_media/base.html' %}
+
+{% block content %}
+<!-- login_tag.html -->
+<style>
+.login_page {
+    margin: 50px;
+    text-align: center;
+}
+</style>
+<div class='login_page'>
+{% if request.user.is_authenticated %}
+<form action='{% url 'logout' %}' method='POST'>
+{% else %}
+<form action='{% url 'login' %}' method='POST'>
+{% endif %}
+{% csrf_token %}
+
+{% if form.errors %}<p>Error: {{ form.errors }}</p>{% endif %}
+{% if login_messages %}<p>{{ login_messages }}</p>{% endif %}
+
+{% if request.user.is_authenticated %}
+You are already logged in as {{ request.user }}
+<input type='submit' value='Logout' />
+{% else %}
+
+
+{{ form.username.label }}: {{ form.username }}
+{{ form.password.label }}: {{ form.password }}
+<input type='submit' value='Login' />
+    <div>
+      <a href=''>Register New User</a>
+      <a href=''>Forgot Username/Password</a>
+    </div>
+{% endif %}
+</form>
+
+</div>
+<!-- end login_tag.html -->
+{% endblock %}
