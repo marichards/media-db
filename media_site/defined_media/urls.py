@@ -1,7 +1,5 @@
-#URLs file for defined media database
 from django.conf.urls import patterns, url
-#Include the views I've written
-from defined_media import views
+import defined_media.views as views
 
 #URL Format:
 #url(regex,view,*name,*kwargs)
@@ -16,38 +14,43 @@ view_prefix=''
 
 urlpatterns = patterns(view_prefix,
                        #Simple Response url (Main Page)
-                       url(r'^$', views.main, name='main'),
+                       url(r'^$', views.legacy.main, name='main'),
                        
                        #Main Indices
                        #url(r'^compounds/$', views.compounds, name='compounds'),
-                       url(r'^compounds/$', views.CompoundsListView.as_view(), name='compounds'),
-                       url(r'^compounds/page/(?P<page>\d+)', views.CompoundsListView.as_view(), name='compounds_paged'),
-                       url(r'^organisms/$', views.OrganismsListView.as_view(), name='organisms'),
-                       url(r'^organisms/page/(?P<page>\d+)', views.OrganismsListView.as_view(), name='organisms_paged'),
-                       url(r'^media/$', views.MediaList.as_view(), name='media'),
-                       url(r'^media/page/(?P<page>\d+)', views.MediaList.as_view(), name='media_paged'),
+                       url(r'^compounds/$', views.core.CompoundsListView.as_view(), name='compounds'),
+                       url(r'^compounds/page/(?P<page>\d+)', views.core.CompoundsListView.as_view(), name='compounds_paged'),
+                       url(r'^organisms/$', views.core.OrganismsListView.as_view(), name='organisms'),
+                       url(r'^organisms/page/(?P<page>\d+)', views.core.OrganismsListView.as_view(), name='organisms_paged'),
+                       url(r'^media/$', views.core.MediaList.as_view(), name='media'),
+                       url(r'^media/page/(?P<page>\d+)', views.core.MediaList.as_view(), name='media_paged'),
 
-                       url(r'^biomass/$', views.biomass, name='biomass'),
-                       url(r'^sources/$', views.SourcesList.as_view(), name='sources'),
-                       url(r'^sources/page/(?P<page>\d+)', views.SourcesList.as_view(), name='sources_paged'),
-                       url(r'^downloads/$', views.downloads, name='downloads'),
+                       url(r'^biomass/$', views.legacy.biomass, name='biomass'),
+                       url(r'^sources/$', views.core.SourcesList.as_view(), name='sources'),
+                       url(r'^sources/page/(?P<page>\d+)', views.core.SourcesList.as_view(), name='sources_paged'),
+                       url(r'^downloads/$', views.legacy.downloads, name='downloads'),
 
-                       url(r'^growthdata/$', views.GrowthDataListView.as_view(), name='growthdata'),
-                       url(r'^growthdata/page/(?P<page>\d+)', views.GrowthDataListView.as_view(), name='growthdata_paged'),
+                       url(r'^growthdata/$', views.core.GrowthDataListView.as_view(), name='growthdata'),
+                       url(r'^growthdata/page/(?P<page>\d+)', views.core.GrowthDataListView.as_view(), name='growthdata_paged'),
 
 
                        #Record-Specific Views
-                       url(r'^compounds/(?P<pk>\d+)/$', views.CompoundsDetail.as_view(), name='compound_record'),
-                       url(r'^organisms/(?P<pk>\d+)/$', views.OrganismDetail.as_view(), name='organism_record'),
-                       url(r'^media/(?P<pk>\d+)/$', views.MediaDetail.as_view(), name='media_record'),
-                       url(r'^biomass/(?P<pk>\d+)/$', views.BiomassDetail.as_view(), name='biomass_record'),
-                       url(r'^sources/(?P<pk>\d+)/$', views.SourceDetail.as_view(), name='source_record'),
+                       url(r'^compounds/(?P<pk>\d+)/$', views.core.CompoundsDetail.as_view(), name='compound_record'),
+                       url(r'^organisms/(?P<pk>\d+)/$', views.core.OrganismDetail.as_view(), name='organism_record'),
+                       url(r'^media/(?P<pk>\d+)/$', views.core.MediaDetail.as_view(), name='media_record'),
+                       url(r'^biomass/(?P<pk>\d+)/$', views.core.BiomassDetail.as_view(), name='biomass_record'),
+                       url(r'^sources/(?P<pk>\d+)/$', views.core.SourceDetail.as_view(), name='source_record'),
 
-                       url(r'^growthdata/(?P<pk>\d+)/$', views.GrowthDataDetail.as_view(), name='growth_record'),
+                       url(r'^growthdata/(?P<pk>\d+)/$', views.core.GrowthDataDetail.as_view(), name='growth_record'),
 
                        # Search views:
-                       url(r'^search/$', views.SearchResultsView.as_view(), name='search'),
-                       url(r'^search_results/$', views.SearchResultsView.as_view(), name='search_results')
+                       url(r'^search/$', views.search.SearchResultsView.as_view(), name='search'),
+                       url(r'^search_results/$', views.search.SearchResultsView.as_view(), name='search_results'),
+
+                       url(r'^newmedia/$', views.contributors.NewMediaView.as_view(), name='new_media_form'),
+
+                       # REST api
+                       url(r'^api/organism$', views.api.OrganismsView.as_view(), name='organism_api'),
 
 # old function-based views:
 #                       url(r'^organisms/$', views.organisms, name='organisms'),

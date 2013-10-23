@@ -1,5 +1,5 @@
 from django.contrib import admin
-from defined_media.models import Biomass, BiomassCompounds, Compounds , Contributors, GrowthData, MediaNames,Organisms, Sources 
+from defined_media.models import Biomass, BiomassCompounds, Compounds , GrowthData, MediaNames,Organisms, Sources 
 
 #Inline things
 #class BiomassCompoundsInline(admin.TabularInline):
@@ -21,12 +21,14 @@ class CompoundsAdmin(admin.ModelAdmin):
 
 admin.site.register(Compounds,CompoundsAdmin)
 
+'''
 class ContributorsAdmin(admin.ModelAdmin):
 	fieldsets = [
 		(None,{'fields': ['last_name']}),
 	]
 
 admin.site.register(Contributors,ContributorsAdmin)
+'''
 
 class GrowthDataAdmin(admin.ModelAdmin):
 	fieldsets = [

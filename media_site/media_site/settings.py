@@ -144,7 +144,7 @@ INSTALLED_APPS = (
     'django_nose',
 )
 
-AUTH_USER_MODEL='defined_media.Contributor'     
+#AUTH_USER_MODEL='defined_media.Contributor'     
 #AUTH_USER_MODEL='auth.User'     # this will change...
 
 # A sample logging configuration. The only tangible logging

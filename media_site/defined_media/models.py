@@ -105,6 +105,7 @@ class Compounds(models.Model):
     def seed_url(self):
         return 'http://seed-viewer.theseed.org/seedviewer.cgi?page=CompoundViewer&compound=%s&model=' % self.seed_id
 
+'''
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
     last_name = models.CharField(max_length=255L, unique=True, db_column='Last_Name', blank=True) # Field name made lowercase.
@@ -113,6 +114,7 @@ class Contributors(models.Model):
         verbose_name_plural = 'contributors'
     def __unicode__(self):
         return '%s' %self.last_name.capitalize()
+'''
 
 class GrowthData(models.Model):
     growthid = models.IntegerField(primary_key=True, db_column='growthID') # Field name made lowercase.
@@ -201,7 +203,7 @@ class Organisms(models.Model):
     genus = models.CharField(max_length=255L, db_column='Genus', blank=True) # Field name made lowercase.
     species = models.CharField(max_length=255L, db_column='Species', blank=True) # Field name made lowercase.
     strain = models.CharField(max_length=255L, db_column='Strain', blank=True) # Field name made lowercase.
-    contributorid = models.ForeignKey(Contributors, null=True, db_column='contributorID', blank=True) # Field name made lowercase.
+#    contributorid = models.ForeignKey(Contributors, null=True, db_column='contributorID', blank=True) # Field name made lowercase.
     typeid = models.ForeignKey('TypesOfOrganisms', null=True, db_column='typeID', blank=True) # Field name made lowercase.
     class Meta:
         db_table = 'organisms'
@@ -333,6 +335,7 @@ class SearchResult(models.Model):
     def obj_url(self):
         return reverse(self.class2view[self.classname], args=[self.obj_id])
 
+'''
 class Lab(models.Model):
     name=models.CharField(max_length=64)
     institution=models.CharField(max_length=255)
@@ -412,3 +415,4 @@ class Contributor(AbstractBaseUser, PermissionsMixin):
 
         
 
+'''

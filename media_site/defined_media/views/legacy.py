@@ -1,19 +1,6 @@
-# Views of Pages!
+from django.shortcuts import render
 from django.http import HttpResponse
-#Template Loader
-from django.template import RequestContext, loader
-#Shortcut to render templates and raise error if not there
-from django.shortcuts import render,get_object_or_404
-
-#Bring in models I might need
-from defined_media.models import Compounds,MediaNames,MediaCompounds,Organisms,Sources,Biomass,BiomassCompounds,GrowthData, SearchResult
-
-from django.views.generic.list import ListView
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView
-from django.core.urlresolvers import reverse
-
-
+from defined_media.models import *
  
 #Define the main page of the site
 def main(request):
@@ -51,15 +38,6 @@ def compounds(request):
 	return render(request, 'defined_media/compounds.html', context)
 
 
-class CompoundsListView(ListView):
-	model=Compounds
-	paginate_by=100
-
-	def get_queryset_broken(self):
-		''' Trying to sort compounds by their first name '''
-		comps=list(Compounds.objects.all())
-		return sorted(comps, key=name0)
-
 #Define the media index
 def media(request):
 	
@@ -71,13 +49,6 @@ def media(request):
 		'media_list': media_list,
 	}
 	return render(request, 'defined_media/media.html', context)
-
-class MediaList(ListView):
-	model=MediaNames
-	paginate_by=100
-
-	def get_queryset(self, *args, **kwargs):
-		return MediaNames.objects.all().order_by('media_name')
 
 #Define the organisms index
 def organisms(request):
@@ -114,11 +85,6 @@ def sources(request):
 		'source_list': source_list,
 	}
 	return render(request, 'defined_media/sources.html', context)
-
-
-class SourcesList(ListView):
-	model=Sources
-	paginate_by=100
 
 #Define the downloads page
 def downloads(request):
@@ -160,8 +126,6 @@ def compound_record(request,compid):
         
 	return render(request, 'defined_media/compound_record.html', context)
 
-class CompoundsDetail(DetailView):
-	model=Compounds
 
 #Define Record-Specific Organisms View
 def organism_record(request, strainid):
@@ -174,17 +138,6 @@ def organism_record(request, strainid):
 	}
 
 	return render(request, 'defined_media/organism_record.html', context)
-
-
-class OrganismsListView(ListView):
-	model=Organisms
-	paginate_by=100
-
-	def get_queryset(self, *args, **kwargs):
-		return Organisms.objects.all().order_by('genus', 'species', 'strain')
-
-class OrganismDetail(DetailView):
-	model=Organisms
 
 #Define Record-Specific Media View
 def media_record(request, medid):
@@ -205,9 +158,6 @@ def media_record(request, medid):
 	#Shortcut method puts context into template
 	return render(request, 'defined_media/media_record.html', context)
 
-class MediaDetail(DetailView):
-	model=MediaNames
-
 
 #Define Record-Specific Biomass View
 def biomass_record(request, biomassid):
@@ -223,8 +173,6 @@ def biomass_record(request, biomassid):
 	}
 	return render(request, 'defined_media/biomass_record.html', context)
 
-class BiomassDetail(DetailView):
-	model=Biomass
 
 #Define Record-Specific Source View
 def source_record(request, sourceid):
@@ -235,85 +183,3 @@ def source_record(request, sourceid):
 		'source': source,
 	}
 	return render(request, 'defined_media/source_record.html', context)
-
-class SourceDetail(DetailView):
-	model=Sources
-
-
-class GrowthDataListView(ListView):
-	model=GrowthData
-	paginate_by=100
-
-	def get_queryset(self, *args, **kwargs):
-		return GrowthData.objects.all().order_by('strainid__genus', 'medid__media_name')
-
-
-class GrowthDataDetail(DetailView):
-	model=GrowthData
-
-
-from defined_media.forms import SearchForm
-class SearchView(FormView):
-	form_class=SearchForm
-	template_name='defined_media/searchresult_list.html'
-
-class SearchResultsView(ListView, FormView):
-	template_name='defined_media/searchresult_list.html'
-
-	def get(self, request, *args, **kwargs):
-
-		form_class=SearchForm
-		form=self.get_form(form_class)
-
-		self.object_list=[]
-		c={'form':form, 'object_list':self.object_list}
-		st=self._get_search_term()
-		if st:
-			self.object_list=self.get_queryset()
-			c.update({'object_list' : self.object_list,
-				  'search_term' : st})
-				  
-		context=self.get_context_data(**c)
-		return self.render_to_response(context)
-
-	def post(self, request, *args, **kwargs):
-		return self.get(request, *args, **kwargs)
-
-	def get_queryset(self):
-		st=self._get_search_term()
-		return SearchResult.objects.filter(keyword__contains=st).order_by('keyword')
-						   
-
-	def _get_search_term(self):
-		try:
-			return self.request.POST['search_term'].lower()
-		except KeyError:
-			try: return self.request.GET['search_term'].lower()
-			except KeyError:
-				return None
-		
-##
-
-import django.contrib.auth.views as auth_views
-
-def df_login(request, *args, **kwargs):
-	return auth_views.login(request, 'defined_media/login_page.html')
-
-def df_logout(request, *args, **kwargs):
-	return auth_views.logout(request, 
-				 template_name='defined_media/login_page.html',
-				 extra_context=kwargs)
-
-from django.views.generic.edit import CreateView
-from defined_media.models import Contributor
-from defined_media.forms import CreateContributorForm
-
-class CreateContributor(CreateView):
-	model=Contributor
-	form_class=CreateContributorForm
-
-	def render_to_response1(context, **kwargs):
-		print 'got here'
-		return super(CreateContributor, self).render_to_response(context, **kwargs)
-
-

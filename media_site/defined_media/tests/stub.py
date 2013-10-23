@@ -5,6 +5,7 @@ from django.test import TestCase
 class TestSomething(TestCase):
     # fixtures=['']
     def setUp(self):
+#        self.client=Client()
         pass
     def tearDown(self):
         pass

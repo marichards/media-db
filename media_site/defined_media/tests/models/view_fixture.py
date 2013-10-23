@@ -22,7 +22,14 @@ class ViewFixture(TestCase):
                 if not issubclass(cls, Model): continue
             except TypeError: continue
 
-            count=cls.objects.count()
+            try:
+                count=cls.objects.count()
+            except AttributeError:
+                continue
+            except Exception, dberr:
+                print 'caught %s: %s' % (type(dberr), dberr)
+                continue
+
             print '%s: %d' % (d, count)
             if count>0:
                 print '%s: %d rows' % (d, count) 
