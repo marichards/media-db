@@ -43,6 +43,12 @@ def add_biomass(media_objs):
     sources=[Sources.objects.get(sourceid=id) for id in source_ids]
     media_objs['Sources']=sources
         
+
+def add_organisms(media_objs):
+    ''' add, I dunno, 25 organisms to the fixture: '''
+    orgs=Organisms.objects.all()[:25]
+    media_objs['Organisms']=orgs
+    media_objs['TypesOfOrganisms']=TypesOfOrganisms.objects.all() # all 3 of them
         
 
 
@@ -88,6 +94,7 @@ def main():
     print 'done sorting'
 
     add_biomass(media_objs)
+    add_organisms(media_objs)
 
     write_fixture(media_objs)
     report(media_objs, bad_compounds)
