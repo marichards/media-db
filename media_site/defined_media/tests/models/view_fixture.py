@@ -30,6 +30,5 @@ class ViewFixture(TestCase):
                 print 'caught %s: %s' % (type(dberr), dberr)
                 continue
 
-            print '%s: %d' % (d, count)
             if count>0:
                 print '%s: %d rows' % (d, count) 
