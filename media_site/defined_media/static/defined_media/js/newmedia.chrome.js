@@ -4,11 +4,6 @@ NewMediaEditor=function(o) {
     this.urlmap_url='/defined_media/api/urlmap'
 }
 
-function stackTrace() {
-    var err=new Error()
-    return err.stack;
-}
-
 NewMediaEditor.prototype={
     push_init_func : function(f, args) { this.init_funcs.push([f, args]) },
 
@@ -37,8 +32,8 @@ NewMediaEditor.prototype={
     store_urlmap : function(data) { this.urlmap=data },
 
     init_callbacks : function() {
-	$('#id_genus').change(document.editor.load_species_sel)
-	$('#id_species').change(document.editor.load_strain_sel)
+	$('#id_genus').change(function() {document.editor.load_species_sel()})
+	$('#id_species').change(function() {document.editor.load_strain_sel()})
     },
 
     fetch_organisms : function() {
@@ -48,6 +43,8 @@ NewMediaEditor.prototype={
 	    success: function(org_list, textStatus, jqXHR) {
 		editor.build_org_index(org_list)
 		editor.load_species_sel()
+		editor.load_strain_sel()
+		editor.set_selected()
 	    },
 	    error: function(jqXHR, textStatus, errorThrown) {
 	        throw 'fetch_organisms: '+textStatus+'('+errorThrown+')'
@@ -57,7 +54,6 @@ NewMediaEditor.prototype={
     },
 
     build_org_index : function(org_list) {
-        console.log('building org_index')
 	org_index={}
 	for (i in org_list ) {
 	    org=org_list[i]
@@ -68,19 +64,17 @@ NewMediaEditor.prototype={
 	    if (org_index[genus][species]==undefined) { org_index[genus][species]=[] }
 	    org_index[genus][species].push(strain)
 	}
-	document.editor.org_index=org_index
-	document.editor.dump_org_index()
+	this.org_index=org_index
     },
 
 
     load_species_sel : function() {
-        console.log('load_species_sel entered')
 	genus=$('#id_genus').val()
 	$('#id_species').empty()
 	species_dict=document.editor.org_index[genus]
 	species_sel=$('#id_species')
 	to_select=null
-	for (species in document.editor.org_index[genus]) {
+	for (species in this.org_index[genus]) {
 	    if (to_select==null) to_select=species
 	    species_sel.append($('<option>', { value: species }).text(species))
 	}
@@ -88,10 +82,9 @@ NewMediaEditor.prototype={
     },
 
     load_strain_sel : function() {
-        console.log('load_strain_sel entered')
 	genus=$('#id_genus').val()
 	species=$('#id_species').val()
-	strain_list=document.editor.org_index[genus][species]
+	strain_list=this.org_index[genus][species]
 	strain_sel=$('#id_strain')
 	strain_sel.empty()
 	for (i in strain_list) {
@@ -101,14 +94,14 @@ NewMediaEditor.prototype={
     },
 
     dump_org_index : function() {
-	n=Object.keys(document.editor.org_index).length
+	n=Object.keys(this.org_index).length
 	console.log(n+' keys in org_index')
 	n_genus=0
 	n_species=0
 	n_strains=0
-	for (genus in document.editor.org_index) {
+	for (genus in this.org_index) {
 	    n_genus+=1
-	    species_hash=document.editor.org_index[genus]
+	    species_hash=this.org_index[genus]
 	    for (species in species_hash) {
 		n_species+=1
 		n_strains+=species_hash[species].length
@@ -119,6 +112,11 @@ NewMediaEditor.prototype={
 	console.log('n_strain: '+n_strains)
     }, 
 
+    set_selected : function() {
+	$('#id_genus').val('Acinetobacter').change()
+	$('#id_species').val('subtilis').change()
+	$('#id_strain').val('168').change()
+    },
 }
 
 $(document).ready(function() {
