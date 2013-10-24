@@ -50,14 +50,9 @@ urlpatterns = patterns(view_prefix,
                        url(r'^newmedia/$', views.contributors.NewMediaView.as_view(), name='new_media_form'),
 
                        # REST api
+                       url(r'^api/urlmap$', views.api.urlmap, name='urlmap'),
                        url(r'^api/organism$', views.api.OrganismsView.as_view(), name='organism_api'),
-
-
-
-
                        url(r'^api/organism/(?P<genus>\w+)$', views.api.OrganismsView.as_view(), name='organism_api'),
-
-
                        url(r'^api/organism/(?P<genus>\w+)/(?P<species>\w+)/$', views.api.OrganismsView.as_view(), name='organism_api'),
                        url(r'^api/organism/(?P<genus>\w+)/(?P<species>\w+)/(?P<strain>\w+)/$', views.api.OrganismsView.as_view(), name='organism_api'),
 
