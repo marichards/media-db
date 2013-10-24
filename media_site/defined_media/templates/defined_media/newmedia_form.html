@@ -1,7 +1,7 @@
 {% extends 'defined_media/base.html' %}
 {% block js_files %}
 {% load static %}
-<script src='{% static 'defined_media/js/jquery-1.8.2.js' %}'></script>
+<script src='{% static 'defined_media/js/jquery-1.10.2.min.js' %}'></script>
 <script src='{% static 'defined_media/js/jquery-ui.js' %}'></script>
 <script src='{% static 'defined_media/js/newmedia.js' %}'></script>
 {% endblock %}
@@ -10,7 +10,8 @@
 <h2>Enter Media Information:</h2>
 <form action='' method='POST'>
 {% csrf_token %}
+<table>
 {{ form.as_table }}
-<input type='submit' value='Submit' />
+</table>
 </form>
 {% endblock %}
