@@ -39,6 +39,7 @@ NewMediaEditor.prototype={
     init_callbacks : function() {
 	$('#id_genus').change(document.editor.load_species_sel)
 	$('#id_species').change(document.editor.load_strain_sel)
+	$('#id_add_compound1').click(document.editor.add_compound)
     },
 
     fetch_organisms : function() {
@@ -69,7 +70,6 @@ NewMediaEditor.prototype={
 	    org_index[genus][species].push(strain)
 	}
 	document.editor.org_index=org_index
-	document.editor.dump_org_index()
     },
 
 
@@ -118,6 +118,50 @@ NewMediaEditor.prototype={
 	console.log('n_species: '+n_species)
 	console.log('n_strain: '+n_strains)
     }, 
+
+    compound_n: 1,
+
+    add_compound : function(eventObj) {
+	// this is a callback for when an 'Add' button is clicked.
+	// It inserts a new compound row into the document.
+
+	// extract id number and find parent row
+	button_id=eventObj.target.id
+	console.log('button_id: '+button_id)
+	n=document.editor.compound_n
+	row1_id='#id_comp_row1'
+	console.log('row1_id: '+row1_id)
+//	row1=$('#'+row1_id)[0]
+//	console.log('row1: '+row1+' (id='+row1.id+')')
+
+	// create tr element and three td elements:
+	n+=1
+	row=$('<tr></tr>', {id: 'id_comp_row'+n})
+	row.append($('<td></td>').text('Compound: ').append($('<input>', {id:'id_comp'+n, name:'comp'+n, type: 'text'})))
+	row.append($('<td></td>').text('Amount: ').append($('<input>', {id:'id_amount'+n, name:'amount'+n, type: 'text'})))
+
+	units_sel=$('<select></select>', { id: 'id_units'+n, name: 'units'+n})
+	options=['mM/g', 'grams', 'lbs']
+	for (i in options) {
+	    units_sel.append($('<option></option>', { value: options[i] }).text(options[i]))
+	}
+	row.append($('<td></td>').text('Units: ').append(units_sel))
+
+	add_button=$('<input>', {type: 'button', value: 'Remove', id: 'id_rm_compound'+n})
+	add_button.click(document.editor.remove_compound)
+	row.append($('<td></td>').append(add_button))
+	$(row1_id).after(row)
+	document.editor.compound_n+=1
+    },
+
+    remove_compound: function(eventObj) {
+	console.log('remove_compound called')
+	button_id=eventObj.target.id
+	n=button_id.split('compound')[1]
+	console.log('n='+n)
+	row_id='#id_comp_row'+n
+	$(row_id).remove()
+    }
 
 }
 

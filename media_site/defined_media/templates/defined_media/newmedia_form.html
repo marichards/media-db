@@ -10,9 +10,21 @@
 <h2>Enter Media Information:</h2>
 <form action='' method='POST'>
 {% csrf_token %}
-<table>
+<table id='newmedia_table'>
 <tr><tr><th>Organsim:</th></tr>
 <tr><td>Genus: {{ form.genus }}</td><td>Species: {{ form.species }}</td><td>Strain: {{ form.strain }}</td></tr>
+
+<tr><th>Source: </th></tr>
+<tr><td>{{ form.pmid.label }}: {{ form.pmid }}</td></tr>
+
+<tr><th>Compounds:</th></tr>
+<tr id='id_comp_row1'>
+    <td>{{ form.comp1.label }}: {{ form.comp1 }}</td>
+    <td>{{ form.amount1.label }}: {{ form.amount1 }}</td>
+    <td>{{ form.units1.label }}: {{ form.units1 }}</td>
+    <td><input id='id_add_compound1' type='button' value='Add' /></td>
+</tr>
+
 <tr><td><input type='submit' value='Submit' ?></td></tr>
 </table>
 </form>
