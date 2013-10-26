@@ -50,10 +50,12 @@ def add_organisms(media_objs):
     media_objs['Organisms']=orgs
     media_objs['TypesOfOrganisms']=TypesOfOrganisms.objects.all() # all 3 of them
         
-
+def add_search_results(media_objs):
+    media_objs['SearchResult']=SearchResult.objects.filter(keyword='Acinetobacter')
+    
 
 def main():
-    n=1
+    n=50
 
     stats={}
     def add_stat(k,v):
@@ -95,6 +97,7 @@ def main():
 
     add_biomass(media_objs)
     add_organisms(media_objs)
+    add_search_results(media_objs)
 
     write_fixture(media_objs)
     report(media_objs, bad_compounds)

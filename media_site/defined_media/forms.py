@@ -23,9 +23,9 @@ class NewMediaForm(forms.Form):
     pmid=forms.CharField(required=True, label='Pubmed ID')
 
     comp1=forms.CharField(required=True, label='Compound')
-    amount1=forms.CharField(required=True, label='Amount')
-    units1=forms.ChoiceField(required=True, label='Units', 
-                            choices=(()))
+    amount1=forms.CharField(required=True, label='Amount (Mm)')
+#    units1=forms.ChoiceField(required=True, label='Units', 
+#                            choices=(()))
 
         # more to come...
 

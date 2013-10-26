@@ -3,7 +3,7 @@
 {% block title %}Organism: {{ organisms }}{% endblock %}
 
 {% block content %}
-Organism: {{ organisms }}
+<h2>Organism: {{ organisms }}</h2>
 
 {% with growth_data=organisms.growthdata_set.all %}
 
@@ -11,8 +11,7 @@ Organism: {{ organisms }}
 {% for gd in growth_data %}
   <li>
     Media: {{ gd.medid.media_name }}<br/>
-    Source: <a href='{{ gd.sourceid.link }}'>{{ gd.sourceid }}</a>  
-    {% if gd.sourceid.is_pdf %}(.pdf){% endif %}
+    Source: <a href='{% url 'source_record' gd.sourceid_id %}'>{{ gd.sourceid }}</a>  
     <br/>
   </li>
 {% endfor %}</ol>
