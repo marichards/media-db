@@ -62,29 +62,21 @@ class Compounds(models.Model):
     kegg_id = models.CharField(max_length=255L, unique=True, db_column='KEGG_ID', blank=True, null=True) # Field name made lowercase.
     bigg_id = models.CharField(max_length=255L, db_column='BiGG_ID', blank=True, null=True) # Field name made lowercase.
     user_identifier = models.CharField(max_length=255L, blank=True, null=True)
+    name = models.CharField(max_length=255L, unique=True)
+
     class Meta:
         db_table = 'compounds'
 	verbose_name_plural = 'compounds'
     #Return the first compound name for each thing
     def __unicode__(self):
-#	return '%s' %self.compid
-        try:
-            return self.keywords()[0]
-        except IndexError:
-            return self.compid
+        return self.name
 
     def __repr__(self):
         return 'compound %d: kegg_id=%s, bigg_id=%s, user_identifier=%s' % \
         (self.compid, self.kegg_id, self.bigg_id, self.user_identifier)
 
     def keywords(self):
-        try:
-            return self._keywords
-        except AttributeError:
-            self._keywords=[x.name for x in self.namesofcompounds_set.all()]
-            return self._keywords
-
-#    	return self.namesofcompounds_set.all() # matt's version
+        return [noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
 
     def names(self):
         return ', '.join(self.keywords())
@@ -93,11 +85,6 @@ class Compounds(models.Model):
         mcs=MediaCompounds.objects.filter(compid=self.compid)
         mednames=list(set([x.medid for x in mcs]))
         return sorted(mednames, key=lambda mc: mc.media_name)
-
-#    @property
-    def name0(self):
-        return self.keywords()[0]
-
 
     def kegg_url(self):
         return 'http://www.genome.jp/dbget-bin/www_bget?%s' % self.kegg_id
