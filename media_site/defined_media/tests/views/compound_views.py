@@ -17,6 +17,8 @@ class TestCompoundDetail(TestCase):
         self.assertIn('BiGG ID: h2o', response)
 
     def test_compound_list(self):
-        response=self.client.get(reverse('compounds'))
+        url=reverse('compounds')
+        print url
+        response=self.client.get(url)
         self.assertEqual(response.status_code, 200)
         print response.content

@@ -76,7 +76,10 @@ class Compounds(models.Model):
         (self.compid, self.kegg_id, self.bigg_id, self.user_identifier)
 
     def keywords(self):
-        return [noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
+        nocs=[noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
+        if (self.name and self.name != self.compid):
+            nocs.insert(0, self.name)
+        return nocs
 
     def names(self):
         return ', '.join(self.keywords())

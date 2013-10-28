@@ -7,5 +7,5 @@ class MediaNamesTestCase(TestCase):
     def test_sorting(self):
         compounds=Compounds.objects.all()[:50]
         print '%d compounds' % len(compounds)
-        for c in sorted(list(compounds), key=lambda c: c.keywords()[0]):
+        for c in sorted(list(compounds), key=lambda c: c.name):
             print str(c)

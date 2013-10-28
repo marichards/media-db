@@ -23,7 +23,7 @@ for comp in Compounds.objects.all():
     except Exception, e:
         print 'caught %s: %s' % (type(e), e)
         print 'possible cause: nothing matches compid=%d, name=%s' % (comp.compid, comp.name)
-        break
+
     finally:
         comp.save()
 

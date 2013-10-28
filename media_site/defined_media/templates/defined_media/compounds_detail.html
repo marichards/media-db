@@ -6,6 +6,7 @@
 
 <div>
 {% if compounds %}
+        <h2>{{ compounds.name }}</h2>
 	<p>Compound ID: {{ compounds.compid  }}</p>
 	<p>KEGG ID: {{ compounds.kegg_id|default:'<i>&lt;None&gt;</i>' }}</p>
 	<p>BiGG ID: {{ compounds.bigg_id|default:'<i>&lt;None&gt;</i>' }}</p>

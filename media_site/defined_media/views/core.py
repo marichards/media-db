@@ -7,11 +7,12 @@ from defined_media.models import *
 class CompoundsListView(ListView):
     model=Compounds
     paginate_by=100
-    
-    def get_queryset_broken(self, *args, **kwargs):
+    template_name='defined_media/compounds_list.html'
+    def get_queryset(self, *args, **kwargs):
         ''' Trying to sort compounds by their first name '''
-        comps=list(Compounds.objects.all()[:50])
-        return sorted(comps, key=lambda c: c.keywords()[0])
+        comps=list(Compounds.objects.all())
+#        comps=list(Compounds.objects.all()[:50])
+        return sorted(comps, key=lambda c: c.name)
 
 
 
