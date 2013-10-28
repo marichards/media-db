@@ -175,6 +175,9 @@ class MediaNames(models.Model):
     def sources(self):
         return [x.sourceid for x in self.growthdata_set.all()]
 
+    def uniq_sources(self):
+        return list(set([x.sourceid for x in self.growthdata_set.all()]))
+
 class NamesOfCompounds(models.Model):
     nameid = models.IntegerField(primary_key=True, db_column='nameID') # Field name made lowercase.
     compid = models.ForeignKey(Compounds, db_column='compID') # Field name made lowercase.
@@ -313,7 +316,14 @@ class SearchResult(models.Model):
         return '<pk=%s> %s-%s-%s' % (self.id, self.keyword, self.classname, self.obj_id)
 
     def __unicode__(self):
-        return '%s: %s' % (self.classname, self.keyword)
+        import inspect
+        this_mod=inspect.getmodule(self)
+        cls=getattr(this_mod, self.classname)
+        pk_name=cls._meta.pk.name
+        args={pk_name: self.obj_id}
+        obj=cls.objects.get(**args)
+        
+        return '%s: %s' % (self.classname, obj)
 
     def clean(self):
         self.keyword=re.sub(self.bad_chars, '', self.keyword.lower())

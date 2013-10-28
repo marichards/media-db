@@ -15,3 +15,8 @@ class TestCompoundDetail(TestCase):
         self.assertIn('Compound ID: 1', response)
         self.assertIn('KEGG ID: C00001', response)
         self.assertIn('BiGG ID: h2o', response)
+
+    def test_compound_list(self):
+        response=self.client.get(reverse('compounds'))
+        self.assertEqual(response.status_code, 200)
+        print response.content

@@ -3,7 +3,7 @@
 {% block title %}Media: {{ medianames }}{% endblock %}
 
 {% block content %}
-<p>Media: {{ medianames }}</p>
+<h2>Media: {{ medianames }}</h2>
 
 <div>
 {% with compound_list=medianames.sorted_compounds %}
@@ -26,13 +26,13 @@
 <ol>
 {% for org in org_list %}
 <li><a href='{% url 'organism_record' org.strainid %}'>{{ org }}</a></li>
-</ol>
 {% endfor %}
+</ol>
 {% endwith %}
 </div>
 
 <div>
-{% with sources=medianames.sources %}
+{% with sources=medianames.uniq_sources %}
 {{ sources|length }} Sources:
 <ol>
 {% for src in sources %}

@@ -58,7 +58,6 @@ NewMediaEditor.prototype={
     },
 
     build_org_index : function(org_list) {
-        console.log('building org_index')
 	org_index={}
 	for (i in org_list ) {
 	    org=org_list[i]
@@ -74,7 +73,6 @@ NewMediaEditor.prototype={
 
 
     load_species_sel : function() {
-        console.log('load_species_sel entered')
 	genus=$('#id_genus').val()
 	$('#id_species').empty()
 	species_dict=document.editor.org_index[genus]
@@ -88,7 +86,6 @@ NewMediaEditor.prototype={
     },
 
     load_strain_sel : function() {
-        console.log('load_strain_sel entered')
 	genus=$('#id_genus').val()
 	species=$('#id_species').val()
 	strain_list=document.editor.org_index[genus][species]
@@ -125,40 +122,22 @@ NewMediaEditor.prototype={
 	// this is a callback for when an 'Add' button is clicked.
 	// It inserts a new compound row into the document.
 
-	// extract id number and find parent row
-	button_id=eventObj.target.id
-	console.log('button_id: '+button_id)
-	n=document.editor.compound_n
-	row1_id='#id_comp_row1'
-	console.log('row1_id: '+row1_id)
-//	row1=$('#'+row1_id)[0]
-//	console.log('row1: '+row1+' (id='+row1.id+')')
-
 	// create tr element and three td elements:
-	n+=1
+	n=document.editor.compound_n+1
 	row=$('<tr></tr>', {id: 'id_comp_row'+n})
-	row.append($('<td></td>').text('Compound: ').append($('<input>', {id:'id_comp'+n, name:'comp'+n, type: 'text'})))
-	row.append($('<td></td>').text('Amount: ').append($('<input>', {id:'id_amount'+n, name:'amount'+n, type: 'text'})))
-
-	units_sel=$('<select></select>', { id: 'id_units'+n, name: 'units'+n})
-	options=['mM/g', 'grams', 'lbs']
-	for (i in options) {
-	    units_sel.append($('<option></option>', { value: options[i] }).text(options[i]))
-	}
-	row.append($('<td></td>').text('Units: ').append(units_sel))
+	row.append($('<td></td>').append($('<input>', {id:'id_comp'+n, name:'comp'+n, type: 'text'})))
+	row.append($('<td></td>').append($('<input>', {id:'id_amount'+n, name:'amount'+n, type: 'text'})))
 
 	add_button=$('<input>', {type: 'button', value: 'Remove', id: 'id_rm_compound'+n})
 	add_button.click(document.editor.remove_compound)
 	row.append($('<td></td>').append(add_button))
-	$(row1_id).after(row)
+	$('#id_comp_row1').after(row)
 	document.editor.compound_n+=1
     },
 
     remove_compound: function(eventObj) {
-	console.log('remove_compound called')
 	button_id=eventObj.target.id
 	n=button_id.split('compound')[1]
-	console.log('n='+n)
 	row_id='#id_comp_row'+n
 	$(row_id).remove()
     }

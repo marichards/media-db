@@ -1,4 +1,6 @@
+from defined_media.models import SearchResult
 from defined_media.forms import SearchForm
+
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 
@@ -14,15 +16,26 @@ class SearchResultsView(ListView, FormView):
 		form_class=SearchForm
 		form=self.get_form(form_class)
 
-		self.object_list=[]
-		c={'form':form, 'object_list':self.object_list}
+		c={'form':form}
 		st=self._get_search_term()
 		if st:
-			self.object_list=self.get_queryset()
-			c.update({'object_list' : self.object_list,
-				  'search_term' : st})
+                    classnames=[]
+                    results={}
+                    self.object_list=self.get_queryset()
+                    for obj in self.object_list:
+                        classname=obj.classname
+                        if classname not in results:
+                            classnames.append(classname)
+                            results[classname]=[]
+                        results[classname].append(obj)
+
+                    c.update({'search_term' : st,
+                              'n_results': len(self.object_list),
+                              'classnames': classnames,
+                              'results': results,
+                              'object_list': self.object_list})
 				  
-		context=self.get_context_data(**c)
+                context=self.get_context_data(**c)
 		return self.render_to_response(context)
 
 	def post(self, request, *args, **kwargs):

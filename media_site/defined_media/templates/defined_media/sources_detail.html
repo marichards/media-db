@@ -10,4 +10,10 @@
 <li>Title: {{ sources.title }}</li>
 <li>Link to <a href='{{ sources.link }}'>Article</a>
 </ul>
+
+<ol>Associated Growth Data:
+{% for gd in sources.growthdata_set.all %}
+<li><a href='{% url 'growth_record' gd.sourceid_id %}'>{{ gd }}</a></li>
+{% endfor %}
+
 {% endblock %}
