@@ -8,5 +8,6 @@ class TestNewMedia(TestCase):
         self.client=Client()
         
     def test_new_contributor_form(self):
-        reg_url=reverse('newmedia')
+        reg_url=reverse('new_media_form')
         print 'reg_url is %s' % reg_url
+        
