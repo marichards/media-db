@@ -19,6 +19,9 @@ def all_related(obj, related={}):
     manager_names=[a for a in dir(obj) if a.endswith('_set')]
     if 'seedcompounds_set' in manager_names: 
         manager_names.remove('seedcompounds_set')
+    if 'products_set' in manager_names:
+        manager_names.remove('products_set')
+
 #    print '%s: %s' % (type(obj), manager_names)
     
     for mn in manager_names:
@@ -39,7 +42,6 @@ def add_biomass(media_objs):
     all_biomass=Biomass.objects.all()
     media_objs['Biomass']=all_biomass
     source_ids=[x.sourceid_id for x in all_biomass]
-    print 'source_ids: %s' % source_ids
     sources=[Sources.objects.get(sourceid=id) for id in source_ids]
     media_objs['Sources']=sources
         
@@ -54,9 +56,19 @@ def add_search_results(media_objs):
     media_objs['SearchResult']=SearchResult.objects.filter(keyword='Acinetobacter')
     
 
-def add_medianames(media_objs, compounds):
+def add_media_names(media_objs, compounds):
+    mednames=set()
     for comp in compounds:
-        
+        for mc in comp.mediacompounds_set.all():
+            mednames.add(mc.medid)
+    media_objs['MediaNames']=list(mednames)
+
+def add_reactants(media_objs):
+    reactants=set()
+    for p in media_objs['Products']:
+        reactants.add(p.rxntid)
+    media_objs['Reactants']=list(reactants)
+
 
 def main():
     n=50
@@ -102,13 +114,16 @@ def main():
     add_biomass(media_objs)
     add_organisms(media_objs)
     add_search_results(media_objs)
+    add_media_names(media_objs, compounds)
+#    add_reactants(media_objs)
 
     write_fixture(media_objs)
     report(media_objs, bad_compounds)
 
 def report(media_objs, bad_compounds):
     print
-    for k,v in media_objs.items():
+    for k in sorted(media_objs.keys()):
+        v=media_objs[k]
         print '%s: %d' % (k,len(v))
     print '%d bad compounds' % len(bad_compounds)
 

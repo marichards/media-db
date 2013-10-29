@@ -72,8 +72,8 @@ class Compounds(models.Model):
         return self.name
 
     def __repr__(self):
-        return 'compound %d: kegg_id=%s, bigg_id=%s, user_identifier=%s' % \
-        (self.compid, self.kegg_id, self.bigg_id, self.user_identifier)
+        return 'compound %s (%d): kegg_id=%s, bigg_id=%s, user_identifier=%s' % \
+        (self.compid, self.name, self.kegg_id, self.bigg_id, self.user_identifier)
 
     def keywords(self):
         return [noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
