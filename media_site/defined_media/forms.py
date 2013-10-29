@@ -23,11 +23,17 @@ class NewMediaForm(forms.Form):
     pmid=forms.CharField(required=True, label='Pubmed ID')
 
     comp1=forms.CharField(required=True, label='Compound')
-    amount1=forms.CharField(required=True, label='Amount (Mm)')
+    amount1=forms.FloatField(required=True, label='Amount (Mm)', min_value=0)
 #    units1=forms.ChoiceField(required=True, label='Units', 
 #                            choices=(()))
 
-        # more to come...
+
+    growthrate=forms.FloatField(min_value=0, required=True, label='Growth Rate')
+    temperature=forms.FloatField(min_value=0, required=True, label='Temperature')
+    ph=forms.FloatField(min_value=0, required=True, label='PH')
+
+    uptake_comp1=forms.CharField(label='Compound')
+    uptake_rate1=forms.FloatField(label='Rate (+/-)')
 
 '''
 class CreateContributorForm(UserCreationForm):

@@ -54,6 +54,10 @@ def add_search_results(media_objs):
     media_objs['SearchResult']=SearchResult.objects.filter(keyword='Acinetobacter')
     
 
+def add_medianames(media_objs, compounds):
+    for comp in compounds:
+        
+
 def main():
     n=50
 
@@ -117,12 +121,12 @@ def write_fixture(media_objs):
         l.extend(list(v))
 
     with open(json_fn, 'w') as f:
-        f.write(serializers.serialize('json', l))
+        f.write(serializers.serialize('json', l, indent=4))
         print '%s written' % json_fn
 
     json_fn=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'fixtures', json_fn))
     with open(json_fn, 'w') as f:
-        f.write(serializers.serialize('json', l))
+        f.write(serializers.serialize('json', l, indent=4))
         print '%s written' % json_fn
 
     with open(pk_fn, 'w') as f:
