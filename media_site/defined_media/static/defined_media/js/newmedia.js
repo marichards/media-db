@@ -40,6 +40,7 @@ NewMediaEditor.prototype={
 	$('#id_genus').change(document.editor.load_species_sel)
 	$('#id_species').change(document.editor.load_strain_sel)
 	$('#id_add_compound1').click(document.editor.add_compound)
+	$('#id_newmedia_form').submit(document.editor.validate_form)
     },
 
     fetch_organisms : function() {
@@ -140,8 +141,31 @@ NewMediaEditor.prototype={
 	n=button_id.split('compound')[1]
 	row_id='#id_comp_row'+n
 	$(row_id).remove()
-    }
+    },
 
+    validate_form: function(eventObj) {
+	// pubmed id must be integer
+	errors=[]
+	int_regex=/^\d+$/;
+	float_regex=/^\s*(\+|-)?((\d+(\.\d+)?)|(\.\d+))\s*$/;
+
+	pmid=$('#id_pmid').val()
+	if (pmid.search(int_regex)<0)
+	    errors.push('Pubmed ID: missing or non-integer')
+
+	// growthrate, temperature, and ph must be floats
+	fields=['growthrate', 'temperature', 'ph']
+	for (i in fields) {
+	    if ($('#id_'+fields[i]).val().search(float_regex)<0) {
+		errors.push(fields[i]+': missing or non-float')
+	    }
+	}
+
+	// every compound must have an amount (which must be float)
+	
+	// every uptake compound must have a rate (which must be float)
+	return false
+    },
 }
 
 $(document).ready(function() {

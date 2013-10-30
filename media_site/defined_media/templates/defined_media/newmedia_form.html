@@ -8,8 +8,15 @@
 
 {% block content %}
 <h2>Enter Media Information:</h2>
-<form action='' method='POST'>
+<form id='id_newmedia_form' action='' method='POST'>
 {% csrf_token %}
+
+{% if form.my_errors|length > 0 %}Errors:<ul>
+{% for k,v in form.my_errors.items %}
+<li>{{ k }}:{{ v }}</li>
+{% endfor %}
+</ul>{% endif %}
+
 <table id='newmedia_table'>
 <tr><tr><th>Organsim:</th></tr>
 <tr><td>Genus: {{ form.genus }}</td><td>Species: {{ form.species }}</td><td>Strain: {{ form.strain }}</td></tr>
@@ -17,14 +24,15 @@
 
 <table>
 <tr><th>Source: </th></tr>
-<tr><td>{{ form.pmid.label }}: {{ form.pmid }}</td></tr>
+<tr><td>{{ form.pmid.label }}: {{ form.pmid }} </td>
+    <td><span class='error'>{{ form.my_errors.pmid }}</span></td></tr>
 </table>
 
 <table>
 <tr><th>Growth Info:</th></tr>
-<tr><td>{{ form.growthrate.label }}: </td><td>{{ form.growthrate }} h<sup>-1</sup></td></tr>
-<tr><td>{{ form.temperature.label }}: </td><td>{{ form.temperature }}&deg;C</td></tr>
-<tr><td>{{ form.ph.label }}: </td><td>{{ form.ph }}</td></tr>
+<tr><td>{{ form.growthrate.label }}: </td><td>{{ form.growthrate }} h<sup>-1</sup></td><td><span class='error'>{{ form.my_errors.growthrate }}</span></td></tr>
+<tr><td>{{ form.temperature.label }}: </td><td>{{ form.temperature }}&deg;C</td><td><span class='error'>{{ form.my_errors.temperature }}</span></td></tr>
+<tr><td>{{ form.ph.label }}: </td><td>{{ form.ph }}</td><td><span class='error'>{{ form.my_errors.ph }}</span></td></tr>
 </table>
 
 <table>
