@@ -56,6 +56,8 @@ urlpatterns = patterns(view_prefix,
                        url(r'^api/organism/(?P<genus>\w+)/(?P<species>\w+)/$', views.api.OrganismsView.as_view(), name='organism_api'),
                        url(r'^api/organism/(?P<genus>\w+)/(?P<species>\w+)/(?P<strain>\w+)/$', views.api.OrganismsView.as_view(), name='organism_api'),
 
+                       url(r'^api/pmid/(?P<pmid>\d+)$', views.api.efetch_pmid, name='efetch_pmid'),
+
 # old function-based views:
 #                       url(r'^organisms/$', views.organisms, name='organisms'),
 #                       url(r'^media/$', views.media, name='media'),
