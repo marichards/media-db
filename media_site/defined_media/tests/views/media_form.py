@@ -24,6 +24,22 @@ class TestMediaForm(TestCase):
         self.assertIn("<input type='hidden' name='csrfmiddlewaretoken'", content)
         self.assertIn("<table id='id_medianames_table'>", content, "'id='id_medianames_table' not found'")
 
+
+    def test_media_form_is_valid(self):
+        url=reverse('new_media_form')
+        for name, data in newmedia_inputs.items():
+            log.debug('name is %s' % name)
+            args=data['args']
+            expected_valid=data['valid']
+            response=self.client.post(url, args)
+            expected_code=302 if expected_valid else 200
+            log.debug('code (%s, ev=%s): expected %s, got %s' % (name,
+                                                                 expected_valid, 
+                                                                 expected_code, 
+                                                                 response.status_code))
+            self.assertEqual(response.status_code, expected_code)
+
+
     def test_media_form_post(self):
         n_gd=GrowthData.objects.count()
         log.debug('to start: %d growth data objects' % n_gd)

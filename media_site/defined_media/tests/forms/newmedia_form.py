@@ -1,3 +1,6 @@
+import logging
+log=logging.getLogger(__name__)
+
 from django.test import TestCase
 from defined_media.forms import NewMediaForm
 from defined_media.models import Organisms
@@ -12,14 +15,10 @@ class TestNewmedia_Form(TestCase):
         pass
 
     def test_missing_uptake(self): # is still valid
-        print '%d organisms in db' % Organisms.objects.count()
         self._test_valid('minimal_valid')
 
     def test_full(self):
         self._test_valid('full_valid')
-
-    def test_missing_pmid(self):
-        self._test_valid('missing_pmid')
 
     def test_missing_amount1(self):
         self._test_valid('missing_amount1')
@@ -34,4 +33,7 @@ class TestNewmedia_Form(TestCase):
     def _test_valid(self, input_key):
         input=newmedia_inputs[input_key]
         form=NewMediaForm(input['args'])
-        self.assertEqual(form.is_valid(), input['valid'])
+        valid=form.is_valid()
+        look_at_me='****bad bad bad****' if valid != input['valid'] else ''
+        log.debug('%s valid?: expected %s, got %s %s' % (input_key, valid, input['valid'], look_at_me))
+        self.assertEqual(valid, input['valid'])

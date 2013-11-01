@@ -1,20 +1,13 @@
-import re
+import re, logging
 from django import forms
 from defined_media.models import Organisms
 #from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 #from defined_media.models import Contributor
 
+log=logging.getLogger(__name__)
 
 class SearchForm(forms.Form):
     search_term=forms.CharField()
-
-
-def fix_errors(fn):
-    def fixed(self):
-        valid=fn(self)
-        self.reformat_errors()
-        return valid
-    return fixed
 
 
 class NewMediaForm(forms.Form):
@@ -26,13 +19,7 @@ class NewMediaForm(forms.Form):
                 we check them in is_valid(), using the variable fields
                 we are going to add client-side using jQuery.
             '''
-            try:
-                self.orig_args=dict(args[0])
-#                print 'set self.orig_data: %s' % self.orig_args
-            except Exception, e:
-#                print 'NewMediaForm(): caught %s: %s' % (type(e),e)
-                pass
-
+            self.orig_args=dict(args[0])
 
         self.organisms=Organisms.objects.all()
         genuss=sorted(list(set([o.genus.capitalize() for o in self.organisms]))) # set() to unique-ify
@@ -45,8 +32,6 @@ class NewMediaForm(forms.Form):
     media_name=forms.CharField(required=True, label='Media Name')
     is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
     is_minimal=forms.CharField(label='Is minimal?', widget=forms.CheckboxInput)
-#    is_defined=forms.CharField(label='Is defined?', required=False, max_length=1, initial='Y')
-#    is_minimal=forms.CharField(label='Is minimal?', required=False, max_length=1, initial='N')
 
     pmid=forms.CharField(required=False, label='Pubmed ID')
     first_author=forms.CharField(label='First Author')
@@ -58,9 +43,6 @@ class NewMediaForm(forms.Form):
 
     comp1=forms.CharField(required=True, label='Compound')
     amount1=forms.FloatField(required=True, label='Amount (Mm)', min_value=0)
-#    units1=forms.ChoiceField(required=True, label='Units', 
-#                            choices=(()))
-
 
     growth_rate=forms.FloatField(min_value=0, required=True, label='Growth Rate')
     temperature=forms.FloatField(min_value=0, required=True, label='Temperature')
@@ -70,12 +52,16 @@ class NewMediaForm(forms.Form):
     uptake_rate1=forms.FloatField(label='Rate (+/-)', required=False)
 
 
-#    @fix_errors
     def is_valid(self):
+        log.debug('is_valid entered')
         valid=super(NewMediaForm, self).is_valid()
         if not hasattr(self, 'orig_args'):
+            log.debug('no orig_args, returning %s' % valid)
             return valid
         # back-fill missing genus, species:
+        for k,v in self.cleaned_data.items():
+            log.debug('cleaned[%s]: %s' % (k, self.cleaned_data[k]))
+
         for f in ['genus', 'species', 'strain']:
             if f in self.errors:
                 del self.errors[f]
@@ -83,18 +69,38 @@ class NewMediaForm(forms.Form):
 
         self.cleaned_data.update(self.orig_args)
 
+        '''
         # verify that we can find an organsism:
         try:
             org_data={'genus': self.cleaned_data['genus'][0], 
                       'species': self.cleaned_data['species'][0],
                       'strain': self.cleaned_data['strain'][0]}
             org=Organisms.objects.get(**org_data)
-        except Exception, e:
+        except Organisms.DoesNotExist:
+            log.debug('returning False: no org found for %s' % org_data)
             return False
-
+        '''
         def is_missing(key):
-            try:    return len(self.cleaned_data[key].strip())==0
-            except: return True
+            try: value_list=self.cleaned_data[key]
+            except KeyError: 
+                log.debug('is_missing(%s): no %s in data, returning True' % (key, key))
+                return True
+
+            if value_list==None: 
+                log.debug('is_missing(%s): data[%s] is None' % (key, key))
+                return True
+
+            try: n=len(value_list[0].strip())
+            except AttributeError, e: # if no .strip()
+                n=-1
+            except TypeError, e: # if len() breaks
+                n=-2
+            except IndexError, e: # if value[0] breaks
+                n=-3
+            
+            log.debug('is_missing(%s): value_list=%s, n=%s' % (key, value_list, n))
+            ret = n<=0
+            return ret
                 
 
         # check matching compounds and amounts (beyond the first):
@@ -103,14 +109,21 @@ class NewMediaForm(forms.Form):
                'amount':'comp',
                'uptake_comp':'uptake_rate',
                'uptake_rate':'uptake_comp'}
-        for key in self.cleaned_data.keys():
+        for key1 in self.cleaned_data.keys():
             for k,v in pairs.items():
-                if key.startswith(k):
-                    other_key='%s%s' % (v,key.split(k)[1])
-                    if not is_missing(key) and is_missing(other_key):
-                        self.errors[other_key]=err_temp % other_key
+                if key1.startswith(k):
+                    key2='%s%s' % (v,key1.split(k)[1])
+                    missing1=is_missing(key1)
+                    missing2=is_missing(key2)
+                    log.debug('is_missing(%s): %s' % (key1, missing1))
+                    log.debug('is_missing(%s): %s' % (key2, missing2))
+                    if not missing1 and missing2: # don't do "missing1 != missing2" because then we'll get the error twice
+                        self.errors[key2]=err_temp % key2
+                        log.debug('is mismatched: %s and %s' % (key1, key2))
+                    else:
+                        log.debug('not mismatched: %s and %s' % (key1, key2))
                     break
-
+        log.debug('is_valid: len(errors)=%d' % len(self.errors))
         return len(self.errors)==0
             
     def reformat_errors(self):

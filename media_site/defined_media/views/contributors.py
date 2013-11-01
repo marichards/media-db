@@ -18,7 +18,7 @@ class NewMediaView(FormView):
         form=NewMediaForm(request.POST)
         form.orig_data=request.POST
         valid=form.is_valid()
-#        print 'NewMediaView: form.is_valid(): %s' % valid
+        log.debug('NewMediaView: form.is_valid(): %s' % valid)
         form.reformat_errors()
 
         if not valid:
@@ -34,6 +34,7 @@ class NewMediaView(FormView):
             # set some errors
             return self.form_invalid(form)
 
+        log.debug('post: returning form_valid')
         return self.form_valid(form)
 
         # return an un-rendered TemplateResponse object:
@@ -51,10 +52,9 @@ class NewMediaView(FormView):
             return None
     
     def get_media_name(self, form):
-        log.debug('get_media_name entered')
         try:
             m=MediaNames.objects.get(media_name=form.cleaned_data['media_name'][0])
-            log.debug('got m: %s' % m)
+            log.debug('got existing media_name: %s' % m)
             return m
         except MediaNames.DoesNotExist:
             log.debug('creating a new media_name')
