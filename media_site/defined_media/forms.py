@@ -42,7 +42,19 @@ class NewMediaForm(forms.Form):
     species=forms.ChoiceField(required=True, label='Species', choices=())
     strain=forms.ChoiceField(required=True, label='Strain', choices=())
 
-    pmid=forms.CharField(required=True, label='Pubmed ID')
+    media_name=forms.CharField(required=True, label='Media Name')
+    is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
+    is_minimal=forms.CharField(label='Is minimal?', widget=forms.CheckboxInput)
+#    is_defined=forms.CharField(label='Is defined?', required=False, max_length=1, initial='Y')
+#    is_minimal=forms.CharField(label='Is minimal?', required=False, max_length=1, initial='N')
+
+    pmid=forms.CharField(required=False, label='Pubmed ID')
+    first_author=forms.CharField(label='First Author')
+    journal=forms.CharField(label='Journal', max_length=255)
+    year=forms.CharField(label='Year')
+    title=forms.CharField(label='Title', max_length=255)
+    link=forms.CharField(label='Link', max_length=255)
+
 
     comp1=forms.CharField(required=True, label='Compound')
     amount1=forms.FloatField(required=True, label='Amount (Mm)', min_value=0)
@@ -50,7 +62,7 @@ class NewMediaForm(forms.Form):
 #                            choices=(()))
 
 
-    growthrate=forms.FloatField(min_value=0, required=True, label='Growth Rate')
+    growth_rate=forms.FloatField(min_value=0, required=True, label='Growth Rate')
     temperature=forms.FloatField(min_value=0, required=True, label='Temperature')
     ph=forms.FloatField(min_value=0, required=True, label='PH')
 
@@ -63,7 +75,6 @@ class NewMediaForm(forms.Form):
         valid=super(NewMediaForm, self).is_valid()
         if not hasattr(self, 'orig_args'):
             return valid
-
         # back-fill missing genus, species:
         for f in ['genus', 'species', 'strain']:
             if f in self.errors:
@@ -72,10 +83,11 @@ class NewMediaForm(forms.Form):
 
         self.cleaned_data.update(self.orig_args)
 
+        # verify that we can find an organsism:
         try:
-            org_data={'genus': self.cleaned_data['genus'], 
-                      'species': self.cleaned_data['species'],
-                      'strain': self.cleaned_data['strain']}
+            org_data={'genus': self.cleaned_data['genus'][0], 
+                      'species': self.cleaned_data['species'][0],
+                      'strain': self.cleaned_data['strain'][0]}
             org=Organisms.objects.get(**org_data)
         except Exception, e:
             return False

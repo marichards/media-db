@@ -89,3 +89,7 @@ div.login {
 span.error {
     color: red;
 }
+
+table#id_source_table td input {
+    width: 500px;
+}

@@ -2,6 +2,8 @@ NewMediaEditor=function(o) {
     this.init_funcs=[]
     this.urlmap={}
     this.urlmap_url='/defined_media/api/urlmap'
+    this.compound_n=1
+    this.source_visible=0
 }
 
 function stackTrace() {
@@ -41,6 +43,8 @@ NewMediaEditor.prototype={
 	$('#id_species').change(document.editor.load_strain_sel)
 	$('#id_add_compound1').click(document.editor.add_compound)
 	$('#id_newmedia_form').submit(document.editor.validate_form)
+	$('#id_pmid').change(document.editor.efetch_pmid)
+	$('#id_source_button').click(document.editor.toggle_journal_visibility)
     },
 
     fetch_organisms : function() {
@@ -117,8 +121,6 @@ NewMediaEditor.prototype={
 	console.log('n_strain: '+n_strains)
     }, 
 
-    compound_n: 1,
-
     add_compound : function(eventObj) {
 	// this is a callback for when an 'Add' button is clicked.
 	// It inserts a new compound row into the document.
@@ -142,6 +144,31 @@ NewMediaEditor.prototype={
 	row_id='#id_comp_row'+n
 	$(row_id).remove()
     },
+
+    efetch_pmid: function() {
+        pmid=$('#id_pmid').val()
+	url=editor.urlmap['efetch_pmid']+pmid
+	console.log('efetch_pmid url='+url)
+	settings={
+	    success: function(data, textStatus, jqXHR) {
+	        console.log('efetch_pmid: data is '+data)
+	        $('#id_first_author').val(data['authors'])       
+	        $('#id_title').val(data['title'])       
+	        $('#id_journal').val(data['journal'])       
+	        $('#id_year').val(data['year'])       
+	        $('#id_link').val(data['link'])       
+	    },
+	    error: function(jqXHR, textStatus, errorThrown) {
+	        throw 'efetch_pmid: '+textStatus+'('+errorThrown+')'
+	    },
+	}
+	$.ajax(url, settings)
+
+    },
+
+    toggle_journal_visibility: function() {
+        
+    },  
 
     validate_form: function(eventObj) {
 	// pubmed id must be integer

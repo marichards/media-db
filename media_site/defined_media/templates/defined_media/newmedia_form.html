@@ -11,13 +11,19 @@
 <form id='id_newmedia_form' action='' method='POST'>
 {% csrf_token %}
 
-{% if form.my_errors|length > 0 %}Errors:<ul>
+{% if form.my_errors|length > 0 %}{{ form.my_errors|length }} Errors:<ul>
 {% for k,v in form.my_errors.items %}
 <li>{{ k }}:{{ v }}</li>
 {% endfor %}
 </ul>{% endif %}
 
-<table id='newmedia_table'>
+<table id='id_media_names_table'>
+<tr><th>New Media Name</th></tr>
+<tr><td>{{ form.media_name.label }}</td><td>{{ form.media_name }}</td>
+    <td>{{ form.is_defined.label }}</td><td>{{ form.is_defined }}</td>
+    <td>{{ form.is_minimal.label }}</td><td>{{ form.is_minimal }}</td></tr>
+</table>
+<table id='id_organism_table'>
 <tr><tr><th>Organsim:</th></tr>
 <tr><td>Genus: {{ form.genus }}</td><td>Species: {{ form.species }}</td><td>Strain: {{ form.strain }}</td></tr>
 </table>
@@ -27,10 +33,19 @@
 <tr><td>{{ form.pmid.label }}: {{ form.pmid }} </td>
     <td><span class='error'>{{ form.my_errors.pmid }}</span></td></tr>
 </table>
+<div id='id_source'>
+<table id='id_source_table'>
+<tr><td>{{ form.first_author.label }}: </td><td class='txt_input'>{{ form.first_author }}</td></tr>
+<tr><td>{{ form.journal.label }}: </td><td class='txt_input'>{{ form.journal }}</td></tr>
+<tr><td>{{ form.year.label }}: </td><td class='txt_input'>{{ form.year }}</td></tr>
+<tr><td>{{ form.title.label }}: </td><td class='txt_input'>{{ form.title }}</td></tr>
+<tr><td>{{ form.link.label }}: </td><td class='txt_input'>{{ form.link }}</td></tr>
+</table>
+</div>
 
 <table>
 <tr><th>Growth Info:</th></tr>
-<tr><td>{{ form.growthrate.label }}: </td><td>{{ form.growthrate }} h<sup>-1</sup></td><td><span class='error'>{{ form.my_errors.growthrate }}</span></td></tr>
+<tr><td>{{ form.growth_rate.label }}: </td><td>{{ form.growth_rate }} h<sup>-1</sup></td><td><span class='error'>{{ form.my_errors.growth_rate }}</span></td></tr>
 <tr><td>{{ form.temperature.label }}: </td><td>{{ form.temperature }}&deg;C</td><td><span class='error'>{{ form.my_errors.temperature }}</span></td></tr>
 <tr><td>{{ form.ph.label }}: </td><td>{{ form.ph }}</td><td><span class='error'>{{ form.my_errors.ph }}</span></td></tr>
 </table>

@@ -1,1 +1,5 @@
-import core, legacy, search, api, contributors
+import core
+import legacy
+import search
+import api
+import contributors

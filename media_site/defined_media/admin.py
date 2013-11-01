@@ -10,6 +10,7 @@ class BiomassAdmin(admin.ModelAdmin):
 		(None, {'fields': ['genus','species']}),
 		('Source', {'fields': ['sourceid']}),
 	]
+	readonly_fields=('biomassid',)
 #	inlines = BiomassCompoundsInline
 
 admin.site.register(Biomass,BiomassAdmin)
@@ -36,6 +37,7 @@ class GrowthDataAdmin(admin.ModelAdmin):
 		('Measurement Information',{'fields': ['growth_rate','growth_units','ph','temperature_c','measureid']}),
 		(None, {'fields': ['additional_notes']}),
 	]
+	readonly_fields=('growthid',)
 
 admin.site.register(GrowthData,GrowthDataAdmin)
 
