@@ -4,6 +4,7 @@
 <script src='{% static 'defined_media/js/jquery-1.10.2.min.js' %}'></script>
 <script src='{% static 'defined_media/js/jquery-ui.js' %}'></script>
 <script src='{% static 'defined_media/js/newmedia.js' %}'></script>
+<script src='{% static 'defined_media/js/data.js' %}'></script>
 {% endblock %}
 
 {% block content %}
@@ -65,6 +66,7 @@
 <tr id='id_uptake_row1'>
   <td>{{ form.uptake_comp1 }}</td>
   <td>{{ form.uptake_rate1 }}</td>
+  <td>{{ form.uptake_unit1 }}</td>
   <td><input id='id_add_uptake1' type='button' value='Add' /></td>
 </tr>
 <tr><td><input type='submit' value='Submit' ?></td></tr>

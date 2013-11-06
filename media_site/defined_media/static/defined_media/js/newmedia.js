@@ -3,6 +3,7 @@ NewMediaEditor=function(o) {
     this.urlmap={}
     this.urlmap_url='/defined_media/api/urlmap'
     this.compound_n=1
+    this.uptake_n=1
     this.source_visible=0
 }
 
@@ -12,7 +13,9 @@ function stackTrace() {
 }
 
 NewMediaEditor.prototype={
-    push_init_func : function(f, args) { this.init_funcs.push([f, args]) },
+    push_init_func : function(f, args) { 
+        this.init_funcs.push([f, args]) 
+    },
 
     init : function() {
 	// start off by getting the urlmap, on which other funcs depend
@@ -25,7 +28,7 @@ NewMediaEditor.prototype={
 		for (i in editor.init_funcs) {
 		    init_f=editor.init_funcs[i][0]
 		    args=editor.init_funcs[i][1]
-		    init_f.apply(args)
+		    init_f.apply(undefined, args)
 		}
 	    },
 	    error: function(jqXHR, textStatus, errorThrown) {
@@ -45,6 +48,7 @@ NewMediaEditor.prototype={
 	$('#id_newmedia_form').submit(document.editor.validate_form)
 	$('#id_pmid').change(document.editor.efetch_pmid)
 	$('#id_source_button').click(document.editor.toggle_journal_visibility)
+	$('#id_add_uptake1').click(document.editor.add_uptake)
     },
 
     fetch_organisms : function() {
@@ -145,13 +149,44 @@ NewMediaEditor.prototype={
 	$(row_id).remove()
     },
 
+    add_uptake : function(eventObj) {
+	// create tr element and three td elements:
+	n=document.editor.uptake_n+1
+	row=$('<tr></tr>', {id: 'id_uptake_row'+n})
+	row.append($('<td></td>').append($('<input>', 
+	    {id:'id_uptake_comp1'+n, name:'uptake_comp'+n, type: 'text'})))
+	row.append($('<td></td>').append($('<input>', 
+	    {id:'id_uptake_rate'+n, name:'uptake_rate'+n, type: 'text'})))
+
+	sel_id='id_uptake_unit'+n
+	sel_name='uptake_unit'+n
+	sel=$("<select>", {id: sel_id, name: sel_name})
+	row.append($('<td></td>').append(sel))
+
+	add_button=$('<input>', {type: 'button', value: 'Remove', id: 'id_rm_uptake'+n})
+	add_button.click(document.editor.remove_uptake)
+	row.append($('<td></td>').append(add_button))
+	$('#id_uptake_row1').after(row)
+
+	// Can't populate new select until after it's been added to the DOM:
+	document.editor.populate_select('#'+sel_id, document.data['secretion_uptake_units'])
+	document.editor.compound_n+=1
+    },
+
+    remove_uptake: function(eventObj) {
+	button_id=eventObj.target.id
+	n=button_id.split('uptake')[1]
+	row_id='#id_uptake_row'+n
+	$(row_id).remove()
+    },
+
+
+
     efetch_pmid: function() {
         pmid=$('#id_pmid').val()
 	url=editor.urlmap['efetch_pmid']+pmid
-	console.log('efetch_pmid url='+url)
 	settings={
 	    success: function(data, textStatus, jqXHR) {
-	        console.log('efetch_pmid: data is '+data)
 	        $('#id_first_author').val(data['authors'])       
 	        $('#id_title').val(data['title'])       
 	        $('#id_journal').val(data['journal'])       
@@ -193,12 +228,20 @@ NewMediaEditor.prototype={
 	// every uptake compound must have a rate (which must be float)
 	return false
     },
+
+    populate_select: function(id_sel, list) {
+	for (i in list) {
+	    val=list[i]
+            $(id_sel).append($('<option>', { value: val }).text(val))
+ 	}	    
+    },  
 }
 
 $(document).ready(function() {
     editor=new NewMediaEditor() // needs to be moved to <head>?
     document.editor=editor
-    editor.push_init_func(editor.fetch_organisms)
-    editor.push_init_func(editor.init_callbacks)
+//    editor.push_init_func(editor.populate_select, ['#id_uptake_units1', document.data['secretion_uptake_units']])
+    editor.push_init_func(editor.fetch_organisms,[])
+    editor.push_init_func(editor.init_callbacks,[])
     editor.init()
 })

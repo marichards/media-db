@@ -13,28 +13,19 @@ class NewMediaView(FormView):
     success_url='/defined_media/newmedia'
 
     def post(self, request, *args, **kwargs):
-        for k,v in request.POST.items():
-            log.debug('POST[%s]: %s' % (k, request.POST[k]))
         form=NewMediaForm(request.POST)
         form.orig_data=request.POST
         valid=form.is_valid()
-        log.debug('NewMediaView: form.is_valid(): %s' % valid)
         form.reformat_errors()
 
         if not valid:
-            log.debug('form not valid, aborting')
-            for k,v in form.errors.items():
-                log.debug('error: %s -> %s' % (k, form.errors[k]))
             return self.form_invalid(form)
         
         growth_data=self.get_growth_data(form)
-        log.debug('growth_data is %s' % growth_data)
         if not growth_data:
-            log.debug('failed, returning form.invalid')
             # set some errors
             return self.form_invalid(form)
 
-        log.debug('post: returning form_valid')
         return self.form_valid(form)
 
         # return an un-rendered TemplateResponse object:
@@ -47,17 +38,14 @@ class NewMediaView(FormView):
                                         species=form.cleaned_data['species'][0],
                                         strain=form.cleaned_data['strain'][0])
         except Organisms.DoesNotExist, e:
-            log.debug("No such organism: "+str(e))
             form.errors['Organism']="No such organism: "+str(e)
             return None
     
     def get_media_name(self, form):
         try:
             m=MediaNames.objects.get(media_name=form.cleaned_data['media_name'][0])
-            log.debug('got existing media_name: %s' % m)
             return m
         except MediaNames.DoesNotExist:
-            log.debug('creating a new media_name')
             try:
                 is_defined='Y' if 'is_defined' in self.request.POST else 'N'
                 is_minimal='Y' if 'is_minimal' in self.request.POST else 'N'
@@ -66,37 +54,27 @@ class NewMediaView(FormView):
                       'is_defined': is_defined,
                       'is_minimal': is_minimal
                       }
-                log.debug('args are %s' % args)
                 m=MediaNames(**args)
-                log.debug('m is %s' % m)
                 try:
                     m.save()
                 except Exception, e:
-                    log.debug('caught e: %s' % e)
                     import traceback
                     traceback.print_exc()
                     raise e
-                log.debug('saved m')
-                log.debug('returning new media_name %s' % m)
                 return m
             except Exception, e:
-                log.debug("Unable to create MediaNames record (%s): " %(type(e),str(e)))
                 form.errors['MediaNames']="Unable to create media name record: "+str(e)
                 return None
 
     def get_growth_data(self, form):
         try:
             org=self.get_organism(form)
-            log.debug('org is %s' % org)
             source=self.get_source(form)
-            log.debug('source is %s' % source)
             media_name=self.get_media_name(form)
-            log.debug('media_name is %r' % media_name)
             if not (org and source and media_name):
-                log.debug('get_growth_data: cannot create sub-object(s), leaving')
                 return None
 
-            log.debug('about to create growth_data object')
+
             args={'strainid': org,
                   'medid': media_name,
                   'sourceid': source,
@@ -106,13 +84,10 @@ class NewMediaView(FormView):
                   'temperature_c': form.cleaned_data['temperature'][0],
                   'additional_notes': '',
                   }
-            log.debug('args are %s' % args)
             gd=GrowthData(**args)
-            log.debug('gd is %s' % gd)
             gd.save()
             return gd
         except Exception, e:
-            log.debug("Unable to create growth data record (%s): %s" % (type(e), str(e)))
             form.errors['GrowthData']="Unable to create growth data record: "+str(e)
             return None
 
@@ -127,13 +102,19 @@ class NewMediaView(FormView):
                       'first_author': form.cleaned_data['first_author'][0],
                       'year': int(form.cleaned_data['year'][0]),
                       'link': form.cleaned_data['link'][0]}
-                log.debug('Source args: %s' % args)
                 src=Sources.objects.create(**args)
                 return src
             except Exception, e:
-                log.debug("Unable to create source record(%s): %s" % (type(e), str(e)))
                 form.errors['Sources']="Unable to create source record: "+str(e)
                 return None
 
 
                           
+    '''
+    def get_uptakes(self, form):
+        for key in [k for k in form.cleaned_data.keys() if k.startswith('uptake_comp')]:
+            try:
+                n=key.split('uptake_comp')[1]
+                uptake_comp=form.cleaned_data[key][0]
+                uptake_rate=form.cleaned_data['uptake_rate'+n][0]
+    '''

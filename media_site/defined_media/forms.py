@@ -1,6 +1,6 @@
 import re, logging
 from django import forms
-from defined_media.models import Organisms
+from defined_media.models import Organisms, SecretionUptake
 #from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 #from defined_media.models import Contributor
 
@@ -16,7 +16,7 @@ class NewMediaForm(forms.Form):
 
         if len(args)>0:
             ''' Attach the original args (args[0]) if present so that
-                we check them in is_valid(), using the variable fields
+                we can check them in is_valid(), using the variable fields
                 we are going to add client-side using jQuery.
             '''
             self.orig_args=dict(args[0])
@@ -50,18 +50,16 @@ class NewMediaForm(forms.Form):
 
     uptake_comp1=forms.CharField(label='Compound', required=False)
     uptake_rate1=forms.FloatField(label='Rate (+/-)', required=False)
-
+    unit_choices=[(u,u) for u in set([u.units for u in SecretionUptake.objects.all()])]
+    uptake_unit1=forms.ChoiceField(label='Units', required=False, 
+                                   choices=unit_choices)
 
     def is_valid(self):
-        log.debug('is_valid entered')
         valid=super(NewMediaForm, self).is_valid()
         if not hasattr(self, 'orig_args'):
-            log.debug('no orig_args, returning %s' % valid)
             return valid
-        # back-fill missing genus, species:
-        for k,v in self.cleaned_data.items():
-            log.debug('cleaned[%s]: %s' % (k, self.cleaned_data[k]))
 
+        # back-fill missing genus, species:
         for f in ['genus', 'species', 'strain']:
             if f in self.errors:
                 del self.errors[f]
@@ -69,25 +67,12 @@ class NewMediaForm(forms.Form):
 
         self.cleaned_data.update(self.orig_args)
 
-        '''
-        # verify that we can find an organsism:
-        try:
-            org_data={'genus': self.cleaned_data['genus'][0], 
-                      'species': self.cleaned_data['species'][0],
-                      'strain': self.cleaned_data['strain'][0]}
-            org=Organisms.objects.get(**org_data)
-        except Organisms.DoesNotExist:
-            log.debug('returning False: no org found for %s' % org_data)
-            return False
-        '''
         def is_missing(key):
             try: value_list=self.cleaned_data[key]
             except KeyError: 
-                log.debug('is_missing(%s): no %s in data, returning True' % (key, key))
                 return True
 
             if value_list==None: 
-                log.debug('is_missing(%s): data[%s] is None' % (key, key))
                 return True
 
             try: n=len(value_list[0].strip())
@@ -98,7 +83,6 @@ class NewMediaForm(forms.Form):
             except IndexError, e: # if value[0] breaks
                 n=-3
             
-            log.debug('is_missing(%s): value_list=%s, n=%s' % (key, value_list, n))
             ret = n<=0
             return ret
                 
@@ -115,15 +99,9 @@ class NewMediaForm(forms.Form):
                     key2='%s%s' % (v,key1.split(k)[1])
                     missing1=is_missing(key1)
                     missing2=is_missing(key2)
-                    log.debug('is_missing(%s): %s' % (key1, missing1))
-                    log.debug('is_missing(%s): %s' % (key2, missing2))
                     if not missing1 and missing2: # don't do "missing1 != missing2" because then we'll get the error twice
                         self.errors[key2]=err_temp % key2
-                        log.debug('is mismatched: %s and %s' % (key1, key2))
-                    else:
-                        log.debug('not mismatched: %s and %s' % (key1, key2))
                     break
-        log.debug('is_valid: len(errors)=%d' % len(self.errors))
         return len(self.errors)==0
             
     def reformat_errors(self):

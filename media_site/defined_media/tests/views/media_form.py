@@ -42,7 +42,8 @@ class TestMediaForm(TestCase):
 
     def test_media_form_post(self):
         n_gd=GrowthData.objects.count()
-        log.debug('to start: %d growth data objects' % n_gd)
+        n_src=Sources.objects.count()
+        n_mn=MediaNames.objects.count()
 
         url=reverse('new_media_form')
         args=newmedia_inputs['minimal_valid']['args']
@@ -50,4 +51,34 @@ class TestMediaForm(TestCase):
         self.assertEqual(response.status_code, 302)
 
         self.assertEqual(GrowthData.objects.count(), n_gd+1)
+        self.assertEqual(Sources.objects.count(), n_src+1)
+        self.assertEqual(MediaNames.objects.count(), n_mn+1)
+        
+    def test_media_form_post_three_compounds_two_uptakes(self):
+        n_gd=GrowthData.objects.count()
+        n_src=Sources.objects.count()
+        n_mn=MediaNames.objects.count()
+        url=reverse('new_media_form')
+
+        args=newmedia_inputs['full_valid']['args']
+        args['comp2']='atp'
+        args['amount2']='0.48'
+        args['comp3']='1,3-Di-(octadec-9Z-enoyl)-1-cyano-2-methylene-propane-1,3-diol'
+        args['amount3']='0.148'
+        args['comp4']='1,2-Dichloroethane'
+        args['amount4']='0.348'
+        
+        args['uptake_comp1']='Angiotensin (1-5)SEQUENCE Asp Arg Val Tyr IleORGANISM Human [HSA:183]'
+        args['uptake_rate1']='-0.2'
+        args['uptake_comp2']='Angoline'
+        args['uptake_rate2']='0.2'
+        response=self.client.post(url, args)
+        self.assertEqual(response.status_code, 302)
+
+        log.debug('after: %d growth data objects' % GrowthData.objects.count())
+        log.debug('after: %d sources objects' % Sources.objects.count())
+        log.debug('after: %d media names objects' % MediaNames.objects.count())
+        self.assertEqual(GrowthData.objects.count(), n_gd+1)
+        self.assertEqual(Sources.objects.count(), n_src+1)
+        self.assertEqual(MediaNames.objects.count(), n_mn+1)
         

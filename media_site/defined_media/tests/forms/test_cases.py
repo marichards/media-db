@@ -89,6 +89,26 @@ newmedia_inputs={
                  'uptake_rate1': '0.2',
                  },
         'valid': False},
+    'missing_bad_compound': {
+        'args': {'genus': 'Acinetobacter', 'species': 'baylyi', 'strain': 'ADP1',
+                 'media_name': 'missing_amount2',
+                 'is_minimal': 'on',
+                 'first_author': 'Blow J',
+                 'journal' : 'People Magazine',
+                 'title': "Party like it's ",
+                 'year' : 1999,
+                 'link' : 'http://www.cnn.com',
+                 'comp1': 'h2o_blah', 
+                 'amount1': '1.23', 
+                 'comp2': 'atp',
+                 'amount2': '4.23',
+                 'growth_rate': '0.5',
+                 'temperature': '37.4',
+                 'ph': 7.1,
+                 'uptake_comp1': 'Iron',
+                 'uptake_rate1': '0.2',
+                 },
+        'valid': False},
 }
 
 
