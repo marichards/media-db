@@ -57,12 +57,25 @@ class CompoundReplacements(models.Model):
     class Meta:
         db_table = 'compound_replacements'
 
+class CompoundManager(models.Manager):
+    def with_name(self, name):
+        try:
+            return Compounds.objects.get(name=name)
+        except Compounds.DoesNotExist:
+            try:
+                synonym=NamesOfCompounds.objects.get(name=name)
+                return synonym.compid
+            except NamesOfCompounds.DoesNotExist, e:
+                raise Compounds.DoesNotExist(e) 
+
 class Compounds(models.Model):
     compid = models.AutoField(primary_key=True, db_column='compID') # Field name made lowercase.
     kegg_id = models.CharField(max_length=255L, unique=True, db_column='KEGG_ID', blank=True, null=True) # Field name made lowercase.
     bigg_id = models.CharField(max_length=255L, db_column='BiGG_ID', blank=True, null=True) # Field name made lowercase.
     user_identifier = models.CharField(max_length=255L, blank=True, null=True)
     name = models.CharField(max_length=255L, unique=True)
+
+    objects=CompoundManager()
 
     class Meta:
         db_table = 'compounds'
@@ -73,7 +86,7 @@ class Compounds(models.Model):
 
     def __repr__(self):
         return 'compound %s (%d): kegg_id=%s, bigg_id=%s, user_identifier=%s' % \
-        (self.compid, self.name, self.kegg_id, self.bigg_id, self.user_identifier)
+        (self.name, self.compid, self.kegg_id, self.bigg_id, self.user_identifier)
 
     def keywords(self):
         nocs=[noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
@@ -94,6 +107,7 @@ class Compounds(models.Model):
 
     def seed_url(self):
         return 'http://seed-viewer.theseed.org/seedviewer.cgi?page=CompoundViewer&compound=%s&model=' % self.seed_id
+
 
 '''
 class Contributors(models.Model):
