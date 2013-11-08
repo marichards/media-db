@@ -38,6 +38,17 @@ def all_related(obj, related={}):
             all_related(o, related)
     return (related, n)
 
+def add_secretion_uptakes(media_objs):
+    growth_ids=[254, 265, 210]  # one for each unit type
+    sec_uptakes=[]
+    for gid in growth_ids:
+        sec_uptakes.extend(list(SecretionUptake.objects.filter(growthid=gid)))
+    media_objs['SecretionUptake']=sec_uptakes
+
+def add_secretion_uptake_keys(media_objs):
+    media_objs['SecretionUptakeKey']=SecretionUptakeKey.objects.all()
+    
+
 def add_biomass(media_objs):
     all_biomass=Biomass.objects.all()
     media_objs['Biomass']=all_biomass
@@ -111,6 +122,8 @@ def main():
     compounds=sorted(compounds, key=lambda c: c.n_related)
     print 'done sorting'
 
+    add_secretion_uptakes(media_objs)
+    add_secretion_uptake_keys(media_objs)
     add_biomass(media_objs)
     add_organisms(media_objs)
     add_search_results(media_objs)

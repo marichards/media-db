@@ -12,11 +12,13 @@
 <form id='id_newmedia_form' action='' method='POST'>
 {% csrf_token %}
 
+<!-- errors start -->
 {% if form.my_errors|length > 0 %}{{ form.my_errors|length }} Errors:<ul>
 {% for k,v in form.my_errors.items %}
-<li>{{ k }}:{{ v }}</li>
+<li>{{ k }}: {{ v }}</li>
 {% endfor %}
 </ul>{% endif %}
+<!-- errors end -->
 
 <table id='id_media_names_table'>
 <tr><th>New Media Name</th></tr>

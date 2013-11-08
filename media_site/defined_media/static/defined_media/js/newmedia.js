@@ -45,7 +45,8 @@ NewMediaEditor.prototype={
 	$('#id_genus').change(document.editor.load_species_sel)
 	$('#id_species').change(document.editor.load_strain_sel)
 	$('#id_add_compound1').click(document.editor.add_compound)
-	$('#id_newmedia_form').submit(document.editor.validate_form)
+//	$('#id_newmedia_form').submit(document.editor.validate_form)
+//	$('#id_newmedia_form').submit(function() { console.log('ha ha'); return false }	)
 	$('#id_pmid').change(document.editor.efetch_pmid)
 	$('#id_source_button').click(document.editor.toggle_journal_visibility)
 	$('#id_add_uptake1').click(document.editor.add_uptake)
@@ -182,7 +183,9 @@ NewMediaEditor.prototype={
 
 
 
-    efetch_pmid: function() {
+    efetch_pmid: function(evt) {
+        evt.preventDefault()
+        try {
         pmid=$('#id_pmid').val()
 	url=editor.urlmap['efetch_pmid']+pmid
 	settings={
@@ -192,13 +195,17 @@ NewMediaEditor.prototype={
 	        $('#id_journal').val(data['journal'])       
 	        $('#id_year').val(data['year'])       
 	        $('#id_link').val(data['link'])       
+		return false
 	    },
 	    error: function(jqXHR, textStatus, errorThrown) {
 	        throw 'efetch_pmid: '+textStatus+'('+errorThrown+')'
 	    },
 	}
 	$.ajax(url, settings)
-
+	} catch(err) {
+   	    console.log('caught error: '+err)
+	}
+	return false
     },
 
     toggle_journal_visibility: function() {

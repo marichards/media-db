@@ -1,4 +1,4 @@
-import logging
+import logging, copy
 log=logging.getLogger(__name__)
 
 from django.test import TestCase
@@ -16,6 +16,7 @@ class TestMediaForm(TestCase):
         pass
 
     def test_media_form_get_empty(self):
+        log.debug('\n*** test_media_form_get_empty ***')
         response=self.client.get(reverse('new_media_form'))
 #        print content
         self.assertEqual(response.status_code, 200)
@@ -26,6 +27,7 @@ class TestMediaForm(TestCase):
 
 
     def test_media_form_is_valid(self):
+        log.debug('\n*** test_media_form_is_valid ***')
         url=reverse('new_media_form')
         for name, data in newmedia_inputs.items():
             log.debug('name is %s' % name)
@@ -41,12 +43,13 @@ class TestMediaForm(TestCase):
 
 
     def test_media_form_post(self):
+        log.debug('\n*** test_media_form_post ***')
         n_gd=GrowthData.objects.count()
         n_src=Sources.objects.count()
         n_mn=MediaNames.objects.count()
 
         url=reverse('new_media_form')
-        args=newmedia_inputs['minimal_valid']['args']
+        args=copy.copy(newmedia_inputs['minimal_valid']['args'])
         response=self.client.post(url, args)
         self.assertEqual(response.status_code, 302)
 
@@ -54,31 +57,154 @@ class TestMediaForm(TestCase):
         self.assertEqual(Sources.objects.count(), n_src+1)
         self.assertEqual(MediaNames.objects.count(), n_mn+1)
         
-    def test_media_form_post_three_compounds_two_uptakes(self):
+    def test_media_form_post_four_compounds_two_uptakes(self):
+        log.debug('\n*** test_media_form_four_compounds_two_uptakes ***')
         n_gd=GrowthData.objects.count()
         n_src=Sources.objects.count()
         n_mn=MediaNames.objects.count()
+        n_uptake=SecretionUptake.objects.count()
+
         url=reverse('new_media_form')
 
-        args=newmedia_inputs['full_valid']['args']
+        args=copy.copy(newmedia_inputs['full_valid']['args'])
         args['comp2']='atp'
         args['amount2']='0.48'
-        args['comp3']='1,3-Di-(octadec-9Z-enoyl)-1-cyano-2-methylene-propane-1,3-diol'
+        args['comp3']='UDP-N-acetyl-D-glucosamine'
         args['amount3']='0.148'
-        args['comp4']='1,2-Dichloroethane'
+        args['comp4']='Manganese'
         args['amount4']='0.348'
         
-        args['uptake_comp1']='Angiotensin (1-5)SEQUENCE Asp Arg Val Tyr IleORGANISM Human [HSA:183]'
+        args['uptake_comp1']='2-Oxoglutarate'
         args['uptake_rate1']='-0.2'
-        args['uptake_comp2']='Angoline'
+        args['uptake_unit1']='1/h'
+        args['uptake_type1']=1
+        args['uptake_comp2']='S-Adenosyl-L-methionine'
         args['uptake_rate2']='0.2'
+        args['uptake_unit2']='1/h'
+        args['uptake_type2']=1
         response=self.client.post(url, args)
         self.assertEqual(response.status_code, 302)
 
         log.debug('after: %d growth data objects' % GrowthData.objects.count())
         log.debug('after: %d sources objects' % Sources.objects.count())
         log.debug('after: %d media names objects' % MediaNames.objects.count())
+
         self.assertEqual(GrowthData.objects.count(), n_gd+1)
         self.assertEqual(Sources.objects.count(), n_src+1)
         self.assertEqual(MediaNames.objects.count(), n_mn+1)
+        self.assertEqual(SecretionUptake.objects.count(), n_uptake+2)
+
+    def test_bad_compound(self):
+        log.debug('\n*** test_bad_compound ***')
+        n_gd=GrowthData.objects.count()
+        n_src=Sources.objects.count()
+        n_mn=MediaNames.objects.count()
+        n_uptake=SecretionUptake.objects.count()
+
+        url=reverse('new_media_form')
+        args=copy.copy(newmedia_inputs['full_valid']['args'])
+        args['comp1']='fred'
+        response=self.client.post(url, args)
+        self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
+        content=response.content
+        mg=re.search(r'errors start(.*)errors end', content)
+        if mg:
+            print mg.groups(0)
+        else:
+            print 'no match'
+
+        self.assertIn('2 Errors', content, 'not found: "2 Errors"')
+        self.assertIn('No compounds for fred', content, 'not found: "No compounds for fred"')
+        self.assertIn('No valid compound/amount pairs', content, 'not found: "No valid compound/amount pairs"')
+
+        self.assertEqual(GrowthData.objects.count(), n_gd)
+        self.assertEqual(Sources.objects.count(), n_src)
+        self.assertEqual(MediaNames.objects.count(), n_mn)
+        self.assertEqual(SecretionUptake.objects.count(), n_uptake)
         
+
+    def test_bad_amount(self):
+        log.debug('\n*** test_bad_amount ***')
+        n_gd=GrowthData.objects.count()
+        n_src=Sources.objects.count()
+        n_mn=MediaNames.objects.count()
+        n_uptake=SecretionUptake.objects.count()
+
+        url=reverse('new_media_form')
+        args=copy.copy(newmedia_inputs['full_valid']['args'])
+        args['amount1']='fred'
+        response=self.client.post(url, args)
+        self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
+        content=response.content
+        
+        self.assertIn('1 Error', content, 'not found: "1 Error"')
+        self.assertIn('amount1: Enter a number', content, 'not found: "amount1: Enter a number"')
+
+        self.assertEqual(GrowthData.objects.count(), n_gd)
+        self.assertEqual(Sources.objects.count(), n_src)
+        self.assertEqual(MediaNames.objects.count(), n_mn)
+        self.assertEqual(SecretionUptake.objects.count(), n_uptake)
+
+
+    def test_missing_amount(self):
+        log.debug('\n*** test_missing_amount ***')
+        n_gd=GrowthData.objects.count()
+        n_src=Sources.objects.count()
+        n_mn=MediaNames.objects.count()
+        n_uptake=SecretionUptake.objects.count()
+
+        url=reverse('new_media_form')
+        args=copy.copy(newmedia_inputs['full_valid']['args'])
+        del args['amount1']
+        response=self.client.post(url, args)
+        self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
+        content=response.content
+
+        self.assertIn('1 Error', content, 'not found: "1 Error"')
+        expected='amount1: This field is required'
+        self.assertIn(expected, content, 'not found: "%s"' % expected)
+
+        self.assertEqual(GrowthData.objects.count(), n_gd)
+        self.assertEqual(Sources.objects.count(), n_src)
+        self.assertEqual(MediaNames.objects.count(), n_mn)
+        self.assertEqual(SecretionUptake.objects.count(), n_uptake)
+
+    
+    def test_two_uptakes(self):
+        log.debug('\n*** test_two_uptakes ***')
+        n_gd=GrowthData.objects.count()
+        n_src=Sources.objects.count()
+        n_mn=MediaNames.objects.count()
+        n_uptake=SecretionUptake.objects.count()
+
+        url=reverse('new_media_form')
+        args=copy.copy(newmedia_inputs['full_valid']['args'])
+        args['uptake_comp1']='Orthophosphate'
+        args['uptake_rate1']='2.3'
+        args['uptake_unit1']='1/h'
+        args['uptake_type1']=1
+        args['uptake_comp2']='Diphosphate'
+        args['uptake_rate2']='3.3'
+        args['uptake_unit2']='1/h'
+        args['uptake_type2']=1
+        for k,v in args.items():
+            log.debug('args[%s]=%s' % (k,v))
+        
+        response=self.client.post(url, args)
+        self.assertEqual(response.status_code, 302)
+        content=response.content
+
+        self.assertEqual(GrowthData.objects.count(), n_gd+1)
+        self.assertEqual(Sources.objects.count(), n_src+1)
+        self.assertEqual(MediaNames.objects.count(), n_mn+1)
+        self.assertEqual(SecretionUptake.objects.count(), n_uptake+2)
+
+
+    def test_missing_uptake_compounds(self):
+        pass
+
+    def test_missing_uptake_rate(self):
+        pass
+
+    def test_bad_media_name(self):
+        pass
