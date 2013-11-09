@@ -20,29 +20,31 @@ class NewMediaView(FormView):
 #    success_url=reverse('new_media_form')
     success_url='/defined_media/newmedia'
 
+
+    @transaction.atomic()
     def post(self, request, *args, **kwargs):
+        log.debug('post entered')
+        form=NewMediaForm(request.POST)
+        if not form.is_valid():
+            log.debug('form is invalid, aborting')
+            return self.form_invalid(form)
+            
         try:
-            form=NewMediaForm(request.POST)
-            form.orig_data=request.POST
-            valid=form.is_valid()
-            
-            if not valid:
-                return self.form_invalid(form)
-            
             media_name=self.get_media_name(form)
-            if media_name==None: 
-                return self.form_invalid(form)
+            log.debug('media_name is %s' % media_name)
             media_name.save()
 
-            growth_data=self.get_growth_data(form, media_name)
-            if not growth_data: 
-                return self.form_invalid(form)
+            org=self.get_organism(form)
+            log.debug('org is %s' % org)
+            source=self.get_source(form)
+            log.debug('source is %s' % source)
+
+            growth_data=self.get_growth_data(form, org, source, media_name)
+            log.debug('growth_data is %s' % growth_data)
             growth_data.save()
             
             media_comps=self.get_media_comps(form, media_name)
-            if len(media_comps)==0:
-                form.errors['MediaCompounds']='No valid compound/amount pairs found'
-                return self.form_invalid(form)
+            log.debug('%d new media_comps' % len(media_comps))
             for mcomp in media_comps:
                 mcomp.save()
             
@@ -66,17 +68,16 @@ class NewMediaView(FormView):
                                         strain=form.cleaned_data['strain'][0])
         except Organisms.DoesNotExist, e:
             form.errors['Organism']="No such organism: "+str(e)
-            return None
+            raise e
     
     def get_media_name(self, form):
         try:
-            m=MediaNames.objects.get(media_name=form.cleaned_data['media_name'][0])
-            return m
+            return MediaNames.objects.get(media_name=form.cleaned_data['media_name'][0])
         except MediaNames.DoesNotExist:
             try:
                 is_defined='Y' if 'is_defined' in self.request.POST else 'N'
                 is_minimal='Y' if 'is_minimal' in self.request.POST else 'N'
-
+                
                 args={'media_name': form.cleaned_data['media_name'][0],
                       'is_defined': is_defined,
                       'is_minimal': is_minimal
@@ -84,9 +85,10 @@ class NewMediaView(FormView):
                 return MediaNames(**args)
             except Exception, e:
                 form.errors['MediaNames']="Unable to create media name record: "+str(e)
-                return None
+                raise e
 
     def get_media_comps(self, form, media_name):
+        ''' get the list of comp/amount objects, referencing the media_name object: '''
         keys=[k for k in form.cleaned_data.keys() if k.startswith('comp')]
         med_comps=[]
         for ckey in keys:
@@ -98,24 +100,24 @@ class NewMediaView(FormView):
                 if amount==None: raise ValueError()
                 med_comp=MediaCompounds(medid=media_name, compid=comp, amount_mm=amount)
                 med_comps.append(med_comp)
-            except Compounds.DoesNotExist:
+            except Compounds.DoesNotExist as e:
                 form.errors[ckey]='No compounds for %s' % form.cleaned_data[ckey][0]
-            except ValueError:
+                raise e
+            except ValueError as e:
                 form.errors[ckey]='No amount provided for %s' % form.cleaned_data[ckey][0]
-            except Exception, e:
+                raise e
+            except Exception as e:
                 form.errors[ckey]='Error: %s' % e
+                raise e
+
+        if len(med_comps)==0:
+            form.errors['MediaCompounds']='No valid compound/amount pairs found'
+            raise ValueError
 
         return med_comps
 
-    def get_growth_data(self, form, media_name):
+    def get_growth_data(self, form, org, source, media_name):
         try:
-            org=self.get_organism(form)
-            source=self.get_source(form)
-
-            if not (org and source and media_name):
-                return None
-
-
             args={'strainid': org,
                   'medid': media_name,
                   'sourceid': source,
@@ -128,7 +130,7 @@ class NewMediaView(FormView):
             return GrowthData(**args)
         except Exception, e:
             form.errors['GrowthData']="Unable to create growth data record: "+str(e)
-            return None
+            raise e
 
     def get_source(self, form):
         title=form.cleaned_data['title'][0]
@@ -145,7 +147,7 @@ class NewMediaView(FormView):
                 return src
             except Exception, e:
                 form.errors['Sources']="Unable to create source record: "+str(e)
-                return None
+                raise e
 
 
                           
@@ -179,4 +181,5 @@ class NewMediaView(FormView):
             except Exception, e:
                 log.debug('trying to create SecretionUptake object: caught %s: %s' % (type(e),e))
                 form.errors[key]='Error creating secretion-uptake(%s): %s' % (type(e), e)
+                raise e
         return uptakes

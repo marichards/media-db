@@ -58,9 +58,12 @@ class NewMediaForm(forms.Form):
     def is_valid(self):
         valid=super(NewMediaForm, self).is_valid()
         if not hasattr(self, 'orig_args'):
+            log.debug('no orig_args, returning %s' % valid)
             return valid
 
         # back-fill missing genus, species:
+        # have to do this because the form's select values are inter-dependent,
+        # and start off as being empty.  This breaks the 'required' bit.
         for f in ['genus', 'species', 'strain']:
             if f in self.errors:
                 del self.errors[f]
@@ -127,6 +130,9 @@ class NewMediaForm(forms.Form):
             if len(missing)>0:
                 self.errors['uptake%s' % n]='Uptake %s: These fields are required: %s' % (n, ', '.join(missing))
 
+        log.debug('%d errors: returning %s' % (len(self.errors), len(self.errors)==0))
+        for k,v in self.errors.items():
+            log.debug('errors: %s -> %s' % (k,v))
         return len(self.errors)==0
             
     def reformat_errors(self):

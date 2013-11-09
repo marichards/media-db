@@ -134,6 +134,7 @@ class TestMediaForm(TestCase):
         args=copy.copy(newmedia_inputs['full_valid']['args'])
         args['amount1']='fred'
         response=self.client.post(url, args)
+        log.debug('status_code is %s' % response.status_code)
         self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
         content=response.content
         
