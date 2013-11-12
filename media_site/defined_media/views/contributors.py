@@ -23,33 +23,27 @@ class NewMediaView(FormView):
 
     @transaction.atomic()
     def post(self, request, *args, **kwargs):
-        log.debug('post entered')
         form=NewMediaForm(request.POST)
-        if not form.is_valid():
-            log.debug('form is invalid, aborting')
-            return self.form_invalid(form)
-            
+
         try:
+            if not form.is_valid():
+                log.debug('form is invalid, aborting')
+                return self.form_invalid(form)
+            
             media_name=self.get_media_name(form)
-            log.debug('media_name is %s' % media_name)
             media_name.save()
 
             org=self.get_organism(form)
-            log.debug('org is %s' % org)
             source=self.get_source(form)
-            log.debug('source is %s' % source)
 
             growth_data=self.get_growth_data(form, org, source, media_name)
-            log.debug('growth_data is %s' % growth_data)
             growth_data.save()
             
             media_comps=self.get_media_comps(form, media_name)
-            log.debug('%d new media_comps' % len(media_comps))
             for mcomp in media_comps:
                 mcomp.save()
             
             uptakes=self.get_uptakes(form, growth_data)
-            log.debug('%d new uptakes' % len(uptakes))
             for uptake in uptakes:
                 uptake.save()
                 
@@ -58,6 +52,7 @@ class NewMediaView(FormView):
             else:
                 return self.form_invalid(form)
         finally:
+            log.debug('about to reformat %d errors' % len(form.errors))
             form.reformat_errors()
 
 
@@ -165,13 +160,10 @@ class NewMediaView(FormView):
                 except IndexError: continue # this only happens for key=='uptake_comp1'
                     
                 comp=Compounds.objects.with_name(comp_name)
-                log.debug('uptakes: compound%s is %s' % (n, comp))
                 rate=form.cleaned_data['uptake_rate'+n][0]
                 up_type_id=form.cleaned_data['uptake_type'+n][0]
                 up_type=SecretionUptakeKey(rateid=up_type_id)
-                log.debug('up_type is %s' % up_type)
                 units=form.cleaned_data['uptake_unit'+n][0]
-                log.debug('gd is %r' % gd)
                 uptake=SecretionUptake(growthid=gd,
                                        compid=comp.compid,
                                        rate=rate,

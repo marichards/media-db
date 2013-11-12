@@ -18,7 +18,7 @@ class TestMediaForm(TestCase):
     def test_media_form_get_empty(self):
         log.debug('\n*** test_media_form_get_empty ***')
         response=self.client.get(reverse('new_media_form'))
-#        print content
+
         self.assertEqual(response.status_code, 200)
         content=response.content
         self.assertIn('<h2>Enter Media Information:</h2>', content)
@@ -85,10 +85,6 @@ class TestMediaForm(TestCase):
         response=self.client.post(url, args)
         self.assertEqual(response.status_code, 302)
 
-        log.debug('after: %d growth data objects' % GrowthData.objects.count())
-        log.debug('after: %d sources objects' % Sources.objects.count())
-        log.debug('after: %d media names objects' % MediaNames.objects.count())
-
         self.assertEqual(GrowthData.objects.count(), n_gd+1)
         self.assertEqual(Sources.objects.count(), n_src+1)
         self.assertEqual(MediaNames.objects.count(), n_mn+1)
@@ -109,13 +105,13 @@ class TestMediaForm(TestCase):
         content=response.content
         mg=re.search(r'errors start(.*)errors end', content)
         if mg:
-            print mg.groups(0)
+            log.debug(mg.groups(0))
         else:
-            print 'no match'
+            log.debug('no match')
 
-        self.assertIn('2 Errors', content, 'not found: "2 Errors"')
-        self.assertIn('No compounds for fred', content, 'not found: "No compounds for fred"')
-        self.assertIn('No valid compound/amount pairs', content, 'not found: "No valid compound/amount pairs"')
+        self.assertIn('1 Error', content, 'not found: "1 Error"')
+        expected='Compound 1: Unknown compound &quot;fred'
+        self.assertIn(expected, content, expected)
 
         self.assertEqual(GrowthData.objects.count(), n_gd)
         self.assertEqual(Sources.objects.count(), n_src)
@@ -134,7 +130,6 @@ class TestMediaForm(TestCase):
         args=copy.copy(newmedia_inputs['full_valid']['args'])
         args['amount1']='fred'
         response=self.client.post(url, args)
-        log.debug('status_code is %s' % response.status_code)
         self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
         content=response.content
         
@@ -171,6 +166,22 @@ class TestMediaForm(TestCase):
         self.assertEqual(SecretionUptake.objects.count(), n_uptake)
 
     
+    def check_compounds(self, args):
+        log.debug('%d compounds in test db' % Compounds.objects.count())
+        errors=[]
+        for key in [c for c in args.keys() if 'comp' in c]:
+            try: comp_name=args[key][0]
+            except TypeError: comp_name=args[key]
+            try:
+                comp=Compounds.objects.with_name(comp_name)
+                log.debug('found compounds %s' % comp_name)
+            except Compounds.DoesNotExist:
+                errors.append('missing needed compound: %s' % comp_name)
+        if len(errors)>0:
+            for err in errors:
+                log.debug('+++ %s +++' % err)
+            self.fail()
+
     def test_two_uptakes(self):
         log.debug('\n*** test_two_uptakes ***')
         n_gd=GrowthData.objects.count()
@@ -180,17 +191,17 @@ class TestMediaForm(TestCase):
 
         url=reverse('new_media_form')
         args=copy.copy(newmedia_inputs['full_valid']['args'])
-        args['uptake_comp1']='Orthophosphate'
+        args['uptake_comp1']=['Orthophosphate']
         args['uptake_rate1']='2.3'
         args['uptake_unit1']='1/h'
         args['uptake_type1']=1
-        args['uptake_comp2']='Diphosphate'
+        args['uptake_comp2']=['Diphosphate']
         args['uptake_rate2']='3.3'
         args['uptake_unit2']='1/h'
         args['uptake_type2']=1
-        for k,v in args.items():
-            log.debug('args[%s]=%s' % (k,v))
         
+        self.check_compounds(args)
+
         response=self.client.post(url, args)
         self.assertEqual(response.status_code, 302)
         content=response.content

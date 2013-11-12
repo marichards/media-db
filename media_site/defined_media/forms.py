@@ -58,7 +58,6 @@ class NewMediaForm(forms.Form):
     def is_valid(self):
         valid=super(NewMediaForm, self).is_valid()
         if not hasattr(self, 'orig_args'):
-            log.debug('no orig_args, returning %s' % valid)
             return valid
 
         # back-fill missing genus, species:
@@ -70,67 +69,62 @@ class NewMediaForm(forms.Form):
                 self.cleaned_data[f]=self.orig_args[f]
 
         self.cleaned_data.update(self.orig_args)
-
-        def is_missing(key):
-            try: value_list=self.cleaned_data[key]
-            except KeyError: 
-                return True
-
-            if value_list==None: 
-                return True
-
-            try: n=len(value_list[0].strip())
-            except AttributeError, e: # if no .strip()
-                n=-1
-            except TypeError, e: # if len() breaks
-                n=-2
-            except IndexError, e: # if value[0] breaks
-                n=-3
-            
-            ret = n<=0
-            return ret
-                
-
-        # check matching compounds and amounts (beyond the first):
+        
+        # check compounds and amounts:
         err_temp='<ul class="errorlist"><li>%s: This field is required.</li></ul>'
-        pairs={'comp':'amount',
-               'amount':'comp',
-#               'uptake_compound':'uptake_rate',
-#               'uptake_rate':'uptake_compound',
-               }
-        for key1 in self.cleaned_data.keys():
-            for k,v in pairs.items():
-                if key1.startswith(k):
-                    key2='%s%s' % (v,key1.split(k)[1])
-                    missing1=is_missing(key1)
-                    missing2=is_missing(key2)
-                    if not missing1 and missing2: # don't do "missing1 != missing2" because then we'll get the error twice
-                        self.errors[key2]=err_temp % key2
-                    break
+        for key in [k for k in self.cleaned_data.keys() if k.startswith('comp')]:
+            n=key.split('comp')[1]
+            try:
+                comp_name=self.cleaned_data.get(key)[0]
+                if comp_name==None:
+                    continue    # don't need to check for comp1 because it's required by form
+                comp=Compounds.objects.with_name(comp_name)
+
+                akey='amount'+n
+                amount=self.cleaned_data.get(akey)
+
+            except KeyError as ke:
+                if akey in str(ke): # str(ke) has quotes
+                    self.errors[akey]=err_temp % akey
+                else:
+                    raise ke
+            except Compounds.DoesNotExist:
+                self.errors[key]='Compound %s: Unknown compound "%s"' % (n,comp_name)
+                continue
+
                
         # check completeness of all four uptake fields:
         uckeys=[k for k in self.cleaned_data.keys() if k.startswith('uptake_comp')]
         part2s=['rate', 'unit', 'type']
         for uckey in uckeys:
+            # ignore this "row" if no compound given
             try: 
-                comp_name=self.cleaned_data[uckey][0]
+                comp_name=self.cleaned_data.get(uckey)[0]
                 if not comp_name or len(comp_name)==0: continue
             except: 
                 continue
 
             n=uckey.split('uptake_comp')[1]
+
+            # look for valid compound:
+            try:
+                comp=Compounds.objects.with_name(comp_name)
+            except Compounds.DoesNotExist:
+                self.errors['uptake%s' % n]='Uptake %s: Unknown compound "%s"' % (n, comp_name)
+                continue
+
             missing=[]
             for part2 in part2s:
                 key='uptake_%s%s' % (part2, n)
                 try:
-                    val=self.cleaned_data[key][0]
+                    try: val=self.cleaned_data.get(key)[0] # sometimes it's a list, sometimes it's not
+                    except TypeError: val=self.cleaned_data.get(key)
                     if val==None: raise ValueError(val)
-                except:
+                except Exception as e:
                     missing.append(part2)
             if len(missing)>0:
                 self.errors['uptake%s' % n]='Uptake %s: These fields are required: %s' % (n, ', '.join(missing))
 
-        log.debug('%d errors: returning %s' % (len(self.errors), len(self.errors)==0))
         for k,v in self.errors.items():
             log.debug('errors: %s -> %s' % (k,v))
         return len(self.errors)==0
