@@ -47,7 +47,9 @@ urlpatterns = patterns(view_prefix,
                        url(r'^search/$', views.search.SearchResultsView.as_view(), name='search'),
                        url(r'^search_results/$', views.search.SearchResultsView.as_view(), name='search_results'),
 
+                       # New Media Contribution:
                        url(r'^newmedia/$', views.contributors.NewMediaView.as_view(), name='new_media_form'),
+                       url(r'^newmedia/(?P<pk>\d+)/$', views.contributors.NewMediaView.as_view(), name='new_media_form'),
 
                        # REST api
                        url(r'^api/urlmap$', views.api.urlmap, name='urlmap'),

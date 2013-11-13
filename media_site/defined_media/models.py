@@ -130,13 +130,17 @@ class GrowthData(models.Model):
     ph = models.FloatField(null=True, db_column='pH', blank=True) # Field name made lowercase.
     temperature_c = models.FloatField(null=True, db_column='Temperature_C', blank=True) # Field name made lowercase.
     measureid = models.ForeignKey('Measurements', null=True, db_column='measureID', blank=True) # Field name made lowercase.
-    additional_notes = models.CharField(max_length=255L, db_column='Additional_Notes', blank=True) # Field name made lowercase.
+    additional_notes = models.CharField(max_length=255L, db_column='Additional_Notes', blank=True, null=True) # Field name made lowercase.
     class Meta:
         db_table = 'growth_data'
 	verbose_name_plural = 'growth data'
     #Method: Python calls Growth Object and Returns the ID instead of just "GrowthData Object" 
     def __unicode__(self):
         return '%s on %s' %(self.strainid,self.medid)   
+
+    def __repr__(self):
+        return "GrowthData %d: org=%s, strain=%s, media_name=%s, sourceid=%s, measureid=%s" % \
+            (self.growthid, self.strainid, self.medid, self.sourceid, self.measureid)
 
 class Measurements(models.Model):
     measureid = models.AutoField(primary_key=True, db_column='measureID') # Field name made lowercase.
@@ -339,13 +343,16 @@ class SearchResult(models.Model):
     def __repr__(self):
         return '<pk=%s> %s-%s-%s' % (self.id, self.keyword, self.classname, self.obj_id)
 
-    def __unicode__(self):
+    def get_obj(self):
         this_mod=inspect.getmodule(self)
         cls=getattr(this_mod, self.classname)
         pk_name=cls._meta.pk.name
         args={pk_name: self.obj_id}
-        obj=cls.objects.get(**args)
-        return str(obj)
+        return cls.objects.get(**args)
+
+
+    def __unicode__(self):
+        return str(self.get_obj())
 
     def clean(self):
         self.keyword=re.sub(self.bad_chars, '', self.keyword.lower())

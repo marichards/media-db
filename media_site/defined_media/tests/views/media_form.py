@@ -26,6 +26,17 @@ class TestMediaForm(TestCase):
         self.assertIn("<table id='id_medianames_table'>", content, "'id='id_medianames_table' not found'")
 
 
+    def test_media_form_get_id(self):
+        log.debug('\n*** test_media_form_get_empty ***')
+        response=self.client.get(reverse('new_media_form'))
+
+        self.assertEqual(response.status_code, 200)
+        content=response.content
+        self.assertIn('<h2>Enter Media Information:</h2>', content)
+        self.assertIn("<input type='hidden' name='csrfmiddlewaretoken'", content)
+        self.assertIn("<table id='id_medianames_table'>", content, "'id='id_medianames_table' not found'")
+
+
     def test_media_form_is_valid(self):
         log.debug('\n*** test_media_form_is_valid ***')
         url=reverse('new_media_form')
