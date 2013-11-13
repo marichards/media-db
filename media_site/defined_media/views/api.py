@@ -3,7 +3,9 @@ from defined_media.models import Organisms
 from defined_media.serializers import OrganismSerializer
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
-import json, requests, re
+import json, requests, re, logging
+
+log=logging.getLogger(__name__)
 
 def urlmap(request):
     ''' make certain url mappings available as json, so jQuery can use them '''
@@ -49,6 +51,7 @@ def efetch_pmid(request, *args, **kwargs):
           'link':'http://www.ncbi.nlm.nih.gov/pubmed/?term=%d' % pmid}
     url='http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=%d&rettype=medline' % pmid
     r=requests.get(url)
+    log.debug('pmid=%s: status_code from pubmed is %d' % (pmid, r.status_code))
     if r.status_code != 200:
         raise Http404('nothing found for pmid=%d' % pmid)
     
@@ -56,7 +59,9 @@ def efetch_pmid(request, *args, **kwargs):
          'JT':'journal'}
     
     if 'Error occurred: The following PMID is not available:' in r.content:
-        data['error']='nothing found for pmid=%d' % pmid
+        log.debug('pmid %s not available, 404-ing' % pmid)
+        raise Http404('nothing found for pmid=%d' % pmid)
+#        data['error']='nothing found for pmid=%d' % pmid
     else:
         last_code=None
         for line in r.content.split('\n'):

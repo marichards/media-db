@@ -64,7 +64,7 @@ class NewMediaForm(forms.Form):
         # have to do this because the form's select values are inter-dependent,
         # and start off as being empty.  This breaks the 'required' bit.
         for f in ['genus', 'species', 'strain']:
-            if f in self.errors:
+            if f in self.errors and f in self.orig_args:
                 del self.errors[f]
                 self.cleaned_data[f]=self.orig_args[f]
 
@@ -100,8 +100,11 @@ class NewMediaForm(forms.Form):
             # ignore this "row" if no compound given
             try: 
                 comp_name=self.cleaned_data.get(uckey)[0]
-                if not comp_name or len(comp_name)==0: continue
+                if not comp_name or len(comp_name)==0: 
+                    log.debug('no compound for %s, skipping' % uckey)
+                    continue
             except: 
+                log.debug('no compound for %s, skipping' % uckey)
                 continue
 
             n=uckey.split('uptake_comp')[1]
@@ -111,6 +114,7 @@ class NewMediaForm(forms.Form):
                 comp=Compounds.objects.with_name(comp_name)
             except Compounds.DoesNotExist:
                 self.errors['uptake%s' % n]='Uptake %s: Unknown compound "%s"' % (n, comp_name)
+                log.debug('skipping unknown compound %s: %s' % (uckey, comp_name))
                 continue
 
             missing=[]
@@ -119,6 +123,7 @@ class NewMediaForm(forms.Form):
                 try:
                     try: val=self.cleaned_data.get(key)[0] # sometimes it's a list, sometimes it's not
                     except TypeError: val=self.cleaned_data.get(key)
+                    log.debug('%s: val=%s' % (key, val))
                     if val==None: raise ValueError(val)
                 except Exception as e:
                     missing.append(part2)

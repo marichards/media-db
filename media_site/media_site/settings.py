@@ -177,7 +177,9 @@ LOGGING = {
             'level':'DEBUG',
             'class':'django.utils.log.NullHandler',
             },
+        # set mode to 'w' so file is being re-written every time; more useful for testing
         'logfile': {
+            'mode': 'w',
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': SITE_ROOT + "/logfile",

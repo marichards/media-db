@@ -46,10 +46,11 @@ NewMediaEditor.prototype={
 	$('#id_species').change(document.editor.load_strain_sel)
 	$('#id_add_compound1').click(document.editor.add_compound)
 //	$('#id_newmedia_form').submit(document.editor.validate_form)
-//	$('#id_newmedia_form').submit(function() { console.log('ha ha'); return false }	)
+	$('#id_newmedia_form').submit(document.editor.prevent_submission)
 	$('#id_pmid').change(document.editor.efetch_pmid)
 	$('#id_source_button').click(document.editor.toggle_journal_visibility)
 	$('#id_add_uptake1').click(document.editor.add_uptake)
+	$('#id_submit_button').click(document.editor.submit)
     },
 
     fetch_organisms : function() {
@@ -190,7 +191,7 @@ NewMediaEditor.prototype={
 	url=editor.urlmap['efetch_pmid']+pmid
 	settings={
 	    success: function(data, textStatus, jqXHR) {
-	        $('#id_first_author').val(data['authors'])       
+	        $('#id_first_author').val(data['author'])       
 	        $('#id_title').val(data['title'])       
 	        $('#id_journal').val(data['journal'])       
 	        $('#id_year').val(data['year'])       
@@ -198,7 +199,9 @@ NewMediaEditor.prototype={
 		return false
 	    },
 	    error: function(jqXHR, textStatus, errorThrown) {
-	        throw 'efetch_pmid: '+textStatus+'('+errorThrown+')'
+	        msg='No article with pubmed id '+pmid+' could be found'
+		alert(msg)
+//	        throw 'efetch_pmid: '+textStatus+'('+errorThrown+')'
 	    },
 	}
 	$.ajax(url, settings)
@@ -241,6 +244,24 @@ NewMediaEditor.prototype={
 	    val=list[i]
             $(id_sel).append($('<option>', { value: val }).text(val))
  	}	    
+    },  
+
+    prevent_submission: function() {
+        console.log('ha ha')
+	return false 
+    }, 
+
+    allow_submission: function() {
+        console.log('away we go')
+        return true
+    }, 
+
+
+    submit: function(eventObj) {
+        console.log('submit entered')
+	$('#id_newmedia_form').unbind('submit')
+	$('#id_newmedia_form').submit()
+	$('#id_newmedia_form').submit(document.editor.prevent_submission)
     },  
 }
 

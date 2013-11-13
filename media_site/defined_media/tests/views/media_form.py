@@ -142,6 +142,29 @@ class TestMediaForm(TestCase):
         self.assertEqual(SecretionUptake.objects.count(), n_uptake)
 
 
+    def get_errors(self, content):
+        mg=re.search(r'errors start -->(.*)<!-- errors end', content, flags=re.DOTALL)
+        if mg:
+            return mg.groups(0)[0]
+        else:
+            return None
+
+    def test_missing_fields(self):
+        url=reverse('new_media_form')
+        for f in newmedia_inputs['full_valid']['args'].keys():
+            if f.startswith('uptake'): 
+                continue        # uptakes aren't required
+            if f.startswith('is_'):
+                continue        # likewise
+            args=copy.copy(newmedia_inputs['full_valid']['args'])
+            del args[f]
+            response=self.client.post(url, args)
+            self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
+
+            errors=self.get_errors(response.content)
+            self.assertIn('1 Errors', errors)
+            self.assertIn('%s: This field is required' % f, errors)
+
     def test_missing_amount(self):
         log.debug('\n*** test_missing_amount ***')
         n_gd=GrowthData.objects.count()

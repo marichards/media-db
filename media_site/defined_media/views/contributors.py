@@ -30,11 +30,11 @@ class NewMediaView(FormView):
                 log.debug('form is invalid, aborting')
                 return self.form_invalid(form)
             
-            media_name=self.get_media_name(form)
-            media_name.save()
-
             org=self.get_organism(form)
             source=self.get_source(form)
+
+            media_name=self.get_media_name(form)
+            media_name.save()
 
             growth_data=self.get_growth_data(form, org, source, media_name)
             growth_data.save()
@@ -52,7 +52,6 @@ class NewMediaView(FormView):
             else:
                 return self.form_invalid(form)
         finally:
-            log.debug('about to reformat %d errors' % len(form.errors))
             form.reformat_errors()
 
 
@@ -87,6 +86,20 @@ class NewMediaView(FormView):
         keys=[k for k in form.cleaned_data.keys() if k.startswith('comp')]
         med_comps=[]
         for ckey in keys:
+            n=ckey.split('comp')[1]
+            akey='amount'+n
+            comp=Compounds.objects.with_name(form.cleaned_data[ckey][0])
+            amount=form.cleaned_data[akey][0]
+            med_comp=MediaCompounds(medid=media_name, compid=comp, amount_mm=amount)
+            med_comps.append(med_comp)
+
+        return med_comps
+
+    def get_media_comps_old(self, form, media_name):
+        ''' get the list of comp/amount objects, referencing the media_name object: '''
+        keys=[k for k in form.cleaned_data.keys() if k.startswith('comp')]
+        med_comps=[]
+        for ckey in keys:
             try:
                 n=ckey.split('comp')[1]
                 akey='amount'+n
@@ -111,7 +124,7 @@ class NewMediaView(FormView):
 
         return med_comps
 
-    def get_growth_data(self, form, org, source, media_name):
+    def get_growth_data_old(self, form, org, source, media_name):
         try:
             args={'strainid': org,
                   'medid': media_name,
@@ -127,22 +140,30 @@ class NewMediaView(FormView):
             form.errors['GrowthData']="Unable to create growth data record: "+str(e)
             raise e
 
+    def get_growth_data(self, form, org, source, media_name):
+        args={'strainid': org,
+              'medid': media_name,
+              'sourceid': source,
+              'growth_rate': form.cleaned_data['growth_rate'][0],
+              'growth_units': '1/h',
+              'ph': form.cleaned_data['ph'][0],
+              'temperature_c': form.cleaned_data['temperature'][0],
+              'additional_notes': '',
+              }
+        return GrowthData(**args)
+
     def get_source(self, form):
         title=form.cleaned_data['title'][0]
         try:
             return Sources.objects.get(title=title)
         except Sources.DoesNotExist:
-            try:
-                args={'title': form.cleaned_data['title'][0],
-                      'journal': form.cleaned_data['journal'][0],
-                      'first_author': form.cleaned_data['first_author'][0],
-                      'year': int(form.cleaned_data['year'][0]),
-                      'link': form.cleaned_data['link'][0]}
-                src=Sources.objects.create(**args)
-                return src
-            except Exception, e:
-                form.errors['Sources']="Unable to create source record: "+str(e)
-                raise e
+            args={'title': form.cleaned_data['title'][0],
+                  'journal': form.cleaned_data['journal'][0],
+                  'first_author': form.cleaned_data['first_author'][0],
+                  'year': int(form.cleaned_data['year'][0]),
+                  'link': form.cleaned_data['link'][0]}
+            src=Sources.objects.create(**args)
+            return src
 
 
                           
@@ -154,24 +175,19 @@ class NewMediaView(FormView):
         '''
         uptakes=[]
         for key in [k for k in form.cleaned_data.keys() if k.startswith('uptake_comp')]:
-            try:
-                n=key.split('uptake_comp')[1]
-                try: comp_name=form.cleaned_data[key][0]
-                except IndexError: continue # this only happens for key=='uptake_comp1'
-                    
-                comp=Compounds.objects.with_name(comp_name)
-                rate=form.cleaned_data['uptake_rate'+n][0]
-                up_type_id=form.cleaned_data['uptake_type'+n][0]
-                up_type=SecretionUptakeKey(rateid=up_type_id)
-                units=form.cleaned_data['uptake_unit'+n][0]
-                uptake=SecretionUptake(growthid=gd,
-                                       compid=comp.compid,
-                                       rate=rate,
-                                       units=units,
-                                       rateid=up_type)
-                uptakes.append(uptake)
-            except Exception, e:
-                log.debug('trying to create SecretionUptake object: caught %s: %s' % (type(e),e))
-                form.errors[key]='Error creating secretion-uptake(%s): %s' % (type(e), e)
-                raise e
+            n=key.split('uptake_comp')[1]
+            try: comp_name=form.cleaned_data[key][0]
+            except IndexError: continue # this only happens for key=='uptake_comp1'
+            
+            comp=Compounds.objects.with_name(comp_name)
+            rate=form.cleaned_data['uptake_rate'+n][0]
+            up_type_id=form.cleaned_data['uptake_type'+n][0]
+            up_type=SecretionUptakeKey(rateid=up_type_id)
+            units=form.cleaned_data['uptake_unit'+n][0]
+            uptake=SecretionUptake(growthid=gd,
+                                   compid=comp.compid,
+                                   rate=rate,
+                                   units=units,
+                                   rateid=up_type)
+            uptakes.append(uptake)
         return uptakes
