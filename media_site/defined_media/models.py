@@ -9,7 +9,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-import re
+import re, inspect
 from lazy import lazy
 
 from django.core.urlresolvers import reverse
@@ -340,14 +340,12 @@ class SearchResult(models.Model):
         return '<pk=%s> %s-%s-%s' % (self.id, self.keyword, self.classname, self.obj_id)
 
     def __unicode__(self):
-        import inspect
         this_mod=inspect.getmodule(self)
         cls=getattr(this_mod, self.classname)
         pk_name=cls._meta.pk.name
         args={pk_name: self.obj_id}
         obj=cls.objects.get(**args)
-        
-        return '%s: %s' % (self.classname, obj)
+        return str(obj)
 
     def clean(self):
         self.keyword=re.sub(self.bad_chars, '', self.keyword.lower())

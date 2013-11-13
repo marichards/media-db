@@ -247,12 +247,12 @@ NewMediaEditor.prototype={
     },  
 
     prevent_submission: function() {
-        console.log('ha ha')
+//        console.log('ha ha')
 	return false 
     }, 
 
     allow_submission: function() {
-        console.log('away we go')
+//        console.log('away we go')
         return true
     }, 
 
@@ -268,7 +268,6 @@ NewMediaEditor.prototype={
 $(document).ready(function() {
     editor=new NewMediaEditor() // needs to be moved to <head>?
     document.editor=editor
-//    editor.push_init_func(editor.populate_select, ['#id_uptake_units1', document.data['secretion_uptake_units']])
     editor.push_init_func(editor.fetch_organisms,[])
     editor.push_init_func(editor.init_callbacks,[])
     editor.init()
