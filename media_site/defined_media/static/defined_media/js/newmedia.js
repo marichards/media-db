@@ -2,8 +2,9 @@ NewMediaEditor=function(o) {
     this.init_funcs=[]
     this.urlmap={}
     this.urlmap_url='/defined_media/api/urlmap'
-    this.compound_n=1
-    this.uptake_n=1
+    this.compound_n=$('.compound_rm_button').length+1
+    this.uptake_n=$('.uptake_rm_button').length+1
+    console.log('compound_n: '+this.compound_n+'; uptake_n: '+this.uptake_n)
     this.source_visible=0
 }
 
@@ -48,9 +49,10 @@ NewMediaEditor.prototype={
 //	$('#id_newmedia_form').submit(document.editor.validate_form)
 	$('#id_newmedia_form').submit(document.editor.prevent_submission)
 	$('#id_pmid').change(document.editor.efetch_pmid)
-//	$('#id_source_button').click(document.editor.toggle_journal_visibility)
 	$('#id_add_uptake1').click(document.editor.add_uptake)
 	$('#id_submit_button').click(document.editor.submit)
+
+	// add event handlers for comp and uptake rm buttons
     },
 
     fetch_organisms : function() {
@@ -151,13 +153,14 @@ NewMediaEditor.prototype={
 	$(row_id).remove()
     },
 
-    add_uptake : function(eventObj) {
+    add_uptake: function(eventObj) {
         console.log('add_uptake entered')
     	// create tr element and three td elements:
 	n=document.editor.uptake_n+1
+	console.log('n is '+n)
 	row=$('<tr></tr>', {id: 'id_uptake_row'+n})
 	row.append($('<td></td>').append($('<input>', 
-	    {id:'id_uptake_comp1'+n, name:'uptake_comp'+n, type: 'text'})))
+	    {id:'id_uptake_comp'+n, name:'uptake_comp'+n, type: 'text'})))
 	row.append($('<td></td>').append($('<input>', 
 	    {id:'id_uptake_rate'+n, name:'uptake_rate'+n, type: 'text'})))
 
@@ -212,10 +215,6 @@ NewMediaEditor.prototype={
 	}
 	return false
     },
-
-    toggle_journal_visibility: function() {
-        
-    },  
 
     validate_form: function(eventObj) {
 	// pubmed id must be integer
