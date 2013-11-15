@@ -8,9 +8,12 @@
 {% endblock %}
 
 {% block content %}
-<h2>Enter Media Information:</h2>
+<h2>Enter Media Information:
+{% if gd %}Named {{ gd.medid.media_name }}{% endif %}
+</h2>
 <form id='id_newmedia_form' action='' method='POST'>
 {% csrf_token %}
+{{ form.growthid }}
 
 <!-- errors start -->
 {% if form.my_errors|length > 0 %}{{ form.my_errors|length }} Errors:<ul>
@@ -19,6 +22,8 @@
 {% endfor %}
 </ul>{% endif %}
 <!-- errors end -->
+
+
 
 <h4>New Media Name</h4>
 <table id='id_medianames_table'>
@@ -57,22 +62,64 @@
 <h4>Compounds:</h4>
 <table>
 <tr><th>Compound:</th><th>Amount (mM)</th></tr>
+{% if gd %}
+  {% for d in gd.media_compounds_dicts %}
+<tr id='id_comp_row{{ forloop.counter }}'>
+    <td><input id="id_comp{{ forloop.counter }}" name="comp{{ forloop.counter }}" type="text" value="{{ d.comp }}" /></td>
+    <td><input id="id_amount{{ forloop.counter }}" name="amount{{ forloop.counter }}" type="text" value="{{ d.amount }}" /></td>
+
+    {% if forloop.first %}
+    <td><input id='id_add_compound1' type='button' value='Add' /></td>
+    {% else %}
+    <td><input type='button' value='Remove' id='id_rm_compound{{ forloop.counter }}' /></td>
+    {% endif %}
+  {% endfor %}
+{% else %}
 <tr id='id_comp_row1'>
     <td>{{ form.comp1 }}</td>
     <td>{{ form.amount1 }}</td>
     <td><input id='id_add_compound1' type='button' value='Add' /></td>
 </tr>
+{% endif %}
 </table>
 
 <h4>Uptake/Secretion</h4>
 <table>
 <tr><th>Compound</th><th>Rate (+/-)</th></tr>
+{% if gd %}
+  {% for d in gd.uptake_dicts %}
+<tr>
+  <td><input id='id_uptake_comp{{ forloop.counter }}' name='uptake_comp{{ forloop.counter }}' type='text' value='{{ d.comp }}' /></td>
+  <td><input id='id_uptake_rate{{ forloop.counter }}' name='uptake_rate{{ forloop.counter }}' step='any' type='number' value='{{ d.rate }}'/></td>
+  <td><select id="id_uptake_unit{{ forloop.counter }}" name="uptake_unit{{ forloop.counter }}">
+    <option value="mmol/gDW/h" {% if d.units == 'mmol/dDW/h' %} selected='selected'{% endif %}>mmol/gDW/h</option>
+    <option value="g/g glucose" {% if d.units == 'g/g glucose' %} selected='selected'{% endif %}>g/g glucose</option>
+    <option value="1/h" {% if d.units == '1/h' %} selected='selected' {% endif %}>1/h</option>
+  </select></td>
+
+  <td><select id="id_uptake_type{{ forloop.counter }}" name="uptake_type{{ forloop.counter }}">
+    <option value="1" {% if d.type == 1 %}selected='selected'{% endif %}>Secretion</option>
+    <option value="2" {% if d.type == 2 %}selected='selected'{% endif %}>Uptake</option>
+    <option value="3" {% if d.type == 3 %}selected='selected'{% endif %}>Yield Coefficient</option>
+  </select></td>
+
+    {% if forloop.first %}
+  <td><input id='id_add_uptake1' type='button' value='Add' /></td>
+    {% else %}
+  <td><input type='button' value='Remove' id='id_rm_uptake{{ forloop.counter }}' /></td>
+    {% endif %}
+</tr>
+  {% endfor %}
+{% else %}
 <tr id='id_uptake_row1'>
   <td>{{ form.uptake_comp1 }}</td>
   <td>{{ form.uptake_rate1 }}</td>
   <td>{{ form.uptake_unit1 }}</td>
+  <td>{{ form.uptake_type1 }}</td>
   <td><input id='id_add_uptake1' type='button' value='Add' /></td>
 </tr>
+{% endif %}
+
 <tr><td><input id='id_submit_button' type='button' value='Submit' /></td></tr>
 </table>
 

@@ -61,6 +61,8 @@ urlpatterns = patterns(view_prefix,
                        url(r'^api/pmid/$', views.api.efetch_pmid, name='efetch_pmid'),
                        url(r'^api/pmid/(?P<pmid>\d+)$', views.api.efetch_pmid, name='efetch_pmid'),
 
+                       url(r'^api/growthdata/(?P<pk>\d+)/$', views.api.growth_data_view, name='growth_data_api'),
+
 # old function-based views:
 #                       url(r'^organisms/$', views.organisms, name='organisms'),
 #                       url(r'^media/$', views.media, name='media'),

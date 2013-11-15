@@ -48,7 +48,7 @@ NewMediaEditor.prototype={
 //	$('#id_newmedia_form').submit(document.editor.validate_form)
 	$('#id_newmedia_form').submit(document.editor.prevent_submission)
 	$('#id_pmid').change(document.editor.efetch_pmid)
-	$('#id_source_button').click(document.editor.toggle_journal_visibility)
+//	$('#id_source_button').click(document.editor.toggle_journal_visibility)
 	$('#id_add_uptake1').click(document.editor.add_uptake)
 	$('#id_submit_button').click(document.editor.submit)
     },
@@ -152,7 +152,8 @@ NewMediaEditor.prototype={
     },
 
     add_uptake : function(eventObj) {
-	// create tr element and three td elements:
+        console.log('add_uptake entered')
+    	// create tr element and three td elements:
 	n=document.editor.uptake_n+1
 	row=$('<tr></tr>', {id: 'id_uptake_row'+n})
 	row.append($('<td></td>').append($('<input>', 
@@ -176,6 +177,7 @@ NewMediaEditor.prototype={
     },
 
     remove_uptake: function(eventObj) {
+        console.log('remove_uptake entered')
 	button_id=eventObj.target.id
 	n=button_id.split('uptake')[1]
 	row_id='#id_uptake_row'+n
@@ -256,6 +258,13 @@ NewMediaEditor.prototype={
         return true
     }, 
 
+    populate_from_gd: function() {
+        growthid=$('#id_growthid').val()
+	if (! growthid>0) return      // hopefully that will handle all cases of null, etc
+	// ajax call to get all of gd info
+	// on success:
+	// 	
+    }, 
 
     submit: function(eventObj) {
         console.log('submit entered')

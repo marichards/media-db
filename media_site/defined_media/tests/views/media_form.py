@@ -26,6 +26,16 @@ class TestMediaForm(TestCase):
         self.assertIn("<table id='id_medianames_table'>", content, "'id='id_medianames_table' not found'")
 
 
+    def test_media_form_get_populated(self):
+        log.debug('\n*** test_media_form_get_populated ***')
+        gd=GrowthData.objects.all()[0]
+        log.debug(repr(gd))
+        url=reverse('new_media_form', args=(gd.growthid,))
+        response=self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        
+        
+
     def test_media_form_get_id(self):
         log.debug('\n*** test_media_form_get_empty ***')
         response=self.client.get(reverse('new_media_form'))

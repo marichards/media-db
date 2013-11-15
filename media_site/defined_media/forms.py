@@ -26,6 +26,8 @@ class NewMediaForm(forms.Form):
         self.fields['genus']=forms.ChoiceField(required=True, label='Genus', 
                                                choices=[(x,x) for x in genuss])
 
+    growthid=forms.CharField(required=False, widget=forms.HiddenInput)
+
     species=forms.ChoiceField(required=True, label='Species', choices=())
     strain=forms.ChoiceField(required=True, label='Strain', choices=())
 
@@ -133,6 +135,51 @@ class NewMediaForm(forms.Form):
         for k,v in self.errors.items():
             log.debug('errors: %s -> %s' % (k,v))
         return len(self.errors)==0
+
+    @classmethod
+    def from_growth_data(self, gd):
+        log.debug('gd.strainid(%s) is %s' % (type(gd.strainid), gd.strainid))
+        form_args={
+            'growthid':      gd.growthid,
+            'genus':         gd.strainid.genus,
+            'species' :      gd.strainid.species,
+            'strain' :       gd.strainid.strain,
+
+            'media_name' :   gd.medid.media_name,
+            'is_defined' :   gd.medid.is_defined,
+            'is_minimal' :   gd.medid.is_minimal,
+
+            'first_author' : gd.sourceid.first_author,
+            'journal' :      gd.sourceid.journal,
+            'year' :         gd.sourceid.year,
+            'title' :        gd.sourceid.title,
+            'link' :         gd.sourceid.link,
+            
+            'growth_rate' :  gd.growth_rate,
+            'temperature' :  gd.temperature_c,
+            'ph' :           gd.ph,
+            }
+
+        # make comp1 and amount1 key/value pairs:
+        n=1
+        for medcomp in gd.medid.mediacompounds_set.all():
+           form_args['comp%d' % n]=medcomp.compid.name
+           form_args['amount%d' % n]=medcomp.amount_mm
+           n+=1
+        log.debug('%d media compoounds for gd %d' % (n, gd.growthid))
+
+        n=1
+        for su in gd.secretionuptake_set.all():
+            comp=Compounds.objects.get(compid=su.compid)
+            form_args['uptake_comp%d' % n]=comp.name
+            form_args['uptake_rate%d' % n]=su.rate
+            form_args['uptake_unit%d' % n]=su.units
+            form_args['uptake_type%d' % n]=su.rateid.rate_type
+        log.debug('%d media secretion/uptakes for gd %d' % (n, gd.growthid))
+
+        return NewMediaForm(form_args)
+
+
             
     def reformat_errors(self):
         '''

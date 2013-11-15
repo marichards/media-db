@@ -30,7 +30,6 @@ class TestOrganismAPI(TestCase):
 
         db_orgs=Organisms.objects.filter(**filter_args)
         url=reverse('organism_api', args=url_args)
-        print 'url is %s' % url
         response=self.client.get(url, ACCEPT='application/json')
         self.assertEqual(response.status_code, 200)
         data=json.loads(response.content)

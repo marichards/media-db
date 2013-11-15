@@ -9,8 +9,10 @@
 from __future__ import unicode_literals
 
 from django.db import models
-import re, inspect
+import re, inspect, logging
 from lazy import lazy
+
+log=logging.getLogger(__name__)
 
 from django.core.urlresolvers import reverse
 
@@ -139,8 +141,14 @@ class GrowthData(models.Model):
         return '%s on %s' %(self.strainid,self.medid)   
 
     def __repr__(self):
-        return "GrowthData %d: org=%s, strain=%s, media_name=%s, sourceid=%s, measureid=%s" % \
+        return "GrowthData %d: org=%s, media_name=%s, sourceid=%s, measureid=%s" % \
             (self.growthid, self.strainid, self.medid, self.sourceid, self.measureid)
+
+    def media_compounds_dicts(self):
+        return [{'comp': mc.compid.name, 'amount': mc.amount_mm} for mc in self.medid.mediacompounds_set.all()]
+
+    def uptake_dicts(self):
+        return [{'comp': Compounds.objects.get(compid=su.compid).name, 'rate': su.rate, 'units': su.units, 'type': su.rateid_id} for su in self.secretionuptake_set.all()]
 
 class Measurements(models.Model):
     measureid = models.AutoField(primary_key=True, db_column='measureID') # Field name made lowercase.
@@ -159,7 +167,7 @@ class MediaCompounds(models.Model):
         db_table = 'media_compounds'
 
     def __unicode__(self):
-        return self.compid.__unicode__()
+        return '%s %gmm' % (self.compid.__unicode__(), self.amount_mm)
 
 
 class MediaNames(models.Model):
@@ -274,6 +282,10 @@ class SecretionUptake(models.Model):
     class Meta:
         db_table = 'secretion_uptake'
 
+    def __repr__(self):
+        return 'SecretionUptake %d: growth=%s, compound=%s, rate=%s, units=%s, rateid=%s' \
+            %(self.secretionuptakeid, self.growthid, self.compid, self.rate, self.units, self.rateid)
+
 class SecretionUptakeKey(models.Model):
     rateid = models.AutoField(primary_key=True, db_column='rateID') # Field name made lowercase.
     rate_type = models.CharField(max_length=45L, unique=True, db_column='Rate_Type', blank=True) # Field name made lowercase.
@@ -343,14 +355,6 @@ class SearchResult(models.Model):
     def __repr__(self):
         return '<pk=%s> %s-%s-%s' % (self.id, self.keyword, self.classname, self.obj_id)
 
-    def get_obj(self):
-        this_mod=inspect.getmodule(self)
-        cls=getattr(this_mod, self.classname)
-        pk_name=cls._meta.pk.name
-        args={pk_name: self.obj_id}
-        return cls.objects.get(**args)
-
-
     def __unicode__(self):
         return str(self.get_obj())
 
@@ -360,6 +364,15 @@ class SearchResult(models.Model):
 
     def obj_url(self):
         return reverse(self.class2view[self.classname], args=[self.obj_id])
+
+    def get_obj(self):
+        return get_obj(self.classname, self.obj_id)
+
+def get_obj(classname, pk):
+    cls=globals()[classname]
+    pk_name=cls._meta.pk.name
+    args={pk_name: pk}
+    return cls.objects.get(**args)
 
 '''
 class Lab(models.Model):

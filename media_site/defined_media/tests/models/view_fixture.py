@@ -42,8 +42,10 @@ class ViewFixture(TestCase):
 
             try:
                 print cls.__name__
+                n=0
                 for obj in cls.objects.all():
-                    print obj
+                    print '%d. %r' % (n, obj)
+                    n+=1
                 print
             except AttributeError:
                 continue

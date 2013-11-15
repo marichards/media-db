@@ -20,6 +20,22 @@ class NewMediaView(FormView):
 #    success_url=reverse('new_media_form')
     success_url='/defined_media/newmedia'
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(NewMediaView, self).get_context_data(**kwargs)
+        try:
+            context['gd']=self.gd
+        except (KeyError, AttributeError) as e:
+            log.debug('no self.gd found')
+        return context
+
+    def get(self, request, *args, **kwargs):
+        try:
+            self.gd=GrowthData.objects.get(growthid=kwargs['pk'])
+            form=NewMediaForm.from_growth_data(self.gd)
+        except KeyError:
+            form=NewMediaForm()
+        return self.form_invalid(form)
+
 
     @transaction.atomic()
     def post(self, request, *args, **kwargs):

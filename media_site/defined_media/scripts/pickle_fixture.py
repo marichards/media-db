@@ -23,13 +23,11 @@ def all_related(obj, related={}):
     if 'products_set' in manager_names:
         manager_names.remove('products_set')
 
-    print '%s manager_names: %s' % (obj.__class__.__name__, manager_names)
     
     for mn in manager_names:
         manager=getattr(obj, mn)
         objs=manager.all()
         n+=len(objs)
-        print '%s: %d objs' % (mn, n)
         if len(objs)==0:
             continue
         classname=objs[0].__class__.__name__
@@ -39,7 +37,10 @@ def all_related(obj, related={}):
             all_related(o, related)
     return (related, n)
 
-def add_related(obj, media_objs):
+def add_related(obj, media_objs, debug=False):
+    if debug:
+        print 'add_related(%s) entered' % obj
+
     bad_objs=[]
     try:
         (related,n)=all_related(obj)
@@ -48,12 +49,24 @@ def add_related(obj, media_objs):
     obj.related=related
     obj.n_related=n
 
+    always_add_these={'MediaCompounds': [('Compounds', 'compid')]}
+    
     for classname,objs in related.items():
+        if debug:
+            print 'related: %d %s objects' % (len(objs), classname)
         try:
             media_objs[classname].update(set(objs))
         except KeyError:
-            print 'new set: %s' % classname
             media_objs[classname]=set(objs)
+
+        if classname in always_add_these:
+            for obj in objs:
+                for tupl in always_add_these[classname]:
+                    (subclassname, attrname)=tupl
+                    pk=getattr(obj, attrname).pk
+                    subobj=get_obj(subclassname, pk)
+                    add_obj(subobj, media_objs)
+                    print 'always: added %s %s' % (subclassname, subobj)
 
 def add_obj(a, media_objs):
     classname=a.__class__.__name__
@@ -75,7 +88,11 @@ def add_growth_data(media_objs):
 
         for attr in attrs:
             a=getattr(gd, attr)
-            if a: add_obj(a, media_objs)
+            if a: 
+                print 'gd %d: adding %s: %s' % (gid, attr, a)
+                add_obj(a, media_objs)
+                if attr=='medid':
+                    add_related(a, media_objs, True)
 
     media_objs['GrowthData']=gd_objs
 
@@ -85,6 +102,11 @@ def add_secretion_uptakes(media_objs):
     for gid in growth_ids:
         sec_uptakes.update(set(SecretionUptake.objects.filter(growthid=gid)))
     media_objs['SecretionUptake']=sec_uptakes
+
+    for su in sec_uptakes:
+        add_related(su, media_objs, debug=True)
+        comp=Compounds.objects.get(compid=su.compid)
+        if comp: add_obj(comp, media_objs)
 
 def add_secretion_uptake_keys(media_objs):
     media_objs['SecretionUptakeKey']=set(SecretionUptakeKey.objects.all())
@@ -155,14 +177,13 @@ def main():
 
         c.related=related
         c.n_related=n
-#        print '%s: %d related objects' % (c, c.n_related)
+
         for classname,objs in related.items():
             try:
                 media_objs[classname].update(set(objs))
             except KeyError:
-                print 'new set: %s' % classname
                 media_objs[classname]=set(objs)
-#            print '%s: added %d objs, total=%d' % (classname, len(objs), len(media_objs[classname]))
+
 
 
     print 'sorting compounds...'

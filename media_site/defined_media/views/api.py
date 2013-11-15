@@ -1,8 +1,10 @@
 from rest_framework import generics
-from defined_media.models import Organisms
-from defined_media.serializers import OrganismSerializer
+from defined_media.models import Organisms, GrowthData
+from defined_media.serializers import OrganismSerializer, GrowthDataSerializer
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
+from django.core import serializers
+
 import json, requests, re, logging
 
 log=logging.getLogger(__name__)
@@ -24,9 +26,18 @@ class OrganismsView(generics.ListAPIView):
         for arg in ['genus', 'species', 'strain']:
             if arg in self.kwargs:
                 args[arg]=self.kwargs[arg]
-        orgs=Organisms.objects.filter(**args)
+        return Organisms.objects.filter(**args)
 
-        return orgs
+
+def growth_data_view(request, *args, **kwargs):
+    gd=GrowthData.objects.get(pk=kwargs['pk'])
+    strain=gd.strainid
+    gd_json=serializers.serialize('json', [gd, strain], indent=4)
+#        med_comp=gd.medid
+#        source=gd.sourceid
+#        return (gd, strain, med_comp, source)
+    return HttpResponse(gd_json, mimetype='application/json')
+
 
 def efetch_pmid(request, *args, **kwargs):
     ''' return JSON fetched from pubmed for the given pubmed id '''
