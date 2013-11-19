@@ -144,8 +144,11 @@ class NewMediaForm(forms.Form):
         return len(self.errors)==0
 
     def get1(self, key, cls=None):
-        ''' I cannot fucking figure out when form.cleaned_data[some_key] is a list or not: '''
-        maybe_a_list=self.cleaned_data[key]
+        ''' I cannot fucking figure out when form.cleaned_data[some_key] is a list or not: 
+            This should not raise any exceptions other than KeyError, or a TypeError/ValueError 
+            when cls != None
+        '''
+        maybe_a_list=self.cleaned_data[key] # this can throw
         try:
             is_scalar=type(maybe_a_list)==type(maybe_a_list[0]) # no lol's, I hope
         except TypeError:
@@ -163,11 +166,7 @@ class NewMediaForm(forms.Form):
             val=maybe_a_list[0]
 
         if cls:
-            try:
-                return cls(val)
-            except e:
-                log.debug("Can't convert '%s' to %s: %s(%s)" % (val, str(cls), e, type(e)))
-                return val
+            return cls(val)     # this can also throw
         else:
             return val
 

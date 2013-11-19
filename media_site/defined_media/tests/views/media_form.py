@@ -139,6 +139,36 @@ class TestMediaForm(TestCase):
         self.assertEqual(Sources.objects.count(), n_src)
         self.assertEqual(MediaNames.objects.count(), n_mn)
         self.assertEqual(SecretionUptake.objects.count(), n_uptake)
+
+    def test_bad_uptake_compound(self):
+        log.debug('\n*** test_bad_uptake_compound ***')
+        n_gd=GrowthData.objects.count()
+        n_src=Sources.objects.count()
+        n_mn=MediaNames.objects.count()
+        n_uptake=SecretionUptake.objects.count()
+
+        url=reverse('new_media_form')
+        args=copy.copy(newmedia_inputs['full_valid']['args'])
+        args['uptake_comp1']='fred'
+        response=self.client.post(url, args)
+        self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
+        content=response.content
+        mg=re.search(r'errors start(.*)errors end', content)
+        if mg:
+            log.debug(mg.groups(0))
+        else:
+            log.debug('no match')
+
+        self.assertIn('1 Error', content, 'not found: "1 Error"')
+        expected='Uptake 1: Unknown compound &quot;fred'
+        log.debug('errors: %s' % self.get_errors(content))
+        self.assertIn(expected, content, expected)
+
+        self.assertEqual(GrowthData.objects.count(), n_gd)
+        self.assertEqual(Sources.objects.count(), n_src)
+        self.assertEqual(MediaNames.objects.count(), n_mn)
+        self.assertEqual(SecretionUptake.objects.count(), n_uptake)
+
         
 
     def test_bad_amount(self):

@@ -96,22 +96,22 @@ class NewMediaView(FormView):
 
     def get_organism(self, form):
         try:
-            return Organisms.objects.get(genus=form.cleaned_data['genus'][0],
-                                        species=form.cleaned_data['species'][0],
-                                        strain=form.cleaned_data['strain'][0])
+            return Organisms.objects.get(genus=form.get1('genus'),
+                                        species=form.get1('species'),
+                                        strain=form.get1('strain'))
         except Organisms.DoesNotExist, e:
             form.errors['Organism']="No such organism: "+str(e)
             raise e
     
     def get_media_name(self, form):
         try:
-            return MediaNames.objects.get(media_name=form.cleaned_data['media_name'][0])
+            return MediaNames.objects.get(media_name=form.get1('media_name'))
         except MediaNames.DoesNotExist:
             try:
                 is_defined='Y' if 'is_defined' in self.request.POST else 'N'
                 is_minimal='Y' if 'is_minimal' in self.request.POST else 'N'
                 
-                args={'media_name': form.cleaned_data['media_name'][0],
+                args={'media_name': form.get1('media_name'),
                       'is_defined': is_defined,
                       'is_minimal': is_minimal
                       }
@@ -127,39 +127,10 @@ class NewMediaView(FormView):
         for ckey in keys:
             n=ckey.split('comp')[1]
             akey='amount'+n
-            comp=Compounds.objects.with_name(form.cleaned_data[ckey][0])
-            amount=form.cleaned_data[akey][0]
+            comp=Compounds.objects.with_name(form.get1(ckey))
+            amount=form.get1(akey)
             med_comp=MediaCompounds(medid=media_name, compid=comp, amount_mm=amount)
             med_comps.append(med_comp)
-
-        return med_comps
-
-    def get_media_comps_old(self, form, media_name):
-        ''' get the list of comp/amount objects, referencing the media_name object: '''
-        keys=[k for k in form.cleaned_data.keys() if k.startswith('comp')]
-        med_comps=[]
-        for ckey in keys:
-            try:
-                n=ckey.split('comp')[1]
-                akey='amount'+n
-                comp=Compounds.objects.with_name(form.cleaned_data[ckey][0])
-                amount=form.cleaned_data[akey][0]
-                if amount==None: raise ValueError()
-                med_comp=MediaCompounds(medid=media_name, compid=comp, amount_mm=amount)
-                med_comps.append(med_comp)
-            except Compounds.DoesNotExist as e:
-                form.errors[ckey]='No compounds for %s' % form.cleaned_data[ckey][0]
-                raise e
-            except ValueError as e:
-                form.errors[ckey]='No amount provided for %s' % form.cleaned_data[ckey][0]
-                raise e
-            except Exception as e:
-                form.errors[ckey]='Error: %s' % e
-                raise e
-
-        if len(med_comps)==0:
-            form.errors['MediaCompounds']='No valid compound/amount pairs found'
-            raise ValueError
 
         return med_comps
 
@@ -167,10 +138,10 @@ class NewMediaView(FormView):
         args={'strainid': org,
               'medid': media_name,
               'sourceid': source,
-              'growth_rate': form.cleaned_data['growth_rate'][0],
+              'growth_rate': form.get1('growth_rate'),
               'growth_units': '1/h',
-              'ph': form.cleaned_data['ph'][0],
-              'temperature_c': form.cleaned_data['temperature'][0],
+              'ph': form.get1('ph'),
+              'temperature_c': form.get1('temperature'),
               'additional_notes': '',
               }
         try:
@@ -192,7 +163,7 @@ class NewMediaView(FormView):
             create a totally new record?  Leave the old record dangling?
         '''
         fields=['first_author', 'journal', 'year', 'title', 'link']
-        args={k:v for (k,v) in [(f,form.cleaned_data[f][0]) for f in fields]}
+        args={k:v for (k,v) in [(f,form.get1(f)) for f in fields]}
         try:
             src, created=Sources.objects.get_or_create(**args)
         except IntegrityError as e:
@@ -211,14 +182,26 @@ class NewMediaView(FormView):
         uptakes=[]
         for key in [k for k in form.cleaned_data.keys() if k.startswith('uptake_comp')]:
             n=key.split('uptake_comp')[1]
-            try: comp_name=form.cleaned_data[key][0]
-            except IndexError: continue # this only happens for key=='uptake_comp1'
+            try: 
+                comp_name=form.get1(key)
+                log.debug('comp_name for key=%s: %s'% (key, comp_name))
+                if comp_name==None or len(comp_name)==0: continue # ignore the whole row
+            except (TypeError, ValueError) as e: 
+                log.debug('no comp_name for key=%s: e=%s' % (key, e))
+                continue # this only happens for key=='uptake_comp1'
             
-            comp=Compounds.objects.with_name(comp_name)
-            rate=form.cleaned_data['uptake_rate'+n][0]
-            up_type_id=form.cleaned_data['uptake_type'+n][0]
+            try:
+                comp=Compounds.objects.with_name(comp_name)
+            except Compounds.DoesNotExist as e:
+                log.debug('get_uptakes: %s: no such compound for key=%s' % (comp_name, key))
+                form.errors[key]='%s: no such compound' % comp_name
+                raise IntegrityError(e)
+                continue
+
+            rate=form.get1('uptake_rate'+n)
+            up_type_id=form.get1('uptake_type'+n)
             up_type=SecretionUptakeKey(rateid=up_type_id)
-            units=form.cleaned_data['uptake_unit'+n][0]
+            units=form.get1('uptake_unit'+n)
             uptake=SecretionUptake(growthid=gd,
                                    compid=comp.compid,
                                    rate=rate,
