@@ -8,6 +8,8 @@ from defined_media.tests.forms.test_cases import newmedia_inputs
 from defined_media.models import *
 from defined_media.forms import NewMediaForm
 
+
+
 class TestMediaForm(TestCase):
     fixtures=['fixture.json']
     def setUp(self):
@@ -16,6 +18,7 @@ class TestMediaForm(TestCase):
     def tearDown(self):
         pass
 
+        
     def test_media_form_get_empty(self):
         log.debug('\n*** test_media_form_get_empty ***')
         response=self.client.get(reverse('new_media_form'))
@@ -34,7 +37,7 @@ class TestMediaForm(TestCase):
         url=reverse('new_media_form', args=(gd.growthid,))
         response=self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        
+        # tests to see if various form fields are populated?
         
 
     def test_media_form_get_id(self):
@@ -64,6 +67,7 @@ class TestMediaForm(TestCase):
             self.assertEqual(response.status_code, expected_code)
 
 
+
     def test_media_form_post(self):
         log.debug('\n*** test_media_form_post ***')
         n_gd=GrowthData.objects.count()
@@ -78,7 +82,7 @@ class TestMediaForm(TestCase):
         self.assertEqual(GrowthData.objects.count(), n_gd+1)
         self.assertEqual(Sources.objects.count(), n_src+1)
         self.assertEqual(MediaNames.objects.count(), n_mn+1)
-        
+
     def test_media_form_post_four_compounds_two_uptakes(self):
         log.debug('\n*** test_media_form_four_compounds_two_uptakes ***')
         n_gd=GrowthData.objects.count()
@@ -292,6 +296,9 @@ class TestMediaForm(TestCase):
 
 
     def test_good_update(self):
+        ''' 
+        Alters as many fields as possible while still allowing a successful update.
+        '''
         log.debug('\*** test_update ***')
 
         n_gd=GrowthData.objects.count()
