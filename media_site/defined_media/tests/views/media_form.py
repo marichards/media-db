@@ -1,4 +1,4 @@
-import logging, copy
+import logging, copy, json
 log=logging.getLogger(__name__)
 
 from django.test import TestCase
@@ -6,6 +6,7 @@ from django.test.client import Client
 from django.core.urlresolvers import reverse
 from defined_media.tests.forms.test_cases import newmedia_inputs
 from defined_media.models import *
+from defined_media.forms import NewMediaForm
 
 class TestMediaForm(TestCase):
     fixtures=['fixture.json']
@@ -164,6 +165,7 @@ class TestMediaForm(TestCase):
 
 
     def get_errors(self, content):
+        ''' extract the error messages  '''
         mg=re.search(r'errors start -->(.*)<!-- errors end', content, flags=re.DOTALL)
         if mg:
             return mg.groups(0)[0]
@@ -183,7 +185,9 @@ class TestMediaForm(TestCase):
             self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
 
             errors=self.get_errors(response.content)
+            log.debug('errors: %s' % errors)
             self.assertIn('1 Errors', errors)
+            log.debug('looking for "%s" in errors' % f)
             self.assertIn('%s: This field is required' % f, errors)
 
     def test_missing_amount(self):
@@ -226,6 +230,7 @@ class TestMediaForm(TestCase):
                 log.debug('+++ %s +++' % err)
             self.fail()
 
+
     def test_two_uptakes(self):
         log.debug('\n*** test_two_uptakes ***')
         n_gd=GrowthData.objects.count()
@@ -256,11 +261,88 @@ class TestMediaForm(TestCase):
         self.assertEqual(SecretionUptake.objects.count(), n_uptake+2)
 
 
-    def test_missing_uptake_compounds(self):
-        pass
+    def test_good_update(self):
+        log.debug('\*** test_update ***')
 
-    def test_missing_uptake_rate(self):
-        pass
+        n_gd=GrowthData.objects.count()
+        n_src=Sources.objects.count()
+        n_mn=MediaNames.objects.count()
+        n_uptake=SecretionUptake.objects.count()
 
-    def test_bad_media_name(self):
-        pass
+        gd0=GrowthData.objects.get(growthid=265)
+        log.debug('gd0: %s' % gd0)
+        form_dict=gd0.as_dict()
+#        log.debug('post args: %s' % json.dumps(form_dict, indent=4))
+
+        # make changes to form_dict (don't add any new records) (yet):
+        form_dict['media_name']='new media name'     # was something else
+        form_dict['temperature']=38.0     # was 37.0
+
+        form_dict['genus']='Porphyromonas'
+        form_dict['species']='gingivalis'
+        form_dict['strain']='W83'
+
+#        form_dict['first_author']='Cheng' # was peng
+        # this causes an IntegrityError: Duplicate title
+        
+        form_dict['amount1']=45.4 # was 55.506, goes with beta-D-glucose
+        form_dict['comp5']='water' # was MgSO4
+
+        form_dict['uptake_type2']=2 # was 1
+        form_dict['uptake_unit2']='1/h' # was 'mmol/gDW/h'
+
+
+        # post the updated gd0 (via the dict)
+        url=reverse('new_media_form')
+        response=self.client.post(url, form_dict)
+        log.debug('status_code: %d' % response.status_code)
+#        log.debug('content: %s' % response.content)
+        msg='status: %d (should be 302 on success, 200 on error)' % response.status_code
+        self.assertEqual(response.status_code, 302, msg)
+
+        # verify no new records were added
+        for gd in GrowthData.objects.all():
+            log.debug("Existing gd object: %r" %gd)
+
+        # nothing new should be created:
+        self.assertEqual(n_gd, GrowthData.objects.count(), 
+                         'n_gd: was %d, now %d' % (GrowthData.objects.count(), n_gd))
+        self.assertEqual(Sources.objects.count(), n_src)
+        self.assertEqual(MediaNames.objects.count(), n_mn)
+        self.assertEqual(SecretionUptake.objects.count(), n_uptake)
+
+        # pull out the new records: growth data, organism, source, medcomps, uptakes, compare to dict
+        gd1=GrowthData.objects.get(growthid=265)
+        log.debug('gd1: %s' % gd1)
+        self.assertEqual(gd1.medid.media_name, form_dict['media_name'])
+        self.assertEqual(gd1.temperature_c,    form_dict['temperature'])
+        self.assertEqual(gd1.strainid.genus,   form_dict['genus'])
+        self.assertEqual(gd1.strainid.species, form_dict['species'])
+        self.assertEqual(gd1.strainid.strain,  form_dict['strain'])
+        msg='was %s, now %s, should be %s' % (gd0.sourceid.first_author, gd1.sourceid.first_author, form_dict['first_author'])
+        self.assertEqual(gd1.sourceid.first_author, form_dict['first_author'], msg)
+
+        # these are trickier:
+        # find the media comp record with the correct medid and compid for amount1:
+        medcomp1=MediaCompounds.objects.get(medid=gd1.medid, compid__name=form_dict['comp1'])
+        self.assertEqual(medcomp1.amount_mm, form_dict['amount1'])
+
+        comp5=Compounds.objects.with_name(form_dict['comp5']) # 'water' is a synonym
+        medcomp5=MediaCompounds.objects.get(medid=gd1.medid, compid__name=comp5.name)
+        self.assertEqual(medcomp5.amount_mm, form_dict['amount5'])
+
+#        self.assertEqual(gd1.medid.)=form_dict['uptake_type2n']
+        uptake_comp2=Compounds.objects.with_name(form_dict['uptake_comp2'])
+        try:
+            su=SecretionUptake.objects.get(growthid=gd1.growthid, 
+                                           compid=uptake_comp2.compid)
+            self.assertEqual(su.units, form_dict['uptake_unit2'])
+            self.assertEqual(su.rate, form_dict['uptake_rate2'])
+            self.assertEqual(su.rateid_id, form_dict['uptake_type2'])
+                             
+        except SecretionUptake.DoesNotExist:
+            msg='No (modified) SecrtionUptake found for su.growthid=%d, compid=%s' % (gd1.growthid, uptake_comp2.name)
+            self.fail(msg)
+
+
+        # verify no other records were deleted (Compounds, etc)

@@ -8,22 +8,18 @@
 {% endblock %}
 
 {% block content %}
-<h2>Enter Media Information:
-{% if gd %}Named {{ gd.medid.media_name }}{% endif %}
-</h2>
+<h2>Enter Media Information:{% if gd %}{{ gd.medid.media_name }}{% endif %}</h2>
+
 <form id='id_newmedia_form' action='' method='POST'>
 {% csrf_token %}
 {{ form.growthid }}
 
 <!-- errors start -->
-{% if form.my_errors|length > 0 %}{{ form.my_errors|length }} Errors:<ul>
-{% for k,v in form.my_errors.items %}
-<!-- <li>{{ k }}: {{ v }}</li> -->
-{% endfor %}
-</ul>{% endif %}
+{% if form.my_errors|length > 0 %}{{ form.my_errors|length }} Errors{% endif %}
+<!--{% for k,v in form.my_errors.items %}
+{{ k }}: {{ v }}
+{% endfor %}-->
 <!-- errors end -->
-
-
 
 <h4>New Media Name</h4>
 <table id='id_medianames_table'>

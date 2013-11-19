@@ -150,6 +150,61 @@ class GrowthData(models.Model):
     def uptake_dicts(self):
         return [{'comp': Compounds.objects.get(compid=su.compid).name, 'rate': su.rate, 'units': su.units, 'type': su.rateid_id} for su in self.secretionuptake_set.all()]
 
+    def as_dict(gd):
+        d={
+            'growthid':      gd.growthid,
+            'genus':         gd.strainid.genus,
+            'species' :      gd.strainid.species,
+            'strain' :       gd.strainid.strain,
+
+            'media_name' :   gd.medid.media_name,
+            'is_defined' :   gd.medid.is_defined,
+            'is_minimal' :   gd.medid.is_minimal,
+
+            'first_author' : gd.sourceid.first_author,
+            'journal' :      gd.sourceid.journal,
+            'year' :         gd.sourceid.year,
+            'title' :        gd.sourceid.title,
+            'link' :         gd.sourceid.link,
+            
+            'growth_rate' :  gd.growth_rate,
+            'temperature' :  gd.temperature_c,
+            'ph' :           gd.ph,
+            }
+
+        # make comp1 and amount1 key/value pairs:
+        n=1
+        for medcomp in gd.medid.mediacompounds_set.all():
+           d['comp%d' % n]=medcomp.compid.name
+           d['amount%d' % n]=medcomp.amount_mm
+           n+=1
+
+        n=1
+        for su in gd.secretionuptake_set.all():
+            comp=Compounds.objects.get(compid=su.compid)
+            d['uptake_comp%d' % n]=comp.name
+            d['uptake_rate%d' % n]=su.rate
+            d['uptake_unit%d' % n]=su.units
+            d['uptake_type%d' % n]=su.rateid_id
+            n+=1
+        return d
+
+    def full_delete(self):
+        # delete media_compounds
+        for medcomp in self.medid.mediacompounds_set.all():
+            medcomp.delete()
+
+        # delete secretion_uptakes
+        for su in self.secretionuptake_set.all():
+            su.delete()
+
+        # delete media_name
+        self.medid.delete()
+
+        # delete self
+        self.delete()
+
+
 class Measurements(models.Model):
     measureid = models.AutoField(primary_key=True, db_column='measureID') # Field name made lowercase.
     measurement_technique = models.CharField(max_length=255L, unique=True, db_column='Measurement_Technique', blank=True) # Field name made lowercase.
@@ -169,6 +224,8 @@ class MediaCompounds(models.Model):
     def __unicode__(self):
         return '%s %gmm' % (self.compid.__unicode__(), self.amount_mm)
 
+    def __repr__(self):
+        return 'MediaCompound %d: medid=%s, compid=%s, amount_mm=%g' % (self.medcompid, self.medid, self.compid, self.amount_mm)
 
 class MediaNames(models.Model):
     medid = models.AutoField(primary_key=True, db_column='medID') # Field name made lowercase.

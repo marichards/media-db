@@ -143,6 +143,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'defined_media',
     'django_nose',
+    'django_extensions',
 )
 
 #AUTH_USER_MODEL='defined_media.Contributor'     

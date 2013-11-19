@@ -4,7 +4,6 @@ NewMediaEditor=function(o) {
     this.urlmap_url='/defined_media/api/urlmap'
     this.compound_n=$('.compound_rm_button').length+1
     this.uptake_n=$('.uptake_rm_button').length+1
-    console.log('compound_n: '+this.compound_n+'; uptake_n: '+this.uptake_n)
     this.source_visible=0
 }
 
@@ -154,10 +153,8 @@ NewMediaEditor.prototype={
     },
 
     add_uptake: function(eventObj) {
-        console.log('add_uptake entered')
     	// create tr element and three td elements:
 	n=document.editor.uptake_n+1
-	console.log('n is '+n)
 	row=$('<tr></tr>', {id: 'id_uptake_row'+n})
 	row.append($('<td></td>').append($('<input>', 
 	    {id:'id_uptake_comp'+n, name:'uptake_comp'+n, type: 'text'})))
@@ -180,7 +177,6 @@ NewMediaEditor.prototype={
     },
 
     remove_uptake: function(eventObj) {
-        console.log('remove_uptake entered')
 	button_id=eventObj.target.id
 	n=button_id.split('uptake')[1]
 	row_id='#id_uptake_row'+n
@@ -266,7 +262,6 @@ NewMediaEditor.prototype={
     }, 
 
     submit: function(eventObj) {
-        console.log('submit entered')
 	$('#id_newmedia_form').unbind('submit')
 	$('#id_newmedia_form').submit()
 	$('#id_newmedia_form').submit(document.editor.prevent_submission)

@@ -4,7 +4,7 @@ log=logging.getLogger(__name__)
 from defined_media.forms import NewMediaForm
 from defined_media.models import *
 from django.views.generic.edit import FormView
-from django.db import transaction
+from django.db import transaction, IntegrityError
 
 #from django.core.urlresolvers import reverse
 
@@ -37,24 +37,40 @@ class NewMediaView(FormView):
         return self.form_invalid(form)
 
 
-    @transaction.atomic()
+#    @transaction.atomic()
     def post(self, request, *args, **kwargs):
         form=NewMediaForm(request.POST)
 
+        if not form.is_valid():
+            log.debug('form is invalid, aborting')
+            form.reformat_errors()
+            return self.form_invalid(form)
+
         try:
-            if not form.is_valid():
-                log.debug('form is invalid, aborting')
-                return self.form_invalid(form)
-            
             org=self.get_organism(form)
             source=self.get_source(form)
-
             media_name=self.get_media_name(form)
+
+            with transaction.atomic():
+                try: 
+                    growthid=request.POST['growthid']
+                    old_gd=GrowthData.objects.get(growthid=int(growthid))
+                    log.debug('about to call gd.full_delete(%s)' % growthid)
+                    old_gd.full_delete()
+                except KeyError:
+                    pass
+
+
             media_name.save()
 
             growth_data=self.get_growth_data(form, org, source, media_name)
+            try:
+                log.debug('about to save: growth_data.growthid=%d' % growth_data.growthid)
+            except:
+                log.debug('about to save: no growthid present')
             growth_data.save()
-            
+            log.debug('growth_data saved: growthid=%d' % growth_data.growthid)
+
             media_comps=self.get_media_comps(form, media_name)
             for mcomp in media_comps:
                 mcomp.save()
@@ -63,12 +79,19 @@ class NewMediaView(FormView):
             for uptake in uptakes:
                 uptake.save()
                 
-            if len(form.errors)==0:
-                return self.form_valid(form)
-            else:
-                return self.form_invalid(form)
+            log.debug('about to commit')
+            transaction.commit()
+            log.debug('yay! commitment!')
+        except IntegrityError as ie:
+            log.debug('caught %s: %s; rolling back' % (type(ie), ie))
+            transaction.rollback()
         finally:
             form.reformat_errors()
+
+        if len(form.errors)==0:
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 
     def get_organism(self, form):
@@ -140,22 +163,6 @@ class NewMediaView(FormView):
 
         return med_comps
 
-    def get_growth_data_old(self, form, org, source, media_name):
-        try:
-            args={'strainid': org,
-                  'medid': media_name,
-                  'sourceid': source,
-                  'growth_rate': form.cleaned_data['growth_rate'][0],
-                  'growth_units': '1/h',
-                  'ph': form.cleaned_data['ph'][0],
-                  'temperature_c': form.cleaned_data['temperature'][0],
-                  'additional_notes': '',
-                  }
-            return GrowthData(**args)
-        except Exception, e:
-            form.errors['GrowthData']="Unable to create growth data record: "+str(e)
-            raise e
-
     def get_growth_data(self, form, org, source, media_name):
         args={'strainid': org,
               'medid': media_name,
@@ -166,20 +173,32 @@ class NewMediaView(FormView):
               'temperature_c': form.cleaned_data['temperature'][0],
               'additional_notes': '',
               }
-        return GrowthData(**args)
+        try:
+            args['growthid']=form.get1('growthid', int)
+#            args['growthid']=int(form.cleaned_data['growthid'])
+            log.debug('existing args[growthid]=%s' % args['growthid'])
+        except (ValueError, KeyError, TypeError) as e:
+            log.debug('no "growthid" in %s (%s %s)' % (form.cleaned_data, type(e), e))
+            pass
+
+        gd=GrowthData(**args)
+        gd.strainid=org
+        gd.sourceid=source
+        gd.medid=media_name
+        return gd
 
     def get_source(self, form):
-        title=form.cleaned_data['title'][0]
+        ''' fixme: what happens if one field of an existing Sources record is changed?
+            create a totally new record?  Leave the old record dangling?
+        '''
+        fields=['first_author', 'journal', 'year', 'title', 'link']
+        args={k:v for (k,v) in [(f,form.cleaned_data[f][0]) for f in fields]}
         try:
-            return Sources.objects.get(title=title)
-        except Sources.DoesNotExist:
-            args={'title': form.cleaned_data['title'][0],
-                  'journal': form.cleaned_data['journal'][0],
-                  'first_author': form.cleaned_data['first_author'][0],
-                  'year': int(form.cleaned_data['year'][0]),
-                  'link': form.cleaned_data['link'][0]}
-            src=Sources.objects.create(**args)
-            return src
+            src, created=Sources.objects.get_or_create(**args)
+        except IntegrityError as e:
+            form.errors['Sources']='Error creating Source: %s' % e
+            raise e
+        return src
 
 
                           

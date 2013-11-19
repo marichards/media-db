@@ -11,6 +11,10 @@ class SearchForm(forms.Form):
 
 
 class NewMediaForm(forms.Form):
+    @classmethod
+    def from_growth_data(self, gd):
+        return NewMediaForm(gd.as_dict())
+            
     def __init__(self, *args, **kwargs):
         super(NewMediaForm, self).__init__(*args, **kwargs)
 
@@ -31,7 +35,8 @@ class NewMediaForm(forms.Form):
     species=forms.ChoiceField(required=True, label='Species', choices=())
     strain=forms.ChoiceField(required=True, label='Strain', choices=())
 
-    media_name=forms.CharField(required=True, label='Media Name')
+    media_name=forms.CharField(required=True, label='Media Name',
+                               widget=forms.TextInput(attrs={'size': 75}))
     is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
     is_minimal=forms.CharField(label='Is minimal?', widget=forms.CheckboxInput)
 
@@ -46,9 +51,12 @@ class NewMediaForm(forms.Form):
     comp1=forms.CharField(required=True, label='Compound')
     amount1=forms.FloatField(required=True, label='Amount (Mm)', min_value=0)
 
-    growth_rate=forms.FloatField(min_value=0, required=True, label='Growth Rate')
-    temperature=forms.FloatField(min_value=0, required=True, label='Temperature')
-    ph=forms.FloatField(min_value=0, required=True, label='PH')
+    growth_rate=forms.FloatField(min_value=0, required=True, label='Growth Rate',
+                                 widget=forms.TextInput(attrs={'size':8}))
+    temperature=forms.FloatField(min_value=0, required=True, label='Temperature',
+                                 widget=forms.TextInput(attrs={'size':8}))
+    ph=forms.FloatField(min_value=0, required=True, label='ph',
+                                 widget=forms.TextInput(attrs={'size':8}))
 
     uptake_comp1=forms.CharField(label='Compound', required=False)
     uptake_rate1=forms.FloatField(label='Rate (+/-)', required=False)
@@ -125,7 +133,6 @@ class NewMediaForm(forms.Form):
                 try:
                     try: val=self.cleaned_data.get(key)[0] # sometimes it's a list, sometimes it's not
                     except TypeError: val=self.cleaned_data.get(key)
-                    log.debug('%s: val=%s' % (key, val))
                     if val==None: raise ValueError(val)
                 except Exception as e:
                     missing.append(part2)
@@ -136,51 +143,35 @@ class NewMediaForm(forms.Form):
             log.debug('errors: %s -> %s' % (k,v))
         return len(self.errors)==0
 
-    @classmethod
-    def from_growth_data(self, gd):
-        log.debug('gd.strainid(%s) is %s' % (type(gd.strainid), gd.strainid))
-        form_args={
-            'growthid':      gd.growthid,
-            'genus':         gd.strainid.genus,
-            'species' :      gd.strainid.species,
-            'strain' :       gd.strainid.strain,
+    def get1(self, key, cls=None):
+        ''' I cannot fucking figure out when form.cleaned_data[some_key] is a list or not: '''
+        maybe_a_list=self.cleaned_data[key]
+        try:
+            is_scalar=type(maybe_a_list)==type(maybe_a_list[0]) # no lol's, I hope
+        except TypeError:
+            is_scalar=True
+        except IndexError as e: # could be an empty string...
+            log.debug('caught %s: %s; maybe_a_list(%s) is "%s"' % (type(e), e, type(maybe_a_list), maybe_a_list))
+#            if maybe_a_list=="": return ""
+#            if maybe_a_list==None: return None
+            is_scalar=True      # this is untrue, but makes the logic below work...
+        # ...especially as pertains to the cast with cls, which will generally barf (correctly?)
 
-            'media_name' :   gd.medid.media_name,
-            'is_defined' :   gd.medid.is_defined,
-            'is_minimal' :   gd.medid.is_minimal,
+        if is_scalar:
+            val=maybe_a_list
+        else:
+            val=maybe_a_list[0]
 
-            'first_author' : gd.sourceid.first_author,
-            'journal' :      gd.sourceid.journal,
-            'year' :         gd.sourceid.year,
-            'title' :        gd.sourceid.title,
-            'link' :         gd.sourceid.link,
-            
-            'growth_rate' :  gd.growth_rate,
-            'temperature' :  gd.temperature_c,
-            'ph' :           gd.ph,
-            }
-
-        # make comp1 and amount1 key/value pairs:
-        n=1
-        for medcomp in gd.medid.mediacompounds_set.all():
-           form_args['comp%d' % n]=medcomp.compid.name
-           form_args['amount%d' % n]=medcomp.amount_mm
-           n+=1
-        log.debug('%d media compoounds for gd %d' % (n, gd.growthid))
-
-        n=1
-        for su in gd.secretionuptake_set.all():
-            comp=Compounds.objects.get(compid=su.compid)
-            form_args['uptake_comp%d' % n]=comp.name
-            form_args['uptake_rate%d' % n]=su.rate
-            form_args['uptake_unit%d' % n]=su.units
-            form_args['uptake_type%d' % n]=su.rateid.rate_type
-        log.debug('%d media secretion/uptakes for gd %d' % (n, gd.growthid))
-
-        return NewMediaForm(form_args)
+        if cls:
+            try:
+                return cls(val)
+            except e:
+                log.debug("Can't convert '%s' to %s: %s(%s)" % (val, str(cls), e, type(e)))
+                return val
+        else:
+            return val
 
 
-            
     def reformat_errors(self):
         '''
         self.errors is a dict() that packages each value as a <ul>...</ul>
@@ -193,7 +184,7 @@ class NewMediaForm(forms.Form):
         rep=r'\1'
         for k,v in self.errors.items():
             errors[k]=re.sub(pattern, rep, str(v))
-            log.debug('reformat: %s' % errors[k])
+            log.debug('reformat[%s]: %s' % (v, errors[k]))
         self.my_errors=errors
 
 
