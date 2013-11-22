@@ -54,27 +54,26 @@ class NewMediaView(FormView):
             with transaction.atomic():
                 try: 
                     growthid=request.POST['growthid']
-                    old_gd=GrowthData.objects.get(growthid=int(growthid))
-                    log.debug('about to call gd.full_delete(%s)' % growthid)
+                    old_gd=GrowthData.objects.get(growthid=int(growthid)) # here
                     old_gd.full_delete()
-                except KeyError:
+                except (KeyError, ValueError) as e:
+                    log.debug('no valid growthid in form, not trying to call full_delete')
                     pass
-
 
             media_name.save()
 
             growth_data=self.get_growth_data(form, org, source, media_name)
             try:
-                log.debug('about to save: growth_data.growthid=%d' % growth_data.growthid)
-            except:
+                log.debug('about to save: growth_data.growthid=%s' % growth_data.growthid)
+            except AttributeError:
                 log.debug('about to save: no growthid present')
-            growth_data.save()
+            growth_data.save()  # this can barf on IntegrityError: duplicate entry '8-304-113-1-7-35' for key 'unique_conditions' ????
             log.debug('growth_data saved: growthid=%d' % growth_data.growthid)
 
             media_comps=self.get_media_comps(form, media_name)
             for mcomp in media_comps:
                 mcomp.save()
-            
+
             uptakes=self.get_uptakes(form, growth_data)
             for uptake in uptakes:
                 uptake.save()
@@ -84,12 +83,17 @@ class NewMediaView(FormView):
             log.debug('yay! commitment!')
         except IntegrityError as ie:
             log.debug('caught %s: %s; rolling back' % (type(ie), ie))
+            log.debug('growth_data is: %r' % growth_data)
             transaction.rollback()
+            form.errors['Error']=str(ie)
+
         finally:
             form.reformat_errors()
 
         if len(form.errors)==0:
-            return self.form_valid(form)
+            log.debug('growth_data.growthid: %s' % growth_data.growthid)
+            url=reverse('new_media_form', args=(growth_data.growthid,))
+            return redirect(url)
         else:
             return self.form_invalid(form)
 
@@ -146,10 +150,9 @@ class NewMediaView(FormView):
               }
         try:
             args['growthid']=form.get1('growthid', int)
-#            args['growthid']=int(form.cleaned_data['growthid'])
             log.debug('existing args[growthid]=%s' % args['growthid'])
         except (ValueError, KeyError, TypeError) as e:
-            log.debug('no "growthid" in %s (%s %s)' % (form.cleaned_data, type(e), e))
+            log.debug('get_growth_data: no "growthid" form (ok)')
             pass
 
         gd=GrowthData(**args)

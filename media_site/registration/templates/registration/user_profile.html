@@ -1,0 +1,11 @@
+{% extends 'defined_media/base.html' %}
+{% block content %}
+<h2>User profile for {{ user.username }}</h2>
+
+<form>
+<table>
+{{ registration_form.as_table }}
+</table>
+</form>
+
+{% endblock %}

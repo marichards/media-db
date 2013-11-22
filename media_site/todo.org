@@ -17,3 +17,11 @@
     new html.  Might be easier to just write two new functions; or possibly call existing 
     funcs to add the blank rows, then afterwards add the values
 
+** Mtg with Matt 22Nov
+*** merge seed ids into compounds, get rid of seed_compounds table
+*** get compound ids from external sources
+*** get rid of organisms_sources
+*** reactants and products: leave for the moment
+*** compounds_exceptions and compounds_replacements: remove (after snapshotting)
+*** no longer need is_defined (always 'yes')
+

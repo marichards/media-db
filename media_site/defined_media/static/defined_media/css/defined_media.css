@@ -9,7 +9,7 @@
 
 .nav {
     float: left;
-    width: 15%;
+    width: 20%;
     background-color: #b6e4fc;
 }
 
@@ -21,6 +21,7 @@
 .footer {
     clear: both;
     background-color: #b6e4fc;
+    width: 100%;
 }
 
 div.header2 {

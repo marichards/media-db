@@ -16,9 +16,9 @@
 
 <!-- errors start -->
 {% if form.my_errors|length > 0 %}{{ form.my_errors|length }} Errors{% endif %}
-<!--{% for k,v in form.my_errors.items %}
-{{ k }}: {{ v }}
-{% endfor %}-->
+<ol>{% for k,v in form.my_errors.items %}
+<li>{{ k }}: {{ v }}</li>
+{% endfor %}</ol>
 <!-- errors end -->
 
 <h4>New Media Name</h4>

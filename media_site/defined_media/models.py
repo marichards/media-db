@@ -74,7 +74,10 @@ class Compounds(models.Model):
     compid = models.AutoField(primary_key=True, db_column='compID') # Field name made lowercase.
     kegg_id = models.CharField(max_length=255L, unique=True, db_column='KEGG_ID', blank=True, null=True) # Field name made lowercase.
     bigg_id = models.CharField(max_length=255L, db_column='BiGG_ID', blank=True, null=True) # Field name made lowercase.
+    seed_id = models.CharField(max_length=45L, db_column='seed_id') # Field name made lowercase.
     user_identifier = models.CharField(max_length=255L, blank=True, null=True)
+    
+
     name = models.CharField(max_length=255L, unique=True)
 
     objects=CompoundManager()
@@ -87,8 +90,8 @@ class Compounds(models.Model):
         return self.name
 
     def __repr__(self):
-        return 'compound %s (%d): kegg_id=%s, bigg_id=%s, user_identifier=%s' % \
-        (self.name, self.compid, self.kegg_id, self.bigg_id, self.user_identifier)
+        return 'compound %s (%d): kegg_id=%s, bigg_id=%s, seed_id=%s, user_identifier=%s' % \
+        (self.name, self.compid, self.kegg_id, self.bigg_id, self.seed_id, self.user_identifier)
 
     def keywords(self):
         nocs=[noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
@@ -111,7 +114,7 @@ class Compounds(models.Model):
         return 'http://seed-viewer.theseed.org/seedviewer.cgi?page=CompoundViewer&compound=%s&model=' % self.seed_id
 
 
-'''
+
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
     last_name = models.CharField(max_length=255L, unique=True, db_column='Last_Name', blank=True) # Field name made lowercase.
@@ -119,8 +122,7 @@ class Contributors(models.Model):
         db_table = 'contributors'
         verbose_name_plural = 'contributors'
     def __unicode__(self):
-        return '%s' %self.last_name.capitalize()
-'''
+        return self.last_name
 
 class GrowthData(models.Model):
     growthid = models.AutoField(primary_key=True, db_column='growthID') # Field name made lowercase.
@@ -141,7 +143,7 @@ class GrowthData(models.Model):
         return '%s on %s' %(self.strainid,self.medid)   
 
     def __repr__(self):
-        return "GrowthData %d: org=%s, media_name=%s, sourceid=%s, measureid=%s" % \
+        return "GrowthData %s: org=%s, media_name=%s, sourceid=%s, measureid=%s" % \
             (self.growthid, self.strainid, self.medid, self.sourceid, self.measureid)
 
     def media_compounds_dicts(self):
@@ -351,10 +353,16 @@ class SecretionUptakeKey(models.Model):
 
 class SeedCompounds(models.Model):
     seedkeggid = models.AutoField(primary_key=True, db_column='seedkeggID') # Field name made lowercase.
-    kegg_id = models.ForeignKey(Compounds, db_column='KEGG_ID') # Field name made lowercase.
+    kegg_id = models.CharField(max_length=45L, db_column='KEGG_ID') # Field name made lowercase.
+#    kegg_id = models.ForeignKey(Compounds, db_column='KEGG_ID') # Field name made lowercase.
     seed_id = models.CharField(max_length=45L, db_column='Seed_ID') # Field name made lowercase.
     class Meta:
         db_table = 'seed_compounds'
+
+    def __repr__(self):
+        return 'SeedCompound %s: kegg_id=%s, seed_id=%s' % (self.seedkeggid, self.kegg_id, self.seed_id)
+
+    
 
 class Sources(models.Model):
     sourceid = models.AutoField(primary_key=True, db_column='sourceID') # Field name made lowercase.

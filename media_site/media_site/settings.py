@@ -142,6 +142,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'defined_media',
+    'registration',
     'django_nose',
     'django_extensions',
 )
@@ -179,6 +180,7 @@ LOGGING = {
             'class':'django.utils.log.NullHandler',
             },
         # set mode to 'w' so file is being re-written every time; more useful for testing
+        # but not actually, you know, working
         'logfile': {
             'mode': 'w',
             'level':'DEBUG',
@@ -212,6 +214,10 @@ LOGGING = {
             'propagate': False,
             },
         'defined_media': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            },
+        'registration': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             },
