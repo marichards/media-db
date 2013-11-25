@@ -3,10 +3,12 @@ log=logging.getLogger(__name__)
 
 from defined_media.forms import NewMediaForm
 from defined_media.models import *
+
 from django.views.generic.edit import FormView
 from django.db import transaction, IntegrityError
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 
-#from django.core.urlresolvers import reverse
 
 class NewMediaView(FormView):
     '''
@@ -26,14 +28,16 @@ class NewMediaView(FormView):
             context['gd']=self.gd
         except (KeyError, AttributeError) as e:
             log.debug('no self.gd found')
+            pass
         return context
 
     def get(self, request, *args, **kwargs):
         try:
             self.gd=GrowthData.objects.get(growthid=kwargs['pk'])
             form=NewMediaForm.from_growth_data(self.gd)
-        except KeyError:
+        except (GrowthData.DoesNotExist, KeyError):
             form=NewMediaForm()
+            
         return self.form_invalid(form)
 
 
@@ -51,7 +55,8 @@ class NewMediaView(FormView):
             source=self.get_source(form)
             media_name=self.get_media_name(form)
 
-            with transaction.atomic():
+#            with transaction.atomic():
+            try:
                 try: 
                     growthid=request.POST['growthid']
                     old_gd=GrowthData.objects.get(growthid=int(growthid)) # here
@@ -60,32 +65,27 @@ class NewMediaView(FormView):
                     log.debug('no valid growthid in form, not trying to call full_delete')
                     pass
 
-            media_name.save()
+                media_name.save()
 
-            growth_data=self.get_growth_data(form, org, source, media_name)
-            try:
-                log.debug('about to save: growth_data.growthid=%s' % growth_data.growthid)
-            except AttributeError:
-                log.debug('about to save: no growthid present')
-            growth_data.save()  # this can barf on IntegrityError: duplicate entry '8-304-113-1-7-35' for key 'unique_conditions' ????
-            log.debug('growth_data saved: growthid=%d' % growth_data.growthid)
+                growth_data=self.get_growth_data(form, org, source, media_name)
+                growth_data.save()  # this can barf on IntegrityError: duplicate entry '8-304-113-1-7-35' for key 'unique_conditions' ????
+                log.debug('growth_data saved: growthid=%d' % growth_data.growthid)
 
-            media_comps=self.get_media_comps(form, media_name)
-            for mcomp in media_comps:
-                mcomp.save()
+                media_comps=self.get_media_comps(form, media_name)
+                for mcomp in media_comps:
+                    mcomp.save()
 
-            uptakes=self.get_uptakes(form, growth_data)
-            for uptake in uptakes:
-                uptake.save()
+                uptakes=self.get_uptakes(form, growth_data)
+                for uptake in uptakes:
+                    uptake.save()
                 
-            log.debug('about to commit')
-            transaction.commit()
-            log.debug('yay! commitment!')
-        except IntegrityError as ie:
-            log.debug('caught %s: %s; rolling back' % (type(ie), ie))
-            log.debug('growth_data is: %r' % growth_data)
-            transaction.rollback()
-            form.errors['Error']=str(ie)
+                transaction.commit()
+                log.debug('yay! commitment!')
+            except IntegrityError as ie:
+                log.debug('caught %s: %s; rolling back' % (type(ie), ie))
+                log.debug('growth_data is: %r' % growth_data)
+                transaction.rollback()
+                form.errors['Error']=str(ie)
 
         finally:
             form.reformat_errors()

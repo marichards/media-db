@@ -4,10 +4,11 @@ log=logging.getLogger(__name__)
 from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
+
 from defined_media.tests.forms.test_cases import newmedia_inputs
 from defined_media.models import *
 from defined_media.forms import NewMediaForm
-
+from defined_media.tests.snapshot import *
 
 
 class TestMediaForm(TestCase):
@@ -299,12 +300,14 @@ class TestMediaForm(TestCase):
         ''' 
         Alters as many fields as possible while still allowing a successful update.
         '''
-        log.debug('\*** test_update ***')
+        log.debug('\*** test_good_update ***')
 
-        n_gd=GrowthData.objects.count()
-        n_src=Sources.objects.count()
-        n_mn=MediaNames.objects.count()
-        n_uptake=SecretionUptake.objects.count()
+        ss0=snapshot()
+
+#        n_gd=GrowthData.objects.count()
+#        n_src=Sources.objects.count()
+#        n_mn=MediaNames.objects.count()
+#        n_uptake=SecretionUptake.objects.count()
 
         gd0=GrowthData.objects.get(growthid=265)
         log.debug('gd0: %s' % gd0)

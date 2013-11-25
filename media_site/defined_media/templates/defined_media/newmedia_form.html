@@ -83,7 +83,8 @@
 <table>
 <tr><th>Compound</th><th>Rate (+/-)</th></tr>
 {% if gd %}
-  {% for d in gd.uptake_dicts %}
+  {% if gd.uptake_dicts|length > 0 %}
+    {% for d in gd.uptake_dicts %}
 <tr id='id_uptake_row{{ forloop.counter }}'>
   <td><input id='id_uptake_comp{{ forloop.counter }}' name='uptake_comp{{ forloop.counter }}' type='text' value='{{ d.comp }}' /></td>
   <td><input id='id_uptake_rate{{ forloop.counter }}' name='uptake_rate{{ forloop.counter }}' step='any' type='number' value='{{ d.rate }}'/></td>
@@ -99,13 +100,22 @@
     <option value="3" {% if d.type == 3 %}selected='selected'{% endif %}>Yield Coefficient</option>
   </select></td>
 
-    {% if forloop.first %}
+      {% if forloop.first %}
   <td><input id='id_add_uptake1' type='button' value='Add' /></td>
-    {% else %}
+      {% else %}
   <td><input type='button' value='Remove' id='id_rm_uptake{{ forloop.counter }}' class='uptake_rm_button' /></td>
-    {% endif %}
+      {% endif %}
 </tr>
-  {% endfor %}
+    {% endfor %}
+  {% else %}
+<tr id='id_uptake_row1'>
+  <td>{{ form.uptake_comp1 }}</td>
+  <td>{{ form.uptake_rate1 }}</td>
+  <td>{{ form.uptake_unit1 }}</td>
+  <td>{{ form.uptake_type1 }}</td>
+  <td><input id='id_add_uptake1' type='button' value='Add' /></td>
+</tr>
+  {% endif %}
 {% else %}
 <tr id='id_uptake_row1'>
   <td>{{ form.uptake_comp1 }}</td>

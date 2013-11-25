@@ -1,6 +1,7 @@
 import sys
 from django.test import TestCase
 import defined_media.models as models
+from defined_media.tests.snapshot import *
 from django.db.models import Model
 
 '''
@@ -16,42 +17,31 @@ class ViewFixture(TestCase):
         '''
         loop through classes defined in models.py, report number of rows in table for that class
         '''
-        for d in dir(models):
-            cls=getattr(models, d)
-            try: 
-                if not issubclass(cls, Model): continue
-            except TypeError: continue
-
-            try:
-                count=cls.objects.count()
-            except AttributeError:
-                continue
-            except Exception, dberr:
-                print 'caught %s: %s' % (type(dberr), dberr)
-                continue
-
+        ss=snapshot()
+        for cls in sorted(ss.keys()):
+            count=ss[cls]
             if count>0:
-                print '%s: %d rows' % (d, count) 
+                print '%-20s: %d rows' % (cls.__name__, count) 
 
     def test_view_fixture(self):
-        for d in dir(models):
-            cls=getattr(models, d)
-            try: 
-                if not issubclass(cls, Model): continue
-            except TypeError: continue
-
-            try:
-                print cls.__name__
-                n=0
-                for obj in cls.objects.all():
+        for cls in snapshot().keys():
+            print cls.__name__
+            n=0
+            for obj in cls.objects.all():
+                try:
                     print '%d. %r' % (n, obj)
                     n+=1
-                print
-            except AttributeError:
-                continue
-            except Exception, dberr:
-                print 'caught %s: %s' % (type(dberr), dberr)
-                continue
+                except Exception as e:
+                    print 'caught %s: %s' % (type(e), e)
 
+            print
 
         
+    def test_model_classes(self):
+        for cls in model_classes():
+            print 'cls is %s' % cls.__name__
+
+
+    def test_snapshot(self):
+        for cls, count in snapshot().items():
+            print '%s -> %s' % (cls, count)

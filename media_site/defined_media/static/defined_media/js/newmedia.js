@@ -161,10 +161,15 @@ NewMediaEditor.prototype={
 	row.append($('<td></td>').append($('<input>', 
 	    {id:'id_uptake_rate'+n, name:'uptake_rate'+n, type: 'text'})))
 
-	sel_id='id_uptake_unit'+n
-	sel_name='uptake_unit'+n
-	sel=$("<select>", {id: sel_id, name: sel_name})
-	row.append($('<td></td>').append(sel))
+	sel_unit_id='id_uptake_unit'+n
+	sel_unit_name='uptake_unit'+n
+	sel_unit=$("<select>", {id: sel_unit_id, name: sel_unit_name})
+	row.append($('<td></td>').append(sel_unit))
+
+	sel_type_id='id_uptake_type'+n
+	sel_type_name='uptake_type'+n
+	sel_type=$("<select>", {id: sel_type_id, name: sel_type_name})
+	row.append($('<td></td>').append(sel_type))
 
 	add_button=$('<input>', {type: 'button', value: 'Remove', id: 'id_rm_uptake'+n})
 	add_button.click(document.editor.remove_uptake)
@@ -172,7 +177,8 @@ NewMediaEditor.prototype={
 	$('#id_uptake_row1').after(row)
 
 	// Can't populate new select until after it's been added to the DOM:
-	document.editor.populate_select('#'+sel_id, document.data['secretion_uptake_units'])
+	document.editor.populate_select_vv('#'+sel_unit_id, document.data['secretion_uptake_units'])
+	document.editor.populate_select_iv('#'+sel_type_id, document.data['secretion_uptake_types'], 1)
 	document.editor.compound_n+=1
     },
 
@@ -236,10 +242,19 @@ NewMediaEditor.prototype={
 	return false
     },
 
-    populate_select: function(id_sel, list) {
+    populate_select_vv: function(id_sel, list) {
 	for (i in list) {
 	    val=list[i]
             $(id_sel).append($('<option>', { value: val }).text(val))
+ 	}	    
+    },  
+
+    populate_select_iv: function(id_sel, list, offset) {
+	if (typeof(offset) != "number")
+	    offset=0
+	for (i in list) {
+	    val=list[i]
+            $(id_sel).append($('<option>', { value: parseInt(i)+offset }).text(val))
  	}	    
     },  
 

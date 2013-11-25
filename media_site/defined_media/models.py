@@ -143,13 +143,35 @@ class GrowthData(models.Model):
         return '%s on %s' %(self.strainid,self.medid)   
 
     def __repr__(self):
-        return "GrowthData %s: org=%s, media_name=%s, sourceid=%s, measureid=%s" % \
-            (self.growthid, self.strainid, self.medid, self.sourceid, self.measureid)
+        return "GrowthData %s: org(%s)=%s, media_name(%s)=%s, sourceid(%s)=%s, measureid(%s)=%s" % \
+            (self.growthid, self.strainid_id, self.strainid, self.medid_id, self.medid, 
+             self.sourceid_id, self.sourceid, self.measureid_id, self.measureid)
 
     def media_compounds_dicts(self):
         return [{'comp': mc.compid.name, 'amount': mc.amount_mm} for mc in self.medid.mediacompounds_set.all()]
 
+    def dump(self):
+        '''
+        List the entire growth data object, including: media_name, org, source, all media_compounds
+        and secretion_uptake objects
+        '''
+        report='GrowthData %d:\n' % self.growthid;
+        report += '      Organism(%d): %s\n' % (self.strainid_id, self.strainid)
+        report += '     MediaName(%d): %s\n' % (self.medid_id, self.medid)
+        report += '        Source(%d): %s\n' % (self.sourceid_id, self.sourceid)
+
+        report += 'MediaCompounds[%d]\n' % self.medid.mediacompounds_set.count()
+        for i,mc in enumerate(self.medid.mediacompounds_set.all()):
+            report += ' MediaCompound[%d]: (%d) %s\n' % (i, mc.medcompid, mc)
+
+        report += 'SecretionUptakes[%d]\n' % self.secretionuptake_set.count()
+        for i,su in enumerate(self.secretionuptake_set.all()):
+            report += 'SecretionUptake[%d]: (%d) %s\n' % (i, su.secretionuptakeid, su)
+        return report
+        
+
     def uptake_dicts(self):
+        ''' return an array of dicts.  Each dict has keys=[comp, rate, units, type] '''
         return [{'comp': Compounds.objects.get(compid=su.compid).name, 'rate': su.rate, 'units': su.units, 'type': su.rateid_id} for su in self.secretionuptake_set.all()]
 
     def as_dict(gd):
@@ -192,13 +214,11 @@ class GrowthData(models.Model):
         return d
 
     def full_delete(self):
-        # delete media_compounds
-        for medcomp in self.medid.mediacompounds_set.all():
-            medcomp.delete()
-
+        log.debug('full_delete called')
         # delete secretion_uptakes
-        for su in self.secretionuptake_set.all():
-            su.delete()
+        # apparently this happens automatically...
+#        for su in self.secretionuptake_set.all():
+#            su.delete()
 
         # delete media_name
         self.medid.delete()
@@ -342,7 +362,7 @@ class SecretionUptake(models.Model):
         db_table = 'secretion_uptake'
 
     def __repr__(self):
-        return 'SecretionUptake %d: growth=%s, compound=%s, rate=%s, units=%s, rateid=%s' \
+        return 'SecretionUptake %s: growth=%s, compound=%s, rate=%s, units=%s, rateid=%s' \
             %(self.secretionuptakeid, self.growthid, self.compid, self.rate, self.units, self.rateid)
 
 class SecretionUptakeKey(models.Model):
