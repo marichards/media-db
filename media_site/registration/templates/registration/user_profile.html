@@ -4,8 +4,34 @@
 
 <form>
 <table>
-{{ registration_form.as_table }}
+<tr><th><label for="id_username">Username:</label></th>
+  <td><input id="id_username" maxlength="64" name="username" type="text" value="{{ registration_form.username.value }}" /></td>
+  <td><span class='error'>{{ registration_form.my_errors.username }}</span></td>
+</tr>
+<tr><th><label for="id_email">Email:</label></th>
+  <td><input id="id_email" name="email" type="email" value="{{ registration_form.email.value }}" /></td>
+  <td><span class='error'>{{ registration_form.my_errors.email }}</span></td></tr>
+<tr><th><label for="id_password1">Password:</label></th>
+  <td><input id="id_password1" maxlength="64" name="password1" type="password" /></td>
+  <td><span class='error'>{{ registration_form.my_errors.password1 }}</span></td>
+</tr>
+<tr><th><label for="id_password2">Password (confirm):</label></th>
+  <td><input id="id_password2" maxlength="64" name="password2" type="password" /></td>
+  <td><span class='error'>{{ registration_form.my_errors.password2 }}</span></td>
+</tr>
+<tr><th><label for="id_lab">Lab:</label></th>
+  <td><input id="id_lab" maxlength="255" name="lab" type="text" value="{{ registration_form.lab.value }}" /></td>
+  <td><span class='error'>{{ registration_form.my_errors.lab }}</span></td>
+</tr>
+<tr><th><label for="id_lab_url">Lab Url:</label></th>
+  <td><input id="id_lab_url" maxlength="255" name="lab_url" type="url" value="{{ registration_form.lab_url.value }}" /></td>
+  <td><span class='error'>{{ registration_form.my_errors.lab_url }}</span></td></tr>
+
+<tr><td><input type='submit' value='Update Profile' /></td></tr>
 </table>
 </form>
 
+<a href='{% url 'logout' %}'>Logout</a>
+
+<p>List of user's media name/growth data records goes here</p>
 {% endblock %}

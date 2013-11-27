@@ -1,0 +1,69 @@
+{% extends 'defined_media/base.html' %}
+{% block content %}
+<!-- see http://matthewjamestaylor.com/blog/equal-height-columns-cross-browser-css-no-hacks for the basic layout idea used here -->
+
+<!-- col1: w46, l52  col2: w46, l56-->
+<style>
+#container2 {
+    float:left;
+    clear:left;
+    width:100%;
+    position:relative;
+    overflow:hidden;
+}
+#container1 {
+    float:left;
+    width:100%;
+    position:relative;
+    right:50%;
+}
+#col1 {
+    float:left;
+    width:46%;
+    position:relative;
+    left:52%; 
+    overflow:hidden;
+    border: solid 1px black;
+}
+#col2 {
+    float:left;
+    width:46%; 
+    position:relative;
+    left:56%; 
+    overflow:hidden;
+}
+</style>
+
+<div id='container2'>
+  <div id='container1'>
+    <div id='col1'>
+      <h2>Login</h2>
+      {% if login_form.errors.msg %}Errors: {{login_form.errors.msg}}{% endif %}
+      <form method='POST' action='{% url 'login' %}'>
+	{% csrf_token %}
+	<input type='hidden' name='form_name' value='login' />
+	<table>
+	  {{ login_form.as_table }}
+	  <tr><td><input type='submit' value='Login' /></td></tr>
+	</table>
+      </form>
+    </div>
+    <div id='col2'>
+      <h2>Register</h2>
+      <form method='POST' action='{% url 'register_new_user' %}'>
+	{% csrf_token %}
+	<input type='hidden' name='form_name' value='register' />
+	<table>
+	  {{ registration_form.as_table }}
+	  <tr><td><input type='submit' value='Register' /></td></tr>
+	</table>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div>
+<!-- footer -->
+</div>
+
+{% endblock %}

@@ -302,13 +302,7 @@ class TestMediaForm(TestCase):
         '''
         log.debug('\*** test_good_update ***')
 
-        ss0=snapshot()
-
-#        n_gd=GrowthData.objects.count()
-#        n_src=Sources.objects.count()
-#        n_mn=MediaNames.objects.count()
-#        n_uptake=SecretionUptake.objects.count()
-
+        ss0=snapshot(self, 'before')
         gd0=GrowthData.objects.get(growthid=265)
         log.debug('gd0: %s' % gd0)
         form_dict=gd0.as_dict()
@@ -345,11 +339,8 @@ class TestMediaForm(TestCase):
             log.debug("Existing gd object: %r" %gd)
 
         # nothing new should be created:
-        self.assertEqual(n_gd, GrowthData.objects.count(), 
-                         'n_gd: was %d, now %d' % (GrowthData.objects.count(), n_gd))
-        self.assertEqual(Sources.objects.count(), n_src)
-        self.assertEqual(MediaNames.objects.count(), n_mn)
-        self.assertEqual(SecretionUptake.objects.count(), n_uptake)
+        ss2=snapshot(self, 'after')
+        compare_snapshots(self, 'before', 'after')
 
         # pull out the new records: growth data, organism, source, medcomps, uptakes, compare to dict
         gd1=GrowthData.objects.get(growthid=265)

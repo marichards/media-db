@@ -1,66 +1,76 @@
 {% extends 'defined_media/base.html' %}
 {% block content %}
-<!-- see http://matthewjamestaylor.com/blog/equal-height-columns-cross-browser-css-no-hacks for the basic layout idea used here -->
 
-<!-- col1: w46, l52  col2: w46, l56-->
 <style>
-#container2 {
-    float:left;
-    clear:left;
-    width:100%;
-    position:relative;
-    overflow:hidden;
+table.layout {
+    width: 100%;
 }
-#container1 {
-    float:left;
-    width:100%;
-    position:relative;
-    right:50%;
-}
-#col1 {
-    float:left;
-    width:46%;
-    position:relative;
-    left:52%; 
-    overflow:hidden;
+table.layout td.layout {
+    width: 50%;
     border: solid 1px black;
+    text-align: center;
 }
-#col2 {
-    float:left;
-    width:46%; 
-    position:relative;
-    left:56%; 
-    overflow:hidden;
+
+table.login th {
+    text-align: left;
+
 }
 </style>
 
-<div id='container2'>
-  <div id='container1'>
-    <div id='col1'>
+<table class='layout'>
+  <tr><td class='layout'><div>
       <h2>Login</h2>
-      {% if login_form.errors.msg %}Errors: {{login_form.errors.msg}}{% endif %}
+      {% if login_form.errors.msgs %}{{ login_form.errors.msgs|length }} Errors:<ul>
+	{% for err in login_form.errors.msgs %}<li>{{ err }}</li>{% endfor %}</ul>
+      {% endif %}
       <form method='POST' action='{% url 'login' %}'>
 	{% csrf_token %}
-	<input type='hidden' name='form_name' value='login' />
-	<table>
-	  {{ login_form.as_table }}
+	<table class='login'>
+	  <tr><th><label for="id_username">Username:</label></th>
+	    <td><input id="id_username" maxlength="64" name="username" type="text" /></td>
+	    <td><span class='error'>{{ login_form.my_errors.username }}</span></td></tr>
+	  <tr><th><label for="id_password">Password:</label></th>
+	    <td><input id="id_password" maxlength="64" name="password" type="password" /></td>
+	    <td><span class='error'>{{ login_form.my_errors.password }}</span></td></tr>
 	  <tr><td><input type='submit' value='Login' /></td></tr>
 	</table>
       </form>
     </div>
+  </td><td class='layout'>
     <div id='col2'>
       <h2>Register</h2>
-      <form method='POST' action='{% url 'register' %}'>
+      <form method='POST' action='{% url 'register_new_user' %}'>
 	{% csrf_token %}
-	<input type='hidden' name='form_name' value='register' />
-	<table>
-	  {{ registration_form.as_table }}
+	<table class='login'>
+
+	  <tr><th><label for="id_username">Username:</label></th>
+	    <td><input id="id_username" maxlength="64" name="username" type="text" /></td>
+	    <td><span class='error'>{{ registration_form.my_errors.username }}</span></td>
+	  </tr>
+	  <tr><th><label for="id_email">Email:</label></th>
+	    <td><input id="id_email" name="email" type="email" /></td>
+	    <td><span class='error'>{{ registration_form.my_errors.email }}</span></td>
+	  </tr>
+	  <tr><th><label for="id_password1">Password:</label></th>
+	    <td><input id="id_password1" maxlength="64" name="password1" type="password" /></td>
+	    <td><span class='error'>{{ registration_form.my_errors.password1 }}</span></td>
+	  </tr>
+	  <tr><th><label for="id_password2">Password (confirm):</label></th>
+	    <td><input id="id_password2" maxlength="64" name="password2" type="password" /></td>
+	    <td><span class='error'>{{ registration_form.my_errors.password2 }}</span></td>
+	  </tr>
+	  <tr><th><label for="id_lab">Lab:</label></th>
+	    <td><input id="id_lab" maxlength="255" name="lab" type="text" /></td>
+	    <td><span class='error'>{{ registration_form.my_errors.lab }}</span></td>
+	  </tr>
+	  <tr><th><label for="id_lab_url">Lab Url:</label></th><td><input id="id_lab_url" maxlength="255" name="lab_url" type="url" /></td></tr>
+
 	  <tr><td><input type='submit' value='Register' /></td></tr>
 	</table>
       </form>
     </div>
-  </div>
-</div>
+  </td></tr>
+</table>
 
 <div>
 <!-- footer -->

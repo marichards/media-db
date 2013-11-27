@@ -15,7 +15,7 @@
 {{ form.growthid }}
 
 <!-- errors start -->
-{% if form.my_errors|length > 0 %}{{ form.my_errors|length }} Errors{% endif %}
+{% if form.my_errors %}{{ form.my_errors|length }} Errors{% endif %}
 <ol>{% for k,v in form.my_errors.items %}
 <li>{{ k }}: {{ v }}</li>
 {% endfor %}</ol>

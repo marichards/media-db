@@ -1,6 +1,8 @@
 import re, logging
 from django import forms
 from defined_media.models import *
+from form_helpers import ReformatsErrors
+
 #from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 #from defined_media.models import Contributor
 
@@ -10,7 +12,7 @@ class SearchForm(forms.Form):
     search_term=forms.CharField()
 
 
-class NewMediaForm(forms.Form):
+class NewMediaForm(forms.Form, ReformatsErrors):
     @classmethod
     def from_growth_data(self, gd):
         return NewMediaForm(gd.as_dict())
@@ -169,22 +171,6 @@ class NewMediaForm(forms.Form):
             return cls(val)     # this can also throw
         else:
             return val
-
-
-    def reformat_errors(self):
-        '''
-        self.errors is a dict() that packages each value as a <ul>...</ul>
-        grrrrr...
-        We strip away everything between the <ul ...>...</ul>
-        '''
-        log.debug('reformatting %d errors' % len(self.errors))
-        errors={}
-        pattern=r'<ul[^>]+><li>(.*)</li></ul>'
-        rep=r'\1'
-        for k,v in self.errors.items():
-            errors[k]=re.sub(pattern, rep, str(v))
-            log.debug('reformat[%s]: %s' % (v, errors[k]))
-        self.my_errors=errors
 
 
 
