@@ -7,3 +7,5 @@ fixtures/
 *.json
 logfile*
 schema*
+.#*
+#*
