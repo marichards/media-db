@@ -1,24 +1,25 @@
 {% extends 'defined_media/base.html' %}
 {% block js_files %}
 {% load static %}
-<script src='{% static 'defined_media/js/jquery-1.10.2.min.js' %}'></script>
-<script src='{% static 'defined_media/js/jquery-ui.js' %}'></script>
-<script src='{% static 'defined_media/js/newmedia.js' %}'></script>
-<script src='{% static 'defined_media/js/data.js' %}'></script>
+<script src='{% static 'defined_media/js/jquery-1.10.2.min.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/jquery-ui.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/newmedia.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/data.js' %}' type='text/javascript'></script>
 {% endblock %}
 
 {% block content %}
 <h2>Enter Media Information:{% if gd %}{{ gd.medid.media_name }}{% endif %}</h2>
 
-<form id='id_newmedia_form' action='' method='POST'>
+<form id='id_newmedia_form' action='' method='post'>
 {% csrf_token %}
 {{ form.growthid }}
 
 <!-- errors start -->
-{% if form.my_errors %}{{ form.my_errors|length }} Errors{% endif %}
+{% if form.my_errors %}{{ form.my_errors|length }} Errors
 <ol>{% for k,v in form.my_errors.items %}
 <li>{{ k }}: {{ v }}</li>
 {% endfor %}</ol>
+{% endif %}
 <!-- errors end -->
 
 <h4>New Media Name</h4>
@@ -48,8 +49,8 @@
 </table>
 </div>
 
-<table>
 <h4>Growth Info:</h4>
+<table>
 <tr><td>{{ form.growth_rate.label }}: </td><td>{{ form.growth_rate }} h<sup>-1</sup></td><td><span class='error'>{{ form.my_errors.growth_rate }}</span></td></tr>
 <tr><td>{{ form.temperature.label }}: </td><td>{{ form.temperature }}&deg;C</td><td><span class='error'>{{ form.my_errors.temperature }}</span></td></tr>
 <tr><td>{{ form.ph.label }}: </td><td>{{ form.ph }}</td><td><span class='error'>{{ form.my_errors.ph }}</span></td></tr>
@@ -69,6 +70,7 @@
     {% else %}
     <td><input type='button' value='Remove' id='id_rm_compound{{ forloop.counter }}' class='compound_rm_button' /></td>
     {% endif %}
+  </tr>
   {% endfor %}
 {% else %}
 <tr id='id_comp_row1'>

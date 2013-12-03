@@ -1,24 +1,24 @@
 <!-- login_tag.html -->
 <div class='login'>
+
 {% if request.user.is_authenticated %}
-<form action='{% url 'logout' %}' method='POST'>
+<form action='{% url 'logout' %}' method='post'>
 {% else %}
-<form action='{% url 'login' %}' method='POST'>
-<input type='hidden' name='next' value='{{ request.get_full_path }}' />
+<form action='{% url 'login' %}' method='post'>
 {% endif %}
+<input type='hidden' name='next' value='{{ request.get_full_path }}' />
+
 {% csrf_token %}
 {% if request.user.is_authenticated %}
 Logged in as {{ request.user }}
 <input type='submit' value='Logout' />
-
 {% else %}
-
-{{ form.username.label }}: {{ form.username }}
-{{ form.password.label }}: {{ form.password }}
+{{ login_tag_form.username.label }}: {{ login_tag_form.username }}
+{{ login_tag_form.password.label }}: {{ login_tag_form.password }}
 <input type='submit' value='Login' />
     <div>
-      <a href=''>Register New User</a>
-      <a href=''>Forgot Username/Password</a>
+      <a href=''>fixme! Register New User</a>
+      <a href=''>fixme! Forgot Username/Password?</a>
     </div>
 {% endif %}
 </form>

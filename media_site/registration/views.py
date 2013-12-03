@@ -60,7 +60,7 @@ def login(request, *args, **kwargs):
         auth.login(request, user)
         log.info('user logged in: %s' % username)
 
-    try: next=request.session['redirect_to']
+    try: next=request.POST['next']
     except KeyError: next=reverse('user_profile', args=(username,))
     log.debug('redirecting to %s' % next)
     return redirect(next)
@@ -135,13 +135,21 @@ def register_new_user(request):
     return redirect(url)
 
 def logout(request):
+    try: username=request.user.name
+    except AttributeError: username='nobody'
+
     try:
-        auth.logout(request.user)
-        log.debug('user %s logged out' % request.user)
+        log.debug('attempting to logout user %s' % username)
+        auth.logout(request)
+        log.debug('user %s logged out' % username)
     except Exception as e: 
-        log.debug('error logging out user %s: %s %s' % (request.user, type(e), e))
+        log.debug('error logging out user %s: %s %s' % (username, type(e), e))
         pass
-    return redirect(reverse('login'))
+
+    try: to_here=request.POST['next']
+    except (KeyError, AttributeError): to_here=reverse('login')
+    log.debug('logout: redirecting to %s' % to_here)
+    return redirect(to_here)
 
 '''
 # fixme: implement the following:

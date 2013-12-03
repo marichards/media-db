@@ -9,7 +9,7 @@ from django.core.context_processors import csrf
 
 class SearchFormTag(template.Node):
     def render(self, context):
-        context.update({'form': SearchForm()})
+        context.update({'search_form': SearchForm()})
         return get_template('defined_media/search.html').render(context)
 
 def do_search_form(parser, token):

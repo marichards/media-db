@@ -18,62 +18,66 @@ table.login th {
 </style>
 
 <table class='layout'>
-  <tr><td class='layout'><div>
-      <h2>Login</h2>
-      {% if login_form.errors.msgs %}{{ login_form.errors.msgs|length }} Errors:<ul>
-	{% for err in login_form.errors.msgs %}<li>{{ err }}</li>{% endfor %}</ul>
-      {% endif %}
-      <form method='POST' action='{% url 'login' %}'>
-	{% csrf_token %}
-	<table class='login'>
-	  <tr><th><label for="id_username">Username:</label></th>
-	    <td><input id="id_username" maxlength="64" name="username" type="text" /></td>
-	    <td><span class='error'>{{ login_form.my_errors.username }}</span></td></tr>
-	  <tr><th><label for="id_password">Password:</label></th>
-	    <td><input id="id_password" maxlength="64" name="password" type="password" /></td>
-	    <td><span class='error'>{{ login_form.my_errors.password }}</span></td></tr>
-	  <tr><td><input type='submit' value='Login' /></td></tr>
-	</table>
-      </form>
-    </div>
-  </td><td class='layout'>
-    <div id='col2'>
-      <h2>Register</h2>
-      <form method='POST' action='{% url 'register_new_user' %}'>
-	{% csrf_token %}
-	<table class='login'>
+  <tr>
+    <td class='layout'>
+      <div>
+	<h2>Login</h2>
+	{% if login_form.errors.msgs %}{{ login_form.errors.msgs|length }} Errors:<ul>
+	  {% for err in login_form.errors.msgs %}<li>{{ err }}</li>{% endfor %}</ul>
+	{% endif %}
+	<form method='POST' action='{% url 'login' %}'>
+	  {% csrf_token %}
+	  <table class='login'>
+	    <tr><th><label for="id_username">Username:</label></th>
+	      <td><input id="id_username" maxlength="64" name="username" type="text" /></td>
+	      <td><span class='error'>{{ login_form.my_errors.username }}</span></td></tr>
+	    <tr><th><label for="id_password">Password:</label></th>
+	      <td><input id="id_password" maxlength="64" name="password" type="password" /></td>
+	      <td><span class='error'>{{ login_form.my_errors.password }}</span></td></tr>
+	    <tr><td><input type='submit' value='Login' /></td></tr>
+	  </table>
+	</form>
+      </div>
+    </td>
 
-	  <tr><th><label for="id_username">Username:</label></th>
-	    <td><input id="id_username" maxlength="64" name="username" type="text" /></td>
-	    <td><span class='error'>{{ registration_form.my_errors.username }}</span></td>
-	  </tr>
-	  <tr><th><label for="id_email">Email:</label></th>
-	    <td><input id="id_email" name="email" type="email" /></td>
-	    <td><span class='error'>{{ registration_form.my_errors.email }}</span></td>
-	  </tr>
-	  <tr><th><label for="id_password1">Password:</label></th>
-	    <td><input id="id_password1" maxlength="64" name="password1" type="password" /></td>
-	    <td><span class='error'>{{ registration_form.my_errors.password1 }}</span></td>
-	  </tr>
-	  <tr><th><label for="id_password2">Password (confirm):</label></th>
-	    <td><input id="id_password2" maxlength="64" name="password2" type="password" /></td>
-	    <td><span class='error'>{{ registration_form.my_errors.password2 }}</span></td>
-	  </tr>
-	  <tr><th><label for="id_lab">Lab:</label></th>
-	    <td><input id="id_lab" maxlength="255" name="lab" type="text" /></td>
-	    <td><span class='error'>{{ registration_form.my_errors.lab }}</span></td>
-	  </tr>
-	  <tr><th><label for="id_lab_url">Lab Url:</label></th><td><input id="id_lab_url" maxlength="255" name="lab_url" type="url" /></td></tr>
-
-	  <tr><td><input type='submit' value='Register' /></td></tr>
-	</table>
-      </form>
-    </div>
-  </td></tr>
+    <td class='layout'>
+      <div id='col2'>
+	<h2>Register</h2>
+	<form method='POST' action='{% url 'register_new_user' %}'>
+	  {% csrf_token %}
+	  <table class='login'>
+	    <tr><th><label for="id_username">Username:</label></th>
+	      <td><input id="id_username" maxlength="64" name="username" type="text" /></td>
+	      <td><span class='error'>{{ registration_form.my_errors.username }}</span></td>
+	    </tr>
+	    <tr><th><label for="id_email">Email:</label></th>
+	      <td><input id="id_email" name="email" type="email" /></td>
+	      <td><span class='error'>{{ registration_form.my_errors.email }}</span></td>
+	    </tr>
+	    <tr><th><label for="id_password1">Password:</label></th>
+	      <td><input id="id_password1" maxlength="64" name="password1" type="password" /></td>
+	      <td><span class='error'>{{ registration_form.my_errors.password1 }}</span></td>
+	    </tr>
+	    <tr><th><label for="id_password2">Password (confirm):</label></th>
+	      <td><input id="id_password2" maxlength="64" name="password2" type="password" /></td>
+	      <td><span class='error'>{{ registration_form.my_errors.password2 }}</span></td>
+	    </tr>
+	    <tr><th><label for="id_lab">Lab:</label></th>
+	      <td><input id="id_lab" maxlength="255" name="lab" type="text" /></td>
+	      <td><span class='error'>{{ registration_form.my_errors.lab }}</span></td>
+	    </tr>
+	    <tr><th><label for="id_lab_url">Lab Url:</label></th><td><input id="id_lab_url" maxlength="255" name="lab_url" type="url" /></td></tr>
+	    
+	    <tr><td><input type='submit' value='Register' /></td></tr>
+	  </table>
+	</form>
+      </div>
+    </td>
+  </tr>
 </table>
 
 <div>
-<!-- footer -->
+footer<!-- footer -->
 </div>
 
 {% endblock %}

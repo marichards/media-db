@@ -50,6 +50,13 @@ div.login {
 /*    display: table-cell;*/
 }
 
+.login1 {
+    padding: 4px;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+}
+
 .search_form_inner {
     padding: 4px;
     position: absolute;

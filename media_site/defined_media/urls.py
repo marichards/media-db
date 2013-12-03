@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+from django.contrib.auth.decorators import login_required, permission_required
 import defined_media.views as views
 
 #URL Format:
@@ -48,8 +49,8 @@ urlpatterns = patterns(view_prefix,
                        url(r'^search_results/$', views.search.SearchResultsView.as_view(), name='search_results'),
 
                        # New Media Contribution:
-                       url(r'^newmedia/$', views.contributors.NewMediaView.as_view(), name='new_media_form'),
-                       url(r'^newmedia/(?P<pk>\d+)/$', views.contributors.NewMediaView.as_view(), name='new_media_form'),
+                       url(r'^newmedia/$', login_required(views.contributors.NewMediaView.as_view()), name='new_media_form'),
+                       url(r'^newmedia/(?P<pk>\d+)/$', login_required(views.contributors.NewMediaView.as_view()), name='new_media_form'),
 
                        # REST api
                        url(r'^api/urlmap$', views.api.urlmap, name='urlmap'),
