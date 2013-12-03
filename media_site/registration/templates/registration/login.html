@@ -17,6 +17,8 @@ table.login th {
 }
 </style>
 
+{% if msgs %}<h3>{{ msgs }}</h3>{% endif %}
+
 <table class='layout'>
   <tr>
     <td class='layout'>
@@ -27,6 +29,7 @@ table.login th {
 	{% endif %}
 	<form method='POST' action='{% url 'login' %}'>
 	  {% csrf_token %}
+	  {% if next %}<input type='hidden' name='next' value='{{ next }}' />{% endif %}
 	  <table class='login'>
 	    <tr><th><label for="id_username">Username:</label></th>
 	      <td><input id="id_username" maxlength="64" name="username" type="text" /></td>

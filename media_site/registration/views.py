@@ -28,10 +28,19 @@ def login2(request):
             return register_new_user(request)
 
 def login(request, *args, **kwargs):
+    if len(args)>0:
+        log.debug('login: args=%s' % args)
+    if len(kwargs)>0:
+        log.debug('login: kwargs=%s' % kwargs)
+    log.debug('login: GET=%s' % request.GET)
+    log.debug('login: POST=%s' % request.POST)
+
     # we'll need these forms (in one form or another)
+    next=get_next(request)
     added_context={
         'login_form': LoginForm(),
         'registration_form': RegistrationForm(),
+        'next': next,
         }
     
     # get request?
@@ -39,32 +48,39 @@ def login(request, *args, **kwargs):
         return render(request, 'registration/login.html', added_context)
         
     # login attempt:
-    log.debug('request.POST: %s' % request.POST)
     login_form=LoginForm(request.POST)
     added_context['login_form']=login_form
     if not login_form.is_valid():
-        log.debug('login: form invalid')
         added_context['login_form']=LoginForm(request.POST).reformat_errors()
         return render(request, 'registration/login.html', added_context)
 
     username=request.POST['username']
     password=request.POST['password']
-    log.debug('attempting login attempt: username=%s' % username)
     user=auth.authenticate(username=username, password=password)
-    log.debug('user is %s' % user)
     if user is None:
-        log.debug('incorrect user/password')
+        log.info('incorrect user/password')
         login_form.errors.msgs.append('incorrect user/password')
         return render(request, 'registration/login.html', added_context)
     else:
         auth.login(request, user)
         log.info('user logged in: %s' % username)
 
-    try: next=request.POST['next']
-    except KeyError: next=reverse('user_profile', args=(username,))
-    log.debug('redirecting to %s' % next)
+    if not next or next==reverse('logout'):
+        next=reverse('user_profile', args=(username,))
     return redirect(next)
         
+
+def get_next(request):
+    try:
+        return request.GET['next']
+    except KeyError:
+        try:
+            return request.POST['next']
+        except KeyError:
+            return None
+
+            
+    
 
 
 def user_profile(request, **kwargs):
@@ -85,7 +101,6 @@ def user_profile_get(request, **kwargs):
     
 def user_profile_get(request, **kwargs):
     user=request.user
-    log.debug('user_profile(user=%s) entered' % user)
     reg_args={'username': user.username, # fixme: need to update this with Contributor fields
               'password1': '',
               'password2': '',
@@ -98,25 +113,22 @@ def user_profile_get(request, **kwargs):
 
 
 def register_new_user(request):
-    log.debug('register_new_user entered')
     form=RegistrationForm(request.POST)
     if not form.is_valid():       # try again
-        log.debug('invalid form, try again')
         return render(request, 'registration/login.html')
 
 
     try:
         username=form.cleaned_data['username']
         user=User.objects.get(username=username)
-        log.debug('found existing user %s' % username)
         form.errors['username']='username "%s" already taken' % username
         form.reformat_errors()
         return render(request, 'registration/login.html')
     except User.DoesNotExist:
-        log.debug('no user %s, proceeding' % username)
+#        log.debug('no user %s, proceeding' % username)
         pass
 
-    log.debug('attempting to create new user %s' % form.cleaned_data['username'])
+    log.input('attempting to create new user %s' % form.cleaned_data['username'])
     username=form.cleaned_data['username']
     password1=form.cleaned_data['password2']
     password2=form.cleaned_data['password1']
@@ -124,32 +136,26 @@ def register_new_user(request):
     lab=form.cleaned_data['lab']
     lab_url=form.cleaned_data['lab_url']
     user=User.objects.create_user(username, email, password1)
-    log.debug('created user %s' % user)
     user=auth.authenticate(username=username, password=password1)
-    log.debug('authenticated user %s' % user)
     auth.login(request, user)
-    log.debug('login user %s' % user)
-    
-    url=reverse('user_profile', args=(form.cleaned_data['username'],))
-    log.debug('register redirecting to %s' % url)
+    log.info('new user %s logged in' % user.username)
+    url=reverse('user_profile', args=(user.username,))
     return redirect(url)
 
 def logout(request):
-    try: username=request.user.name
+    try: username=request.user.username
     except AttributeError: username='nobody'
 
     try:
-        log.debug('attempting to logout user %s' % username)
         auth.logout(request)
-        log.debug('user %s logged out' % username)
+#        log.debug('user %s logged out' % username)
     except Exception as e: 
-        log.debug('error logging out user %s: %s %s' % (username, type(e), e))
+#        log.debug('error logging out user %s: %s %s' % (username, type(e), e))
         pass
 
-    try: to_here=request.POST['next']
-    except (KeyError, AttributeError): to_here=reverse('login')
-    log.debug('logout: redirecting to %s' % to_here)
-    return redirect(to_here)
+    to_here=reverse('login')
+    return render(request, 'registration/login.html', {'msgs': '%s logged out' % username})
+
 
 '''
 # fixme: implement the following:

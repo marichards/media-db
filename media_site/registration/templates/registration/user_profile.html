@@ -3,6 +3,7 @@
 <h2>User profile for {{ user.username }}</h2>
 
 <form>
+{% csrf_token %}
 <table>
 <tr><th><label for="id_username">Username:</label></th>
   <td><input id="id_username" maxlength="64" name="username" type="text" value="{{ registration_form.username.value }}" /></td>
@@ -31,7 +32,10 @@
 </table>
 </form>
 
-<a href='{% url 'logout' %}'>Logout</a>
+<form action='{% url 'logout' %}' method='post'>
+{% csrf_token %}
+<input type='submit' value='Logout' />
+</form>
 
 <p>List of user's media name/growth data records goes here</p>
 {% endblock %}
