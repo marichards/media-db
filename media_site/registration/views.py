@@ -6,6 +6,7 @@ import django.contrib.auth as auth
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
+from defined_media.models import Contributor, Lab
 from registration.forms import LoginForm, RegistrationForm
 
 log=logging.getLogger(__name__)
@@ -101,12 +102,15 @@ def user_profile_get(request, **kwargs):
     
 def user_profile_get(request, **kwargs):
     user=request.user
-    reg_args={'username': user.username, # fixme: need to update this with Contributor fields
+    reg_args={'username': user.username,
+              'first_name' : user.contributor.first_name,
+              'last_name' : user.contributor.last_name,
               'password1': '',
               'password2': '',
               'email': user.email,
-              'lab': 'FAKE Price Lab',
-              'lab_url': 'http://systemsbiology.org/PriceLab'}
+              'lab': user.contributor.lab.name,
+              'lab_url': user.contributor.lab.url,
+              }
     reg_form=RegistrationForm(reg_args)
     added_context={'registration_form': reg_form}
     return render(request, 'registration/user_profile.html', added_context)
@@ -128,17 +132,37 @@ def register_new_user(request):
 #        log.debug('no user %s, proceeding' % username)
         pass
 
-    log.input('attempting to create new user %s' % form.cleaned_data['username'])
+    # create User:
+    log.info('attempting to create new user %s' % form.cleaned_data['username'])
     username=form.cleaned_data['username']
+    first_name=form.cleaned_data['first_name']
+    last_name=form.cleaned_data['last_name']
     password1=form.cleaned_data['password2']
     password2=form.cleaned_data['password1']
     email=form.cleaned_data['email']
-    lab=form.cleaned_data['lab']
+    lab_name=form.cleaned_data['lab']
     lab_url=form.cleaned_data['lab_url']
+
     user=User.objects.create_user(username, email, password1)
     user=auth.authenticate(username=username, password=password1)
     auth.login(request, user)
     log.info('new user %s logged in' % user.username)
+
+    # create lab and contributor:
+    try:
+        lab=Lab.objects.get(name=lab_name)
+    except Lab.DoesNotExist:
+        lab=Lab(name=lab_name, url=lab_url)
+        lab.save()
+    log.debug('new user: lab is %s' % lab)
+
+    try:
+        contributor=Contributor.objects.get(user=user)
+    except Contributor.DoesNotExist:
+        contributor=Contributor(user=user, first_name=first_name, last_name=last_name, lab=lab)
+        contributor.save()
+    log.debug('contributor is %s' % contributor)
+
     url=reverse('user_profile', args=(user.username,))
     return redirect(url)
 
@@ -156,6 +180,9 @@ def logout(request):
     to_here=reverse('login')
     return render(request, 'registration/login.html', {'msgs': '%s logged out' % username})
 
+
+def forbidden(request):
+    return render(request, 'registration/forbidden.html', {})
 
 '''
 # fixme: implement the following:

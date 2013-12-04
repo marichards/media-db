@@ -38,7 +38,7 @@ class NewMediaView(FormView):
         except (GrowthData.DoesNotExist, KeyError):
             form=NewMediaForm()
             
-        return self.form_invalid(form)
+        return self.form_invalid(form) 
 
 
 #    @transaction.atomic()
@@ -212,3 +212,5 @@ class NewMediaView(FormView):
                                    rateid=up_type)
             uptakes.append(uptake)
         return uptakes
+
+

@@ -14,6 +14,8 @@ class LoginForm(forms.Form, ReformatsErrors):
 
 class RegistrationForm(forms.Form, ReformatsErrors):
     username=forms.CharField(label='Username', max_length=64)
+    first_name=forms.CharField(label='First Name', max_length=64)
+    last_name=forms.CharField(label='Last Name', max_length=64)
     email=forms.EmailField(label='Email')
     password1=forms.CharField(label='Password', max_length=64, widget=forms.PasswordInput)
     password2=forms.CharField(label='Password (confirm)', max_length=64, widget=forms.PasswordInput)

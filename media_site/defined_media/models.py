@@ -125,6 +125,7 @@ class Contributors(models.Model):
         return self.last_name
 
 class GrowthData(models.Model):
+    contributor=models.ForeignKey('Contributor')
     growthid = models.AutoField(primary_key=True, db_column='growthID') # Field name made lowercase.
     strainid = models.ForeignKey('Organisms', db_column='strainID') # Field name made lowercase.
     medid = models.ForeignKey('MediaNames', db_column='medID') # Field name made lowercase.
@@ -143,9 +144,10 @@ class GrowthData(models.Model):
         return '%s on %s' %(self.strainid,self.medid)   
 
     def __repr__(self):
-        return "GrowthData %s: org(%s)=%s, media_name(%s)=%s, sourceid(%s)=%s, measureid(%s)=%s" % \
-            (self.growthid, self.strainid_id, self.strainid, self.medid_id, self.medid, 
+        return "GrowthData(%s) %s: org(%s)=%s, media_name(%s)=%s, sourceid(%s)=%s, measureid(%s)=%s" % \
+            (self.growthid, self.contributor, self.strainid_id, self.strainid, self.medid_id, self.medid, 
              self.sourceid_id, self.sourceid, self.measureid_id, self.measureid)
+
 
     def media_compounds_dicts(self):
         return [{'comp': mc.compid.name, 'amount': mc.amount_mm} for mc in self.medid.mediacompounds_set.all()]
@@ -459,19 +461,36 @@ def get_obj(classname, pk):
     args={pk_name: pk}
     return cls.objects.get(**args)
 
-'''
+from django.contrib.auth.models import User
+class Contributor(models.Model):
+    first_name=models.CharField(max_length=64, editable=False)
+    last_name=models.CharField(max_length=64, editable=False)
+    user=models.OneToOneField(User)
+    lab=models.ForeignKey('Lab')
+    class Meta:
+        db_table='contributor'
+    
+    def __unicode__(self):
+        return '%s %s' % (self.first_name, self.last_name)
+
+    def __repr__(self):
+        return '%s %s (%s, lab=%s)' % (self.first_name, self.last_name, self.user.username, self.lab)
+
+    def can_edit_gd(self, gd):
+        return self.user.is_superuser or (self.user.is_active and self==gd.contributor)
+
 class Lab(models.Model):
-    name=models.CharField(max_length=64)
-    institution=models.CharField(max_length=255)
+    name=models.CharField(max_length=64, unique=True)
     url=models.URLField()
+    
 
     class Meta:
         db_table='labs'
 
     def __unicode__(self):
-        return name
+        return self.name
 
-
+'''
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.http import urlquote
@@ -535,8 +554,4 @@ class Contributor(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None):
         send_mail(subject, message, from_email, [self.email])
     
-
-
-        
-
 '''
