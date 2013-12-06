@@ -32,6 +32,8 @@ class NewMediaView(FormView):
         return context
 
     def get(self, request, *args, **kwargs):
+        
+
         try:
             self.gd=GrowthData.objects.get(growthid=kwargs['pk'])
             form=NewMediaForm.from_growth_data(self.gd)

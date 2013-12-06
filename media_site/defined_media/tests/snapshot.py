@@ -26,12 +26,17 @@ def snapshot(test, name):
 def compare_snapshots(test, name1, name2, deltas={}, debug=False):
     ss1=getattr(test, name1)
     ss2=getattr(test, name2)
+    errors={}
     for cls in model_classes():
-        if debug:
-            log.debug('%s: %s=%d, %s=%d' % (cls.__name__, name1, ss1[cls], name2, ss2[cls]))
-        if cls in deltas:
-            test.assertEqual(ss1[cls], ss2[cls]+delta[cls])
-        else:
-            test.assertEqual(ss1[cls], ss2[cls])
-                             
-
+        before=ss1[cls]
+        after=ss2[cls]
+        expected=ss1[cls]+deltas[cls] if cls in deltas else ss1[cls]
+        msg='%s: before=%d, after=%d, expected=%d' % (cls.__name__, before, after, expected)
+        try:
+            test.assertEquals(after, expected, msg)
+            if debug: log.debug('%s: yay!' % cls.__name__)
+        except AssertionError:
+            errors[cls]=msg
+            if debug: log.debug('%s: boo!' % cls.__name__)
+    if debug: log.debug('errors: %s' % errors)
+    test.assertEquals(len(errors), 0, str(errors))

@@ -8,73 +8,10 @@ import django
 from defined_media.models import *
 from django.core import serializers
 
-attrs=[a for a in dir(Compounds) if a.endswith('_set')]
-attrs.remove('seedcompounds_set')
-
-
-
-
-def all_related(obj, related={}):
-    ''' find all the related objects to an object, ie, all objects ref'd by foreign keys.  recursive '''
-    n=0
-    manager_names=[a for a in dir(obj) if a.endswith('_set')]
-    if 'seedcompounds_set' in manager_names: 
-        manager_names.remove('seedcompounds_set')
-    if 'products_set' in manager_names:
-        manager_names.remove('products_set')
-
-    
-    for mn in manager_names:
-        manager=getattr(obj, mn)
-        objs=manager.all()
-        n+=len(objs)
-        if len(objs)==0:
-            continue
-        classname=objs[0].__class__.__name__
-        related[classname]=objs
-
-        for o in objs:
-            all_related(o, related)
-    return (related, n)
-
-def add_related(obj, media_objs, debug=False):
-    if debug:
-        print 'add_related(%s) entered' % obj
-
-    bad_objs=[]
-    try:
-        (related,n)=all_related(obj)
-    except Exception, e:
-        bad_objs.append(obj)
-    obj.related=related
-    obj.n_related=n
-
-    always_add_these={'MediaCompounds': [('Compounds', 'compid')]}
-    
-    for classname,objs in related.items():
-        if debug:
-            print 'related: %d %s objects' % (len(objs), classname)
-        try:
-            media_objs[classname].update(set(objs))
-        except KeyError:
-            media_objs[classname]=set(objs)
-
-        if classname in always_add_these:
-            for obj in objs:
-                for tupl in always_add_these[classname]:
-                    (subclassname, attrname)=tupl
-                    pk=getattr(obj, attrname).pk
-                    subobj=get_obj(subclassname, pk)
-                    add_obj(subobj, media_objs)
-                    print 'always: added %s %s' % (subclassname, subobj)
-
-def add_obj(a, media_objs):
-    classname=a.__class__.__name__
-    try:
-        media_objs[classname].add(a)
-    except KeyError:
-        media_objs[classname]=set(a)
-
+def add_contributors(media_objs):
+    media_objs['Contributor']=[]
+    for con in Contributor.objects.all(): 
+        media_objs['Contributor'].append(con)
 
 def add_growth_data(media_objs):
     growth_ids=[254, 265, 210]  # one for each unit type
@@ -238,6 +175,68 @@ def write_fixture(media_objs):
         print '%s written' % dest_fn
 
 
+
+
+def all_related(obj, related={}):
+    ''' find all the related objects to an object, ie, all objects ref'd by foreign keys.  recursive '''
+    n=0
+    manager_names=[a for a in dir(obj) if a.endswith('_set')]
+    if 'seedcompounds_set' in manager_names: 
+        manager_names.remove('seedcompounds_set')
+    if 'products_set' in manager_names:
+        manager_names.remove('products_set')
+
+    
+    for mn in manager_names:
+        manager=getattr(obj, mn)
+        objs=manager.all()
+        n+=len(objs)
+        if len(objs)==0:
+            continue
+        classname=objs[0].__class__.__name__
+        related[classname]=objs
+
+        for o in objs:
+            all_related(o, related)
+    return (related, n)
+
+def add_related(obj, media_objs, debug=False):
+    if debug:
+        print 'add_related(%s) entered' % obj
+
+    bad_objs=[]
+    try:
+        (related,n)=all_related(obj)
+    except Exception, e:
+        bad_objs.append(obj)
+    obj.related=related
+    obj.n_related=n
+
+    always_add_these={'MediaCompounds': [('Compounds', 'compid')]}
+    
+    for classname,objs in related.items():
+        if debug:
+            print 'related: %d %s objects' % (len(objs), classname)
+        try:
+            media_objs[classname].update(set(objs))
+        except KeyError:
+            media_objs[classname]=set(objs)
+
+        if classname in always_add_these:
+            for obj in objs:
+                for tupl in always_add_these[classname]:
+                    (subclassname, attrname)=tupl
+                    pk=getattr(obj, attrname).pk
+                    subobj=get_obj(subclassname, pk)
+                    add_obj(subobj, media_objs)
+                    print 'always: added %s %s' % (subclassname, subobj)
+
+def add_obj(a, media_objs):
+    classname=a.__class__.__name__
+    try:
+        media_objs[classname].add(a)
+    except KeyError:
+        media_objs[classname]=set(a)
 
 if __name__=='__main__':
     main()
