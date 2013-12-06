@@ -75,9 +75,9 @@ class Compounds(models.Model):
     kegg_id = models.CharField(max_length=255L, unique=True, db_column='KEGG_ID', blank=True, null=True) # Field name made lowercase.
     bigg_id = models.CharField(max_length=255L, db_column='BiGG_ID', blank=True, null=True) # Field name made lowercase.
     seed_id = models.CharField(max_length=45L, db_column='seed_id') # Field name made lowercase.
+    pubchem_ids = models.CharField(max_length=255L, db_column='pubchem_ids', null=True, blank=True) # csv
+    chebi_ids = models.CharField(max_length=255L, db_column='chebi_ids', null=True, blank=True) # csv
     user_identifier = models.CharField(max_length=255L, blank=True, null=True)
-    
-
     name = models.CharField(max_length=255L, unique=True)
 
     objects=CompoundManager()
@@ -113,7 +113,7 @@ class Compounds(models.Model):
     def seed_url(self):
         return 'http://seed-viewer.theseed.org/seedviewer.cgi?page=CompoundViewer&compound=%s&model=' % self.seed_id
 
-
+    
 
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
@@ -373,6 +373,7 @@ class SecretionUptakeKey(models.Model):
     class Meta:
         db_table = 'secretion_uptake_key'
 
+'''
 class SeedCompounds(models.Model):
     seedkeggid = models.AutoField(primary_key=True, db_column='seedkeggID') # Field name made lowercase.
     kegg_id = models.CharField(max_length=45L, db_column='KEGG_ID') # Field name made lowercase.
@@ -383,7 +384,7 @@ class SeedCompounds(models.Model):
 
     def __repr__(self):
         return 'SeedCompound %s: kegg_id=%s, seed_id=%s' % (self.seedkeggid, self.kegg_id, self.seed_id)
-
+'''
     
 
 class Sources(models.Model):
