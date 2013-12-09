@@ -5,6 +5,7 @@
 - still a few small things in /mnt/price3/Matt/Media DB Project/minor website fixes.txt
 - put in collapsable fields for things like media compounds, search results, etc.
 - want to be able to search growth-data records?
+- why isn't profile updating?
 
 ** editing of existing gd records
 - Either:

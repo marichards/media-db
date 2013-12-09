@@ -29,13 +29,6 @@ def login2(request):
             return register_new_user(request)
 
 def login(request, *args, **kwargs):
-    if len(args)>0:
-        log.debug('login: args=%s' % args)
-    if len(kwargs)>0:
-        log.debug('login: kwargs=%s' % kwargs)
-    log.debug('login: GET=%s' % request.GET)
-    log.debug('login: POST=%s' % request.POST)
-
     # we'll need these forms (in one form or another)
     next=get_next(request)
     added_context={
@@ -66,7 +59,7 @@ def login(request, *args, **kwargs):
         auth.login(request, user)
         log.info('user logged in: %s' % username)
 
-    if not next or next==reverse('logout'):
+    if not next or next==reverse('logout') or next==reverse('login'):
         next=reverse('user_profile', args=(username,))
     return redirect(next)
         
@@ -84,36 +77,50 @@ def get_next(request):
     
 
 
+# login_required (as per urls.py)
 def user_profile(request, **kwargs):
     if request.method.lower()=='get':
         return user_profile_get(request, **kwargs)
     else:
         return user_profile_post(request, **kwargs)
 
-def user_profile_get(request, **kwargs):
-    user=request.user
-    
-    # get a form based on the user
-    # make sure they didn't change their name (need to disallow this in profile
-    # make sure other fields valid
-    # update user object based on form values, save
-    # if all good, re-display the profile page with a 'profile updated' message
 
-    
+# login_required (as per urls.py)
 def user_profile_get(request, **kwargs):
-    user=request.user
-    reg_args={'username': user.username,
-              'first_name' : user.contributor.first_name,
-              'last_name' : user.contributor.last_name,
-              'password1': '',
-              'password2': '',
-              'email': user.email,
-              'lab': user.contributor.lab.name,
-              'lab_url': user.contributor.lab.url,
-              }
-    reg_form=RegistrationForm(reg_args)
+    reg_form=RegistrationForm.from_user(request.user)
     added_context={'registration_form': reg_form}
     return render(request, 'registration/user_profile.html', added_context)
+
+
+# login_required (as per urls.py)
+def user_profile_post(request, **kwargs):
+    log.debug('hi!')
+    user=request.user
+    form=RegistrationForm(request.POST)
+    added_context={'registration_form': form}
+    if not form.is_valid(user=user):
+        form.reformat_errors()
+        log.debug('user %r not valid, aborting' % user.contributor)
+        return render(request, 'registration/user_profile.html', added_context)
+    
+    user.first_name=form.cleaned_data['first_name']
+    user.last_name=form.cleaned_data['last_name']
+    user.email=form.cleaned_data['email']
+    user.password=form.cleaned_data['password1']
+    user.contributor.lab.name=form.cleaned_data['lab']
+    user.contributor.lab.url=form.cleaned_data['lab_url']
+    try:
+        log.debug('about to save user: %r' % user.contributor)
+        user.save()
+        added_context['msgs']='Profile successfully updated'
+    except Exception as e:
+        msgs='Unable to save user information: %s' % e
+        added_context['msgs']=msgs
+        log.debug(msgs)
+
+    
+    return render(request, 'registration/user_profile.html', added_context)
+
 
 
 def register_new_user(request):
