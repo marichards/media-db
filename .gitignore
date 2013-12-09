@@ -11,3 +11,5 @@ schema*
 #*
 *.bak
 dumps/*
+logs/
+apache/

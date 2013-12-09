@@ -8,12 +8,12 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-SITE_ROOT = '/home/ISB/vcassen/l/media-db/media_site'
+SITE_ROOT = '/local/local_webservices/mediadb-dev'
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'media_database',                      # Or path to database file if using sqlite3.
+        'NAME': 'media_database_dev',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'root',
         'PASSWORD': '',
@@ -24,7 +24,7 @@ DATABASES = {
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['mediadb.sb.org']
+ALLOWED_HOSTS = ['mediadbdev.systemsbiology.net']
 
 
 # Local time zone for this installation. Choices can be found here:
@@ -187,7 +187,7 @@ LOGGING = {
             'mode': 'w',
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': SITE_ROOT + "/logfile",
+            'filename': SITE_ROOT + "/logs/logfile",
             'maxBytes': 50000,
             'backupCount': 2,
             'formatter': 'standard',

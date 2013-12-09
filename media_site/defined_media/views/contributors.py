@@ -168,7 +168,7 @@ class NewMediaView(FormView):
             create a totally new record?  Leave the old record dangling?
         '''
         fields=['first_author', 'journal', 'year', 'title', 'link']
-        args={k:v for (k,v) in [(f,form.get1(f)) for f in fields]}
+        args=dict((k,v) for (k,v) in [(f,form.get1(f)) for f in fields])
         try:
             src, created=Sources.objects.get_or_create(**args)
         except IntegrityError as e:
