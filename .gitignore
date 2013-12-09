@@ -10,6 +10,8 @@ schema*
 .#*
 #*
 *.bak
+settings.py*
+dumps
 dumps/*
 logs/
 apache/

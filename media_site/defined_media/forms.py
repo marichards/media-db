@@ -1,7 +1,7 @@
 import re, logging
 from django import forms
 from defined_media.models import *
-from form_helpers import ReformatsErrors
+from form_helpers import ReformatsErrors, Gets1
 
 #from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 #from defined_media.models import Contributor
@@ -12,7 +12,7 @@ class SearchForm(forms.Form):
     search_term=forms.CharField()
 
 
-class NewMediaForm(forms.Form, ReformatsErrors):
+class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
     @classmethod
     def from_growth_data(self, gd):
         return NewMediaForm(gd.as_dict())
@@ -145,57 +145,7 @@ class NewMediaForm(forms.Form, ReformatsErrors):
             log.debug('errors: %s -> %s' % (k,v))
         return len(self.errors)==0
 
-    def get1(self, key, cls=None):
-        ''' I cannot fucking figure out when form.cleaned_data[some_key] is a list or not: 
-            This should not raise any exceptions other than KeyError, or a TypeError/ValueError 
-            when cls != None
-        '''
-        maybe_a_list=self.cleaned_data[key] # this can throw
-        try:
-            is_scalar=type(maybe_a_list)==type(maybe_a_list[0]) # no lol's, I hope
-        except TypeError:
-            is_scalar=True
-        except IndexError as e: # could be an empty string...
-            log.debug('caught %s: %s; maybe_a_list(%s) is "%s"' % (type(e), e, type(maybe_a_list), maybe_a_list))
-#            if maybe_a_list=="": return ""
-#            if maybe_a_list==None: return None
-            is_scalar=True      # this is untrue, but makes the logic below work...
-        # ...especially as pertains to the cast with cls, which will generally barf (correctly?)
 
-        if is_scalar:
-            val=maybe_a_list
-        else:
-            val=maybe_a_list[0]
-
-        if cls:
-            return cls(val)     # this can also throw
-        else:
-            return val
-
-
-
-
-'''
-class CreateContributorForm(UserCreationForm):
-    first_name=forms.CharField()
-    last_name=forms.CharField()
-    email=forms.EmailField()
-
-    def __init__(self, *args, **kargs):
-        super(CreateContributorForm, self).__init__(*args, **kargs)
-        del self.fields['username']
-        
-        
+class OrganismForm(forms.ModelForm):
     class Meta:
-        model=Contributor
-        fields=('email',)
-
-class ChangeContributorForm(UserChangeForm):
-    def __init__(self, *args, **kargs):
-        super(ChangeContributorForm,self).__init__(*args, **kargs)
-        del self.fields['username']
-        
-        class Meta:
-            model=Contributor
-
-'''
+        model=Organisms
