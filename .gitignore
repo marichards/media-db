@@ -10,4 +10,6 @@ schema*
 .#*
 #*
 *.bak
+settings.py*
+dumps
 dumps/*

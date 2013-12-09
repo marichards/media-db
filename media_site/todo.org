@@ -1,21 +1,16 @@
 * Todo:
 - Add new organism form
-- Add custom users/authentication (do a side project?)
 - Add ISB styling (and then styling in general)
 - still a few small things in /mnt/price3/Matt/Media DB Project/minor website fixes.txt
 - put in collapsable fields for things like media compounds, search results, etc.
 - want to be able to search growth-data records?
 
+** Add custom users/authentication (do a side project?)
+- basics done, needs more testing
+- forgotten password functionality
+
 ** editing of existing gd records
-- Either:
-- - alter newmedia_form.html to include loops to display *all* data in form, including 
-    variable number of comp/amount and secretion/uptake data, from the beginning 
-- Or:
-- - use existing add_compound, add_uptake to add after the fact; 
-- - would required post-load ajax call to get the rest of the data
-- - have to alter add_compound and add_uptake to take params to add, and insert them in to
-    new html.  Might be easier to just write two new functions; or possibly call existing 
-    funcs to add the blank rows, then afterwards add the values
+- basics done, needs more testing
 
 ** Mtg with Matt 22Nov
 *** merge seed ids into compounds, get rid of seed_compounds table
