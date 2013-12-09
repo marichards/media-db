@@ -1,6 +1,6 @@
 {% extends 'defined_media/base.html' %}
 {% block content %}
-<h2>User profile for {{ user.username }}!</h2>
+<h2>User profile for {{ user.username }}</h2>
 {% if msgs %}{{ msgs }}{% endif %}
 <form method='POST' action='{% url 'user_profile' %}'>
 {% csrf_token %}

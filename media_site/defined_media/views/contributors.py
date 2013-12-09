@@ -31,16 +31,24 @@ class NewMediaView(FormView):
             pass
         return context
 
+    # login_required, as per urls.py
     def get(self, request, *args, **kwargs):
         try:
-            self.gd=GrowthData.objects.get(growthid=kwargs['pk'])
-            form=NewMediaForm.from_growth_data(self.gd)
+            gd=GrowthData.objects.get(growthid=kwargs['pk'])
+            self.gd=gd
+            user=request.user
+            if gd.contributor_id != user.contributor.id:
+                log.debug('gd.contributor_id=%d, user.contributor.id=%d' % (gd.contributor_id, user.contributor.id))
+                return redirect('forbidden')
+
+            form=NewMediaForm.from_growth_data(gd)
         except (GrowthData.DoesNotExist, KeyError):
             form=NewMediaForm()
             
         return self.form_invalid(form) 
 
 
+    # login_required, as per urls.py
 #    @transaction.atomic()
     def post(self, request, *args, **kwargs):
         form=NewMediaForm(request.POST)
