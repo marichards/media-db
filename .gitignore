@@ -16,3 +16,4 @@ dumps/*
 logs/
 apache/
 html/
+*.txt
