@@ -394,6 +394,7 @@ class Sources(models.Model):
     year = models.TextField(db_column='Year', blank=True) # Field name made lowercase. This field type is a guess.
     title = models.CharField(max_length=255L, unique=True, db_column='Title', blank=True) # Field name made lowercase.
     link = models.CharField(max_length=255L, unique=True, db_column='Link', blank=True) # Field name made lowercase.
+    pubmed_id = models.IntegerField(null=True, blank=True)
 
     def is_pdf(self):
         return self.link.lower().endswith('pdf')
@@ -406,8 +407,8 @@ class Sources(models.Model):
         return '%s et al, %s' %(self.first_author.capitalize(),year)
 
     def __repr__(self):
-        format='Source sourceid=%s, f_author=%s, journal=%s, year=%s, title=%s, link=%s'
-        tup=(self.sourceid, self.first_author, self.journal, self.year, self.title, self.link)
+        format='Source sourceid=%s, pubmed=%s, f_author=%s, journal=%s, year=%s, title=%s, link=%s'
+        tup=(self.sourceid, self.pubmed_id, self.first_author, self.journal, self.year, self.title, self.link)
         return format % tup
 
     #Define searchable terms
