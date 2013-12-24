@@ -11,3 +11,8 @@ schema*
 #*
 *.bak
 dumps/*
+*.txt
+apache/*
+html/*
+logs/*
+settings.py
