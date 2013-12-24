@@ -10,9 +10,18 @@ schema*
 .#*
 #*
 *.bak
+settings.py*
+dumps
 dumps/*
+<<<<<<< HEAD
 *.txt
 apache/*
 html/*
 logs/*
 settings.py
+=======
+logs/
+apache/
+html/
+*.txt
+>>>>>>> e1f59cb9280f75b1bcf17afb11dc48b8f495ebdf

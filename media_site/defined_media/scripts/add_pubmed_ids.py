@@ -48,7 +48,7 @@ with open(opts.source_pubmed_fn) as f:
             src.save()
             stats['n_saved']+=1
             print 'saved %s' % src
-        except Expression as e:
+        except Exception as e:
             print 'caught %s: %s' % (type(e), e)
 
 

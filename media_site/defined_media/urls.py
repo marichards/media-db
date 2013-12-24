@@ -2,15 +2,6 @@ from django.conf.urls import patterns, url
 from django.contrib.auth.decorators import login_required, permission_required
 import defined_media.views as views
 
-#URL Format:
-#url(regex,view,*name,*kwargs)
-#Regex defines the pattern for the url
-#View defines which view to call for that page
-#Kwargs is a keyword argument...not sure what to do with this
-#Name lets you refer to it somewhere else, like a template 
-#-->Powerful, lets you make global changes to url patterns
-
-#Define ALL the urls!
 view_prefix=''
 
 urlpatterns = patterns(view_prefix,
