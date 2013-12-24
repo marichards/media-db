@@ -21,7 +21,7 @@ Logged in as {{ request.user }}
 {{ login_tag_form.password.label }}: {{ login_tag_form.password }}
 <input type='submit' value='Login' />
     <div>
-      <a href=''>fixme! Register New User</a>
+      <a href='{% url 'login' %}'>Register New User</a>
       <a href=''>fixme! Forgot Username/Password?</a>
     </div>
 {% endif %}
