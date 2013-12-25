@@ -9,11 +9,11 @@
 {% with compound_list=medianames.sorted_compounds %}
 {{ compound_list|length }} Compounds:
 <table>
-<tr><th>Compound</th><th>Amount</th></tr>
+<tr><th>Compound</th><th>Amount (mM)</th></tr>
 {% for comp in compound_list %}
 <tr>
-<td><a href='{% url 'compound_record' comp.compid_id %}'>{{ comp }}</a></td>
-<td> {{ comp.amount_mm }} Mm</td>
+<td><a href='{% url 'compound_record' comp.compid_id %}'>{{ comp.compid.name }}</a></td>
+<td> {{ comp.amount_mm }}</td>
 </tr>
 {% endfor %}
 </table>
@@ -22,7 +22,7 @@
 
 <div>
 {% with org_list=medianames.sorted_organisms %}
-{{ org_list|length }} Organisms:
+{{ org_list|length }} Organism(s):
 <ol>
 {% for org in org_list %}
 <li><a href='{% url 'organism_record' org.strainid %}'>{{ org }}</a></li>
@@ -33,7 +33,7 @@
 
 <div>
 {% with sources=medianames.uniq_sources %}
-{{ sources|length }} Sources:
+{{ sources|length }} Source(s):
 <ol>
 {% for src in sources %}
 <li><a href='{% url 'source_record' src.sourceid %}'>{{ src }}</a></li>
