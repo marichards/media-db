@@ -1,6 +1,7 @@
 *.pyc
 *.sql
 *.swp
+<<<<<<< HEAD
 out.*
 *.pk
 fixtures/
@@ -17,3 +18,7 @@ logs/
 apache/
 html/
 *.txt
+=======
+#*
+.*#
+>>>>>>> templates

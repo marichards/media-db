@@ -9,10 +9,14 @@
 from __future__ import unicode_literals
 
 from django.db import models
+<<<<<<< HEAD
 import re, inspect, logging
 from lazy import lazy
 
 log=logging.getLogger(__name__)
+=======
+import re
+>>>>>>> templates
 
 from django.core.urlresolvers import reverse
 
@@ -114,6 +118,9 @@ class Compounds(models.Model):
         return 'http://seed-viewer.theseed.org/seedviewer.cgi?page=CompoundViewer&compound=%s&model=' % self.seed_id
 
     
+
+    def keywords(self):
+        return [x.name for x in self.namesofcompounds_set.all()]
 
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
@@ -449,7 +456,11 @@ class SearchResult(models.Model):
         return '<pk=%s> %s-%s-%s' % (self.id, self.keyword, self.classname, self.obj_id)
 
     def __unicode__(self):
+<<<<<<< HEAD
         return str(self.get_obj())
+=======
+        return '%s: %s' % (self.classname, self.keyword)
+>>>>>>> templates
 
     def clean(self):
         self.keyword=re.sub(self.bad_chars, '', self.keyword.lower())
@@ -457,6 +468,7 @@ class SearchResult(models.Model):
 
     def obj_url(self):
         return reverse(self.class2view[self.classname], args=[self.obj_id])
+<<<<<<< HEAD
 
     def get_obj(self):
         return get_obj(self.classname, self.obj_id)
@@ -561,3 +573,5 @@ class Contributor(AbstractBaseUser, PermissionsMixin):
         send_mail(subject, message, from_email, [self.email])
     
 '''
+=======
+>>>>>>> templates
