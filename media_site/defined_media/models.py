@@ -132,8 +132,8 @@ class Contributors(models.Model):
         return self.last_name
 
 class GrowthData(models.Model):
-    contributor=models.ForeignKey('Contributor')
     growthid = models.AutoField(primary_key=True, db_column='growthID') # Field name made lowercase.
+    contributor=models.ForeignKey('Contributor')
     strainid = models.ForeignKey('Organisms', db_column='strainID') # Field name made lowercase.
     medid = models.ForeignKey('MediaNames', db_column='medID') # Field name made lowercase.
     sourceid = models.ForeignKey('Sources', db_column='sourceID') # Field name made lowercase.
@@ -405,6 +405,12 @@ class Sources(models.Model):
 
     def is_pdf(self):
         return self.link.lower().endswith('pdf')
+
+    def pubmed_link(self):
+        if self.pubmed_id:
+            return 'http://www.ncbi.nlm.nih.gov/pubmed/?term=%d' % self.pubmed_id
+        else:
+            return None
 
     class Meta:
         db_table = 'sources'

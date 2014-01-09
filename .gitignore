@@ -1,24 +1,25 @@
-*.pyc
-*.sql
-*.swp
-<<<<<<< HEAD
-out.*
-*.pk
-fixtures/
-*.json
-logfile*
-schema*
+.*#
 .#*
 #*
+apache/
+apache/*
 *.bak
-settings.py*
 dumps
 dumps/*
-logs/
-apache/
+fixtures/
+<<<<<<< HEAD
 html/
+html/*
+*.json
+logfile*
+logs/
+logs/*
+out.*
+*.pk
+*.pyc
+schema*
+settings.py
+settings.py*
+*.sql
+*.swp
 *.txt
-=======
-#*
-.*#
->>>>>>> templates
