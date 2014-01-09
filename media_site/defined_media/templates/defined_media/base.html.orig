@@ -30,19 +30,17 @@ Media Database
 </div>
 {% endblock %}
 
-<div class='container2'>
-  <div class=container1'>
-    <div id='nav-col'>
-      {% include "defined_media/navigation.html" %}
-    </div>
+<div class='main'>
+  <div class='nav'>
+    {% include "defined_media/navigation.html" %}
+  </div>
 
-    <div id='content-col'>
-      {% block content %}{% endblock content %}
-    </div>
+  <div id='content' class='content'>
+    {% block content %}{% endblock content %}
   </div>
 </div>
 
-<div class='footer'>
+<div>
 </div>
 
 </body>
