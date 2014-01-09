@@ -9,7 +9,7 @@ urlpatterns = patterns(view_prefix,
                        url(r'^$', views.legacy.main, name='main'),
                        
                        #Main Indices
-<<<<<<< HEAD
+
                        #url(r'^compounds/$', views.compounds, name='compounds'),
                        url(r'^compounds/$', views.core.CompoundsListView.as_view(), name='compounds'),
                        url(r'^compounds/page/(?P<page>\d+)', views.core.CompoundsListView.as_view(), name='compounds_paged'),
@@ -66,27 +66,6 @@ urlpatterns = patterns(view_prefix,
 #                       url(r'^biomass/(?P<biomassid>\d+)/$', views.biomass_record, name='biomass_record'),
 #                       url(r'^sources/(?P<sourceid>\d+)/$', views.source_record, name='source_record'),
 
-=======
-                       url(r'^compounds/$', views.compounds, name='compounds'),
-                       #                       url(r'^compounds/$', views.CompoundsListView.as_view(), name='compounds'),
-                       url(r'^compounds/page/(?P<page>\d+)', views.CompoundsListView.as_view(), name='compounds_paged'),
-                       url(r'^organisms/$', views.organisms, name='organisms'),
-                       url(r'^media/$', views.media, name='media'),
-                       url(r'^biomass/$', views.biomass, name='biomass'),
-                       url(r'^sources/$', views.sources, name='sources'),
-                       url(r'^downloads/$', views.downloads, name='downloads'),
-
-                       #Record-Specific Views
-                       url(r'^compounds/(?P<compid>\d+)/$', views.compound_record, name='compound_record'),
-                       url(r'^organisms/(?P<strainid>\d+)/$', views.organism_record, name='organism_record'),
-                       url(r'^media/(?P<medid>\d+)/$', views.media_record, name='media_record'),
-                       url(r'^biomass/(?P<biomassid>\d+)/$', views.biomass_record, name='biomass_record'),
-                       url(r'^sources/(?P<sourceid>\d+)/$', views.source_record, name='source_record'),
-
-                       # Search views:
-                       url(r'^search/$', views.SearchResultsView.as_view(), name='search'),
-                       url(r'^search_results/$', views.SearchResultsView.as_view(), name='search_results')
->>>>>>> templates
                        )
 
 #Define the Admin URL too, but in the main media_site directory
