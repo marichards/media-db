@@ -461,7 +461,6 @@ class SearchResult(models.Model):
     def __unicode__(self):
         return '%s: %s' % (self.classname, self.keyword)
 
-
     def clean(self):
         self.keyword=re.sub(self.bad_chars, '', self.keyword.lower())
         return self
