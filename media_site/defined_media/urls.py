@@ -9,6 +9,7 @@ urlpatterns = patterns(view_prefix,
                        url(r'^$', views.legacy.main, name='main'),
                        
                        #Main Indices
+
                        #url(r'^compounds/$', views.compounds, name='compounds'),
                        url(r'^compounds/$', views.core.CompoundsListView.as_view(), name='compounds'),
                        url(r'^compounds/page/(?P<page>\d+)', views.core.CompoundsListView.as_view(), name='compounds_paged'),

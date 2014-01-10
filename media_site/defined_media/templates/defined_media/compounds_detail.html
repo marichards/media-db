@@ -7,9 +7,11 @@
 <div>
 {% if compounds %}
         <h2>{{ compounds.name }}</h2>
-	<p>Compound ID: {{ compounds.compid  }}</p>
 	<p>KEGG ID: {{ compounds.kegg_id|default:'<i>&lt;None&gt;</i>' }}</p>
 	<p>BiGG ID: {{ compounds.bigg_id|default:'<i>&lt;None&gt;</i>' }}</p>
+	<p>SEED ID: {% if compounds.seed_id %}{{ compounds.seed_id }}{% else %}<i>&lt;None&gt;</i>{% endif %}
+	<p>Chebi ID(s): {% if compounds.chebi_ids %}{{ compounds.chebi_ids }}{% else %}<i>&lt;None&gt;</i>{% endif %}
+	<p>Pubchem ID(s): {% if compounds.pubchem_ids %}{{ compounds.pubchem_ids }}{% else %}<i>&lt;None&gt;</i>{% endif %}
 {% else %}
 	<p>No compound sent.</p>
 {% endif %}
@@ -17,7 +19,7 @@
 
 <div>
 {% with names_list=compounds.namesofcompounds_set.all %}
-<p>{{ names_list|length }} Common names:</p>
+<p>{{ names_list|length }} Alternate name(s):</p>
 
 <ul>
   {% for name in names_list %}
@@ -27,7 +29,7 @@
 {% endwith %}
 </div>
 
-<div>Media:
+<div>
 {% with media=compounds.media_names %}
 {{ media|length }} Media:
 <ol>

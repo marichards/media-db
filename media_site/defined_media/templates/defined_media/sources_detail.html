@@ -8,12 +8,13 @@
 <li>Journal: {{ sources.journal_cap }}</li>
 <li>Year: {{ sources.year }}</li>
 <li>Title: {{ sources.title }}</li>
-<li>Link to <a href='{{ sources.link }}'>Article</a>
+{% if sources.link %}<li>Link to <a href='{{ sources.link }}'>Article</a>{% endif %}
+{% if sources.pubmed_link %}<li>Link to <a href='{{ sources.pubmed_link }}'>Pubmed</a>{% endif %}
 </ul>
 
 <ol>Associated Growth Data:
 {% for gd in sources.growthdata_set.all %}
-<li><a href='{% url 'growth_record' gd.sourceid_id %}'>{{ gd }}</a></li>
+<li><a href='{% url 'growth_record' gd.growthid %}'>{{ gd }}</a></li>
 {% endfor %}
 
 {% endblock %}

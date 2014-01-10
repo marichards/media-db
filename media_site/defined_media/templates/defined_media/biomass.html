@@ -8,7 +8,7 @@
 
 	<ul>
 	{% for biomass in biomass_list %}
-		<li><a href="{% url 'biomass_record' biomass.biomassid %}"> {{ biomass.genus}} {{biomass.species}}</a></li>
+		<li><a href="{% url 'biomass_record' biomass.biomassid %}">{{ biomass }}</a></li>
 	{% endfor %}
 	</ul>
 {% else %}

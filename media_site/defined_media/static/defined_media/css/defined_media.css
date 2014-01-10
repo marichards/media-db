@@ -2,13 +2,53 @@ body {
     font-family:Verdana,sans-serif;
 } 
 
+#container2 {
+    float:left;
+    clear:left;
+    width:100%;
+    position:relative;
+    overflow:hidden;
+}
+#container1 {
+    float:left;
+    width:100%;
+    position:relative;
+    right:20%;
+    background-color: #b6e4fc;
+}
+#navcol {
+    float:left;
+    width:20%;
+    position:relative;
+    left:20%;
+    overflow:hidden;
+//    border: 1px solid black;
+}
+#contentcol {
+    float:left;
+    width:75%;
+    position:relative;
+    left:20%;
+    overflow:hidden;
+    padding: 15px;
+    background-color: white;
+//    border: 1px solid red;
+}
+
+
 .header { 
     width: 100%;
     height: 100%;
-    background-color: blue;
+    background-color: white;
     text-align: center;
     padding-top: 30px;
     padding-bottom: 30px;
+    background-image: url('/static/defined_media/images/isb_logo.jpg');
+    background-repeat: no-repeat;
+}
+
+span#banner {
+    font-size: xx-large;
 }
 
 .nav {
@@ -17,6 +57,7 @@ body {
     background-color: #b6e4fc;
 }
 
+// obsolete?
 .content {
     float: left;
     width: 80%;
@@ -24,7 +65,9 @@ body {
 
 .footer {
     clear: both;
-    background-color: #b6e4fc;
+    color: white;
+    text-align: center;
+    background-color: blue;
     width: 100%;
 }
 
@@ -34,14 +77,18 @@ div.header2 {
     padding-top: 30px;
     padding-bottom: 30px;
     position:relative;
-    overflow:auto;
+    overflow:hidden;
     color: white;
     background-color: #44F;
 }
 
-a.header2:link { color: white; }
-a.header2:visitied { color: white; }
 
+.header2 a, .header2 a:visited { 
+    color: white; 
+    font-size: small;
+    text-decoration: underline;
+    border-bottom: 1px white dotted;
+}
 
 div.login {
     position: absolute;
@@ -50,9 +97,6 @@ div.login {
     vertical-align: bottom;
 }
 
-.search_form_outer {
-/*    display: table-cell;*/
-}
 
 .login1 {
     padding: 4px;
@@ -61,11 +105,23 @@ div.login {
     bottom: 0px;
 }
 
-.search_form_inner {
-    padding: 4px;
+div.search_form_outer {
+    width: 20%;
+    margin-left: auto;
+    margin-right: auto;
+
+/*    display: table-cell;*/
+}
+
+div.search_form_inner {
+//    padding: 4px;
     position: absolute;
-    right: 0px;
-    bottom: 0px;
+    right: 10px;
+    bottom: 17px;
+}
+
+div.search_form_inner form {
+}
 /*
     float:right; 
 */

@@ -12,7 +12,7 @@
 
 {% block header %}
 <div class='header'>
-<span id='banner'>Media Database</span>
+Media Database
 </div>
 
 <div class='header2'>
@@ -30,20 +30,17 @@
 </div>
 {% endblock %}
 
-<div id='container2'>
-  <div id='container1'>
-    <div id='navcol'>
-      {% include "defined_media/navigation.html" %}
-    </div>
+<div class='main'>
+  <div class='nav'>
+    {% include "defined_media/navigation.html" %}
+  </div>
 
-    <div id='contentcol'>
-      {% block content %}{% endblock content %}
-    </div>
+  <div id='content' class='content'>
+    {% block content %}{% endblock content %}
   </div>
 </div>
 
-<div class='footer'>
-This is the footer!
+<div>
 </div>
 
 </body>
