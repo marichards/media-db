@@ -5,6 +5,12 @@ init_django_env(root_dir, 'media_site', 'defined_media')
 import django
 from defined_media.models import *
 
+'''
+Usage: py compounds_fields.py <in_fn> <field1> <field2> [-v] [-n] [-flip]
+
+'''
+
+
 parser=argparse.ArgumentParser()
 parser.add_argument('in_fn')
 parser.add_argument('field1')
@@ -20,6 +26,7 @@ def flip(v1,v2):
     v1=v2
     v2=tmp
     return (v1,v2)
+
 
 f2re={'seed_id': r'^cpd\d+$',
       'kegg_id': r'^C\d+$',
@@ -42,12 +49,14 @@ with open(opts.in_fn) as f:
         if opts.flip:
             (v1,v2)=flip(v1,v2)
 
+        # look up f1:
         if f1 in f2re:
             if not re.search(f2re[f1], v1):
                 stats['bad_'+f1]+=1
                 if opts.v:
                     print 'bad %s: %s' % (f1, v1)
                 continue
+        # look up f2
         if f2 in f2re:
             if not re.search(f2re[f2], v2):
                 stats['bad_'+f2]+=1
@@ -55,11 +64,13 @@ with open(opts.in_fn) as f:
                     print 'bad %s: %s' % (f2, v2)
                 continue
 
+        # add to f2 to f1's list:
         try:
             f12f2[v1].append(v2)
         except KeyError:
             f12f2[v1]=[v2]
 
+# look up compounds based on f1, update object with csv(f2):
 for v1,v2l in f12f2.items():
     args={f1:v1}
     try:
@@ -77,6 +88,7 @@ for v1,v2l in f12f2.items():
         comp.save()
     stats['n_comps']+=1
 
+    # make note of large n:n r'ships:
     n=len(v2l)
     if n>4:
         print 'big_n=%d, v1=%s, v2l=%s' % (n, v1, v2l)
@@ -85,5 +97,6 @@ for v1,v2l in f12f2.items():
     except KeyError:
         stats[n]=1
 
+# report stats:
 for n in sorted(stats.keys()):
     print '%s: %s' % (n, stats[n])

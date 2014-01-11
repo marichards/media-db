@@ -287,7 +287,11 @@ class MediaNames(models.Model):
 
 
     def sorted_compounds(self):
-        return sorted(self.mediacompounds_set.all(), key=lambda c: c.compid.keywords()[0])
+        ''' return a list of compounds for the MediaCompound, sorted on name '''
+        # return sorted(self.mediacompounds_set.all(), key=lambda c: c.compid.keywords()[0]) # some compounds have no keywords, so keywords()[0] barfs
+        return sorted(self.mediacompounds_set.all(), key=lambda c: c.compid.name) # some compounds have no keywords, so keywords()[0] barfs
+#        for mc in self.mediacompounds_set.all():
+            
 
     def sorted_organisms(self):
         return sorted(list(set([gd.strainid for gd in self.growthdata_set.all()]))) # list(set(..)) removes dups
@@ -494,6 +498,9 @@ class Contributor(models.Model):
 
     def can_edit_gd(self, gd):
         return self.user.is_superuser or (self.user.is_active and self==gd.contributor)
+
+    def name(self):
+        return '%s %s' % (self.first_name, self.last_name)
 
 class Lab(models.Model):
     name=models.CharField(max_length=64, unique=True)
