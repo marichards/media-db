@@ -7,7 +7,6 @@ apache/*
 dumps
 dumps/*
 fixtures/
-<<<<<<< HEAD
 html/
 html/*
 *.json
@@ -23,3 +22,6 @@ settings.py*
 *.sql
 *.swp
 *.txt
+*.tar
+media_site/admin
+media_site/django_extensions
