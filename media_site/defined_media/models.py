@@ -80,6 +80,7 @@ class Compounds(models.Model):
     chebi_ids = models.CharField(max_length=255L, db_column='chebi_ids', null=True, blank=True) # csv
     user_identifier = models.CharField(max_length=255L, blank=True, null=True)
     name = models.CharField(max_length=255L, unique=True)
+    formula=models.CharField(max_length=255L, null=True, blank=True)
 
     objects=CompoundManager()
 
@@ -91,8 +92,8 @@ class Compounds(models.Model):
         return self.name
 
     def __repr__(self):
-        return 'compound %s (%d): kegg_id=%s, bigg_id=%s, seed_id=%s, user_identifier=%s' % \
-        (self.name, self.compid, self.kegg_id, self.bigg_id, self.seed_id, self.user_identifier)
+        return 'compound %s (%d): kegg_id=%s, bigg_id=%s, seed_id=%s, user_identifier=%s formula=%s' % \
+        (self.name, self.compid, self.kegg_id, self.bigg_id, self.seed_id, self.user_identifier, self.formula)
 
     def keywords(self):
         nocs=[noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
@@ -287,7 +288,11 @@ class MediaNames(models.Model):
 
 
     def sorted_compounds(self):
-        return sorted(self.mediacompounds_set.all(), key=lambda c: c.compid.keywords()[0])
+        ''' return a list of compounds for the MediaCompound, sorted on name '''
+        # return sorted(self.mediacompounds_set.all(), key=lambda c: c.compid.keywords()[0]) # some compounds have no keywords, so keywords()[0] barfs
+        return sorted(self.mediacompounds_set.all(), key=lambda c: c.compid.name) # some compounds have no keywords, so keywords()[0] barfs
+#        for mc in self.mediacompounds_set.all():
+            
 
     def sorted_organisms(self):
         return sorted(list(set([gd.strainid for gd in self.growthdata_set.all()]))) # list(set(..)) removes dups
@@ -494,6 +499,9 @@ class Contributor(models.Model):
 
     def can_edit_gd(self, gd):
         return self.user.is_superuser or (self.user.is_active and self==gd.contributor)
+
+    def name(self):
+        return '%s %s' % (self.first_name, self.last_name)
 
 class Lab(models.Model):
     name=models.CharField(max_length=64, unique=True)

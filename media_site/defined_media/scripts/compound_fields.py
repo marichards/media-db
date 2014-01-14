@@ -6,6 +6,8 @@ import django
 from defined_media.models import *
 
 '''
+Usage: py compounds_fields.py <in_fn> <lookup_field> <novel_field> [-v] [-n] 
+
 Add data columns to the compounds table:
 
 Parse a csv (or tsv); for each line,
@@ -85,9 +87,9 @@ def update_compounds(f12f2):
 
         # store comma-separated list of values to compound:
         nvs=','.join(nv)
-        setattr(comp, opts.lookup, nv)
+        setattr(comp, opts.novel, nvs)
         if opts.v:
-            print 'about to save %s (%s=%s): set %s to %s' % (comp, opts.lookup, lu, opts.novel, nvs)
+            print 'about to save %r (%s=%s): set %s to %s' % (comp, opts.lookup, lu, opts.novel, nvs)
         if not opts.n: 
             comp.save()
         stats['n_comps']+=1

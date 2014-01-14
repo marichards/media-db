@@ -77,6 +77,12 @@ class RegistrationForm(forms.Form, ReformatsErrors):
         return valid
 
     def password_unsafe(self, password):
+        '''
+        passwords must: 
+        - be between 8 and 64 chars
+        - contain at least 1 digit
+        - at least one upper, lower case char
+        '''
         log.debug('checking password "%s"' % password)
         err_msg='Password must be at least 8 characters, contain upper and lower case letters, and at least one digit'
         if not re.search(r'\d', password):

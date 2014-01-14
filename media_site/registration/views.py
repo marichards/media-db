@@ -52,7 +52,7 @@ def login(request, *args, **kwargs):
     password=request.POST['password']
     user=auth.authenticate(username=username, password=password)
     if user is None:
-        log.info('incorrect user/password')
+        log.info('incorrect user/password for user %s' % username)
         login_form.errors.msgs.append('incorrect user/password')
         return render(request, 'registration/login.html', added_context)
     else:
@@ -125,16 +125,20 @@ def user_profile_post(request, **kwargs):
 
 def register_new_user(request):
     form=RegistrationForm(request.POST)
+    log.debug('hi, prospective new user')
     if not form.is_valid():       # try again
-        return render(request, 'registration/login.html')
+        log.debug('form invalid, try again')
+        form.reformat_errors()
+        return render(request, 'registration/login.html', {'registration_form': form, 'fart2': 'fjdskl'})
 
-
+    # check for previously existing user of that name:
     try:
         username=form.cleaned_data['username']
         user=User.objects.get(username=username)
         form.errors['username']='username "%s" already taken' % username
+        log.debug('username %s already taken' % username)
         form.reformat_errors()
-        return render(request, 'registration/login.html')
+        return render(request, 'registration/login.html', {'registration_form': form, 'fart2': 'fjdskl'})
     except User.DoesNotExist:
 #        log.debug('no user %s, proceeding' % username)
         pass

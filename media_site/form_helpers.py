@@ -16,7 +16,7 @@ class ReformatsErrors(object):
         log.debug('reformatting %d errors' % len(self.errors))
         for k,v in self.errors.items():
             errors[k]=re.sub(pattern, rep, str(v))
-            log.debug('reformat[%s]: %s' % (k, errors[k]))
+            log.debug('reformat: my_errors[%s]: %s' % (k, errors[k]))
         self.my_errors=errors
         return self
 
