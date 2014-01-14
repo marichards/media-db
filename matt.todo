@@ -1,25 +1,30 @@
 SEARCH
--I get a lot of duplicates when I search a compound (e.g. I tried "Biotin" and got 22 compounds, but 8 were duplicates).  I don't seem to have the same problem with media
+X -I get a lot of duplicates when I search a compound (e.g. I tried "Biotin" and got 22 compounds, but 8 were duplicates).  I don't seem to have the same problem with media
 
 INPUT FORM
 
 
 COMPOUNDS
--We should get rid of all things that say "Transferred to D-----" because they're useless
+! -We should get rid of all things that say "Transferred to D-----" because they're useless: victor: get rid of all these (double check first)
+
 X -On a Compound Record, I think we should change "0 common names" to "0 Alternate Names"
--Can we add a compound formula as a column that shows up here?  I have the KEGG compounds file with all of those in it, the file just needs to be properly parsed
+! -Can we add a compound formula as a column that shows up here?  I have the KEGG compounds file with all of those in it, the file just needs to be properly parsed
 -Once we've added formulas, can we incorporate that into the search results so people could search by chemical formula?
-X -Still need to add the alternate classifiers (SEED, ChEBI, Pubchem)
+! -Still need to add the alternate classifiers (SEED, ChEBI, Pubchem) (pubchem is 1:1; other two are n:n; make changes to script, webpage; re-run script, actually save results this time) victor
+
 X -I want to hide our "compound IDs" and just use those behind the scenes if possible.  I don't want to add to the multiple identifier problem if possible
 
 MEDIA FORMULATIONS
--I'd love to add a download ability so people can export a media formulation and choose to swap in different compound IDs if they so choose
+-I'd love to add a download ability so people can export a media formulation and choose to swap in different compound IDs if they so choose (ie, translate to different id set)
+ (export a "recipe": tsv (most likely), use compound ids,  
 X -Let's take the "Mm" off each compound and instead make the header "Amount (mM)"
 X -->Another note on this: it should be "mM", not "Mm"
 X -The "Amount" pops up in the hyperlink and should be taken out of there
--Format-wise, we should put a space before "# Organisms"
+X -Format-wise, we should put a space before "# Organisms"
 
 X? -Both here and in biomass composition, we should show the compound name that's stored along with the compound (the "first" name), not the first "common name" stored in the names_of_compounds table. 
+
+X media/277 produces error! (was in sorted_compounds())
 
 ORGANISMS
 X -Need to remove the '-' strain designation from organisms without a specified strain.  It was put there to satisfy a uniqueness criterium that we probably don't need anymore
@@ -27,24 +32,35 @@ X -An Organism should link to growth conditions; right now it just links to the 
 - We could also link it directly to the media, but I think the growth condition is paramount. 
 -->Might want to have the list of possible media there too, just out of convenience. I'm undecided. But that links through the growth conditions table anyway
 -I'd really like to link to the NCBI page for a search of a given organism.  What's the best way to do this?  Manually search for each and just keep the results so we can later follow them? 
+- Need an "add new organism" page; check against existing and similar organisms.
+
 
 SOURCES
 X -THE GROWTH DATA LINK GOES THE WRONG PLACE...it goes to the growth condition of the same primary key as the source instead of the one that's linked to the source (e.g. Source 32 goes to Growth Condition 32)
-? -We should alphabetize these by first author's last name.  <Alphabetize what?  where?>
+? -We should alphabetize these by first author's last name.  (/defined_media/sources; list of all sources)
 X -Should add Pubmed ID to all sources if possible(**I'll take care of this stuff)
 -->Also, should probably change the link to the Pubmed source, just for consistency
+
+
 -There are 13 sources (of 111) that aren't used in growth conditions [1,10,13,16,51,80,91,93,96,97,100,102,107]
+ these exist in orgamisms_sources table, which is slated to be removed; any other tables?  double check that no other table refs these records, then delete
+
 -->We'll pull these out into storage somewhere; I doubt we'll ever NEED them
 X -If there's no article link (e.g. Source 16), we shouldn't have a link to the article; right now there's one, its just a broken link. 
 
 BIOMASS COMPOSITIONS
 X -Genus needs to be capitalized
 -Both here and in media formulation, we should show the compound name that's stored along with the compound (the "first" name), not the first "common name" stored in the names_of_compounds table. 
+- detail page: second column needs explanation (matt)
 
 GROWTH DATA
--Let's change the name of this label to "Growth Conditions"
+-Let's change the name of this label to "Growth Conditions" (ie, database, website, everywhere)
 -I'd like to take out the "measurement" category and instead, for anything with the "slope estimation" designation (measureID=2), put an asterisk on the rate to show that we estimated it
 -->I think putting a small bit on this in an "About the Database" sort of page might be good.  I envision this popping up there or in an FAQ or "Help" section
 
 DOWNLOADS
 -We'll obviously have to put a .TAR file here eventually
+- db schema
+
+HOMEPAGE
+- logo
