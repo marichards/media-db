@@ -43,7 +43,12 @@ class SearchResultsView(ListView, FormView):
 
 	def get_queryset(self):
 		st=self._get_search_term()
-		return SearchResult.objects.filter(keyword__contains=st).order_by('keyword')
+                all=list(SearchResult.objects.filter(keyword__contains=st))
+                final={}
+                for sr in all:
+                        key='%s_%s' %(sr.classname, sr.obj_id)
+                        final[key]=sr
+                return sorted(final.values(), key=lambda sr: sr.keyword)
 						   
 
 	def _get_search_term(self):

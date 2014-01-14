@@ -7,6 +7,7 @@
 <div>
 {% if compounds %}
         <h2>{{ compounds.name }}</h2>
+	<p>Formula: {% if compounds.formula %}{{ compounds.formula }}{% else %}<i>&lt;No Data&gt;</i>{% endif %}
 	<p>KEGG ID: {{ compounds.kegg_id|default:'<i>&lt;None&gt;</i>' }}</p>
 	<p>BiGG ID: {{ compounds.bigg_id|default:'<i>&lt;None&gt;</i>' }}</p>
 	<p>SEED ID: {% if compounds.seed_id %}{{ compounds.seed_id }}{% else %}<i>&lt;None&gt;</i>{% endif %}

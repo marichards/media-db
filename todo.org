@@ -1,64 +1,14 @@
+see also matt.todo
+
 * Todo:
-- Design and create header, footer, and nav bar
 - Polish style
 - Add external links to Kegg, etc.
-- Research authentication capabilities for django
-- alphabetize compounds (also needed on biomass_detail)
+- Email IT for SSL cert, configure for https only (including redirect from http)
+- Add link to newmedia when logged in
+- Display list of user's growth data records
+- Add link to login/user profile page to nav
+- Home, help pages
 
-Wednesday: talk with Matt about style, presentation, etc.
-
-** Search:
-- test suite?
-- Partition results based on class
-- Paginate Results?
-  
-** Things (Detail Pages):
-ORGANISM_RECORD:
--Organism genus, species, strain
--List of links to media the organism grows in
--List of sources linked to that organism
--Histogram showing most frequent compounds in media for that organism
--Link to the NCBI project for that genome sequence
-
-MEDIA_RECORD:
--List of links to compounds in the media, listed next to the amount of each compound (in mM)
--List of links to organisms that grow in that media
--Link to source for the media
-
-COMPOUND_RECORD:
--List of all the compound names
--KEGG ID, BiGG ID, SEED ID
--Number of media that compound appears in , plus a list of their names (first 50) or maybe a link to a list of their names
-
-SOURCE_RECORD:
--Last name of the first author
--Journal of publication
--Year 
--Article title
--Link to online source
-
-BIOMASS_RECORD:
--Name (genus+species) of organism
--List of links to compounds in the biomass, listed next to the amount of each compound (in mM)
--Link to source for the biomass
-
-GROWTH_RECORD:
--Link to organism record
--Link to media record
--Link to source record
--Growth rate, pH, temperature
--Secretion and uptake rates associated with the growth rate, with units
-
-* Done:
-- Design and create header, footer, and nav bar
-- Create paged displays (eg, for organism)
-
-** Search:
-- Get list of searchable classes from Matt; implement keywords(self) for each
-- Create search page/block/widget (input)
-- Define a search result block
-- Include search form on search results page (ie, combine search.html and searchresults.html)
-- Implement 'LIKE' matches
 
 
 * Detail Pages:
@@ -97,4 +47,4 @@ GROWTH_RECORD:
 -Link to source record
 -Growth rate, pH, temperature
 -Secretion and uptake rates associated with the growth rate, with units
->>>>>>> templates
+

@@ -80,6 +80,7 @@ class Compounds(models.Model):
     chebi_ids = models.CharField(max_length=255L, db_column='chebi_ids', null=True, blank=True) # csv
     user_identifier = models.CharField(max_length=255L, blank=True, null=True)
     name = models.CharField(max_length=255L, unique=True)
+    formula=models.CharField(max_length=255L, null=True, blank=True)
 
     objects=CompoundManager()
 
@@ -91,8 +92,8 @@ class Compounds(models.Model):
         return self.name
 
     def __repr__(self):
-        return 'compound %s (%d): kegg_id=%s, bigg_id=%s, seed_id=%s, user_identifier=%s' % \
-        (self.name, self.compid, self.kegg_id, self.bigg_id, self.seed_id, self.user_identifier)
+        return 'compound %s (%d): kegg_id=%s, bigg_id=%s, seed_id=%s, user_identifier=%s formula=%s' % \
+        (self.name, self.compid, self.kegg_id, self.bigg_id, self.seed_id, self.user_identifier, self.formula)
 
     def keywords(self):
         nocs=[noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
