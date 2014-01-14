@@ -43,7 +43,6 @@ class RegistrationForm(forms.Form, ReformatsErrors):
 
     def is_valid(self, user=None):
         valid=super(RegistrationForm, self).is_valid()
-        log.debug('cleaned_data: %s' % self.cleaned_data)
 
         # I don't think this should be here; will fail for update_user_profile,
         # when this user *should* exist
@@ -51,17 +50,14 @@ class RegistrationForm(forms.Form, ReformatsErrors):
         # check passwords match, safe
         try:
             if self.cleaned_data['password1'] != self.cleaned_data['password2']:
-                log.debug('password mismatch')
                 self.errors['password2']="Passwords don't match"
                 valid=False
             msg=self.password_unsafe(self.cleaned_data['password1'])
             if msg:
-                log.debug('password "%s" unsafe')
                 self.errors['password1']=msg
                 valid=False
             msg=self.password_unsafe(self.cleaned_data['password2'])
             if msg:
-                log.debug('password "%s" unsafe')
                 self.errors['password2']=msg
                 valid=False
         except KeyError:
@@ -73,7 +69,6 @@ class RegistrationForm(forms.Form, ReformatsErrors):
                 valid=False
 
 
-        log.debug('RegistrationForm.is_valid returning %s' % valid)
         return valid
 
     def password_unsafe(self, password):
@@ -83,21 +78,16 @@ class RegistrationForm(forms.Form, ReformatsErrors):
         - contain at least 1 digit
         - at least one upper, lower case char
         '''
-        log.debug('checking password "%s"' % password)
+
         err_msg='Password must be at least 8 characters, contain upper and lower case letters, and at least one digit'
         if not re.search(r'\d', password):
-            log.debug('password "%s": no digit' % password)
             return err_msg
         if not re.search(r'[a-z]', password):
-            log.debug('password "%s": no lower case' % password)
             return err_msg
         if not re.search(r'[A-Z]', password):
-            log.debug('password "%s": no CAPS' % password)
             return err_msg
         if len(password) < 8:
-            log.debug('password "%s": too short' % password)
             return err_msg
         if len(password) > 64:
-            log.debug('password "%s": too long' % password)
             return err_msg
         return False

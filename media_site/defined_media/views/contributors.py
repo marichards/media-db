@@ -24,17 +24,13 @@ class NewMediaView(FormView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(NewMediaView, self).get_context_data(**kwargs)
-        try:
-            context['gd']=self.gd
-        except (KeyError, AttributeError) as e:
-            log.debug('no self.gd found')
-            pass
+        try: context['gd']=self.gd
+        except (KeyError, AttributeError) as e: pass
+            
         return context
 
     # login_required, as per urls.py
     def get(self, request, *args, **kwargs):
-        
-
         try:
             gd=GrowthData.objects.get(growthid=kwargs['pk'])
             self.gd=gd

@@ -1,6 +1,6 @@
 {% extends 'defined_media/base.html' %}
 {% block content %}
-<h2>User profile for {{ user.username }}</h2>
+<h2>User profile for {{ user.contributor.name }}</h2>
 {% if msgs %}{{ msgs }}{% endif %}
 <form method='POST' action='{% url 'user_profile' %}'>
 {% csrf_token %}
@@ -53,5 +53,17 @@
 <input type='submit' value='Logout' />
 </form>
 
-<p>List of user's media name/growth data records goes here</p>
+<p>&nbsp;</p>
+<div>
+{{ user.contributor.growthdata_set.count }} Growth Data records
+{% if user.contributor.growthdata_set.count > 0 %}
+<table>
+{% for gd in request.user.contributor.growthdata_set.all %}
+<tr><td>{{ gd }}</td><td><a href="{% url 'growth_record' gd.growthid %}">View</a>
+</td><td><a href="{% url 'new_media_form' gd.growthid %}">Edit</a>
+</td></tr>
+{% endfor %}
+</table>
+{% endif %}
+</div>
 {% endblock %}

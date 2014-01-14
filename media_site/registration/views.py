@@ -79,6 +79,7 @@ def get_next(request):
 
 # login_required (as per urls.py)
 def user_profile(request, **kwargs):
+    log.debug('got here')
     if request.method.lower()=='get':
         return user_profile_get(request, **kwargs)
     else:
@@ -89,6 +90,8 @@ def user_profile(request, **kwargs):
 def user_profile_get(request, **kwargs):
     reg_form=RegistrationForm.from_user(request.user)
     added_context={'registration_form': reg_form}
+    gds=request.user.contributor.growthdata_set
+    log.debug('gds.count: %d' % gds.count())
     return render(request, 'registration/user_profile.html', added_context)
 
 
@@ -129,7 +132,7 @@ def register_new_user(request):
     if not form.is_valid():       # try again
         log.debug('form invalid, try again')
         form.reformat_errors()
-        return render(request, 'registration/login.html', {'registration_form': form, 'fart2': 'fjdskl'})
+        return render(request, 'registration/login.html', {'registration_form': form})
 
     # check for previously existing user of that name:
     try:
@@ -138,7 +141,7 @@ def register_new_user(request):
         form.errors['username']='username "%s" already taken' % username
         log.debug('username %s already taken' % username)
         form.reformat_errors()
-        return render(request, 'registration/login.html', {'registration_form': form, 'fart2': 'fjdskl'})
+        return render(request, 'registration/login.html', {'registration_form': form})
     except User.DoesNotExist:
 #        log.debug('no user %s, proceeding' % username)
         pass

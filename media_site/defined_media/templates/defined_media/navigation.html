@@ -1,4 +1,4 @@
-<ul>
+<ul>Site Navigation:
 <li><a href="{% url 'compounds' %}">Compounds</a></li>
 <li><a href="{% url 'media' %}">Media Formulations</a></li>
 <li><a href="{% url 'organisms' %}">Organisms</a></li>
@@ -6,7 +6,10 @@
 <li><a href="{% url 'biomass' %}">Biomass Compositions</a></li>
 <li><a href="{% url 'downloads' %}">Downloads</a></li>
 <li><a href="{% url 'growthdata' %}">Growth Data</a></li>
+
 {% if user %}
-<li>Name: {{ user.contributor.name }}</li>
+<li><a href="{% url 'user_profile' user %}">User Profile</a></li>
+<li><a href="{% url 'new_media_form' %}">New Growth Data</a></li>
 {% endif %}
+
 </ul>
