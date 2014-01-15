@@ -79,7 +79,6 @@ def get_next(request):
 
 # login_required (as per urls.py)
 def user_profile(request, **kwargs):
-    log.debug('got here')
     if request.method.lower()=='get':
         return user_profile_get(request, **kwargs)
     else:
@@ -91,19 +90,17 @@ def user_profile_get(request, **kwargs):
     reg_form=RegistrationForm.from_user(request.user)
     added_context={'registration_form': reg_form}
     gds=request.user.contributor.growthdata_set
-    log.debug('gds.count: %d' % gds.count())
     return render(request, 'registration/user_profile.html', added_context)
 
 
 # login_required (as per urls.py)
 def user_profile_post(request, **kwargs):
-    log.debug('hi!')
     user=request.user
     form=RegistrationForm(request.POST)
     added_context={'registration_form': form}
     if not form.is_valid(user=user):
         form.reformat_errors()
-        log.debug('user %r not valid, aborting' % user.contributor)
+#        log.debug('user %r not valid, aborting' % user.contributor)
         return render(request, 'registration/user_profile.html', added_context)
     
     user.first_name=form.cleaned_data['first_name']
@@ -113,13 +110,13 @@ def user_profile_post(request, **kwargs):
     user.contributor.lab.name=form.cleaned_data['lab']
     user.contributor.lab.url=form.cleaned_data['lab_url']
     try:
-        log.debug('about to save user: %r' % user.contributor)
+#        log.debug('about to save user: %r' % user.contributor)
         user.save()
         added_context['msgs']='Profile successfully updated'
     except Exception as e:
         msgs='Unable to save user information: %s' % e
         added_context['msgs']=msgs
-        log.debug(msgs)
+#        log.debug(msgs)
 
     
     return render(request, 'registration/user_profile.html', added_context)
@@ -128,9 +125,8 @@ def user_profile_post(request, **kwargs):
 
 def register_new_user(request):
     form=RegistrationForm(request.POST)
-    log.debug('hi, prospective new user')
     if not form.is_valid():       # try again
-        log.debug('form invalid, try again')
+#        log.debug('form invalid, try again')
         form.reformat_errors()
         return render(request, 'registration/login.html', {'registration_form': form})
 
@@ -139,7 +135,7 @@ def register_new_user(request):
         username=form.cleaned_data['username']
         user=User.objects.get(username=username)
         form.errors['username']='username "%s" already taken' % username
-        log.debug('username %s already taken' % username)
+#        log.debug('username %s already taken' % username)
         form.reformat_errors()
         return render(request, 'registration/login.html', {'registration_form': form})
     except User.DoesNotExist:
@@ -168,14 +164,14 @@ def register_new_user(request):
     except Lab.DoesNotExist:
         lab=Lab(name=lab_name, url=lab_url)
         lab.save()
-    log.debug('new user: lab is %s' % lab)
+#    log.debug('new user: lab is %s' % lab)
 
     try:
         contributor=Contributor.objects.get(user=user)
     except Contributor.DoesNotExist:
         contributor=Contributor(user=user, first_name=first_name, last_name=last_name, lab=lab)
         contributor.save()
-    log.debug('contributor is %s' % contributor)
+#    log.debug('contributor is %s' % contributor)
 
     url=reverse('user_profile', args=(user.username,))
     return redirect(url)
