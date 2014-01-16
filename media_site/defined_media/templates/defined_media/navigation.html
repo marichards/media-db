@@ -6,11 +6,13 @@
 <li><a href="{% url 'biomass' %}">Biomass Compositions</a></li>
 <li><a href="{% url 'downloads' %}">Downloads</a></li>
 <li><a href="{% url 'growthdata' %}">Growth Data</a></li>
+</ul>
 
 {% if user.is_authenticated %}
+<ul>
 <li>User: {{ user }}</li>
 <li><a href="{% url 'user_profile' user %}">User Profile</a></li>
 <li><a href="{% url 'new_media_form' %}">New Growth Data</a></li>
+</ul>
 {% endif %}
 
-</ul>

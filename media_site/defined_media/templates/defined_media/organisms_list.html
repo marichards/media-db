@@ -13,7 +13,7 @@
 </p>
 
 {% if object_list %}
-	<p>Organisms {{ page_obj.start_index }} - {{ page_obj.end_index }}</p>
+	<p>Organisms {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ paginator.count }}</p>
 
 	<ul>
 	{% for organism in object_list %}

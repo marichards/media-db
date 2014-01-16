@@ -13,7 +13,7 @@
 </p>
 
 {% if object_list %}
-	<p>Compounds {{ page_obj.start_index }} - {{ page_obj.end_index }}</p>
+	<p>Compounds {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ paginator.count }}</p>
 
 	<ul>
 	{% for compound in object_list %}

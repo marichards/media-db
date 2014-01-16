@@ -13,7 +13,7 @@
 </p>
 
 {% if object_list %}
-	<p>Sources {{ page_obj.start_index }} - {{ page_obj.end_index }}</p>
+	<p>Sources {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ paginator.count }}</p>
 
 	<ul>
 	{% for source in object_list %}

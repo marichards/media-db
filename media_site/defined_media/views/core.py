@@ -28,6 +28,8 @@ class SourcesList(ListView):
     model=Sources
     paginate_by=100
 
+    def get_queryset(self, *args, **kwargs):
+        return Sources.objects.all().order_by('first_author')
 
 class CompoundsDetail(DetailView):
     model=Compounds
