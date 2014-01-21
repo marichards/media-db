@@ -59,9 +59,10 @@
 {% if user.contributor.growthdata_set.count > 0 %}
 <table>
 {% for gd in request.user.contributor.growthdata_set.all %}
-<tr><td>{{ gd }}</td><td><a href="{% url 'growth_record' gd.growthid %}">View</a>
-</td><td><a href="{% url 'new_media_form' gd.growthid %}">Edit</a>
-</td></tr>
+<tr><td>{{ gd }}</td><td><a href="{% url 'growth_record' gd.growthid %}">View</a></td>
+    <td><a href="{% url 'new_media_form' gd.growthid %}">Edit</a></td>
+    <td><a href="{% url 'clone_growth_data' gd.growthid %}">Clone</a></td>
+</tr>
 {% endfor %}
 </table>
 {% endif %}

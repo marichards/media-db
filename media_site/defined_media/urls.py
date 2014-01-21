@@ -43,6 +43,7 @@ urlpatterns = patterns(view_prefix,
                        # New Media Contribution:
                        url(r'^newmedia/$', login_required(views.contributors.NewMediaView.as_view()), name='new_media_form'),
                        url(r'^newmedia/(?P<pk>\d+)/$', login_required(views.contributors.NewMediaView.as_view()), name='new_media_form'),
+                       url(r'^clone_newmedia/(?P<pk>\d+)/$', login_required(views.clone.CloneGrowthDataView.as_view()), name='clone_growth_data'),
 
                        # REST api
                        url(r'^api/urlmap$', views.api.urlmap, name='urlmap'),

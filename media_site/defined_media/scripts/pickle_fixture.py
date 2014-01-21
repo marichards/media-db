@@ -7,6 +7,7 @@ import django
 
 from defined_media.models import *
 from django.core import serializers
+from django.contrib.auth.models import User
 
 def add_contributors(media_objs):
     media_objs['Contributor']=[]
@@ -86,6 +87,11 @@ def add_reactants(media_objs):
         reactants.add(p.rxntid)
     media_objs['Reactants']=set(reactants)
 
+def add_contributor(media_objs):
+    media_objs['Contributor']=set(Contributor.objects.all())
+    media_objs['Lab']=set(Lab.objects.all())
+    media_objs['User']=set(User.objects.all())
+
 
 def main():
     n=50
@@ -134,6 +140,7 @@ def main():
     add_search_results(media_objs)
     add_media_names(media_objs, compounds)
     add_growth_data(media_objs)
+    add_contributor(media_objs)
 
 #    add_reactants(media_objs)
 

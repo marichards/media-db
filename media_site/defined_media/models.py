@@ -9,7 +9,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-import re, inspect, logging
+import re, inspect, logging, copy
 from lazy import lazy
 
 log=logging.getLogger(__name__)
@@ -150,8 +150,8 @@ class GrowthData(models.Model):
 
     def __repr__(self):
         return "GrowthData(%s) %s: org(%s)=%s, media_name(%s)=%s, sourceid(%s)=%s, measureid(%s)=%s" % \
-            (self.growthid, self.contributor, self.strainid_id, self.strainid, self.medid_id, self.medid, 
-             self.sourceid_id, self.sourceid, self.measureid_id, self.measureid)
+            (self.growthid, self.contributor, self.strainid_id, self.strainid, self.medid_id, 
+             self.medid, self.sourceid_id, self.sourceid, self.measureid_id, self.measureid)
 
 
     def media_compounds_dicts(self):
@@ -234,6 +234,42 @@ class GrowthData(models.Model):
         self.delete()
 
 
+    def clone(self):
+        c=copy.copy(self)
+        return c
+
+    def equals(self, other):
+        # ignore growthid unless both are defined:
+        try:
+            self_id=self.growthid
+            other_id=other.growthid
+            if self_id != None and other_id != None and self_id != other_id:
+                return False
+        except NameError:
+            pass
+
+        if self.contributor_id != other.contributor_id:
+            return False
+        if self.strainid_id != other.strainid_id: 
+            return False
+        if self.medid_id != other.medid_id:
+            return False
+        if self.sourceid_id != other.sourceid_id:
+            return False
+        
+        for attr in 'growth_rate growth_units ph temperature_c'.split(' '):
+            if getattr(self, attr) != getattr(other, attr):
+                return False
+            
+        if not self.medid._compound_list_equal(other.medid):
+            return False
+
+        return True
+
+
+    def not_equals(self, other):
+        return not self.equals(other)
+
 class Measurements(models.Model):
     measureid = models.AutoField(primary_key=True, db_column='measureID') # Field name made lowercase.
     measurement_technique = models.CharField(max_length=255L, unique=True, db_column='Measurement_Technique', blank=True) # Field name made lowercase.
@@ -283,10 +319,6 @@ class MediaNames(models.Model):
     def keywords(self):
 	return [self.media_name]
 
-    def __repr__(self):
-        return '%s: id=%d, media_name=%s' % (type(self), self.medid, self.media_name)
-
-
     def sorted_compounds(self):
         ''' return a list of compounds for the MediaCompound, sorted on name '''
         # return sorted(self.mediacompounds_set.all(), key=lambda c: c.compid.keywords()[0]) # some compounds have no keywords, so keywords()[0] barfs
@@ -302,6 +334,27 @@ class MediaNames(models.Model):
 
     def uniq_sources(self):
         return list(set([x.sourceid for x in self.growthdata_set.all()]))
+
+    def _compound_list_equal(self, other):
+        s_comps=self.mediacompounds_set
+        o_comps=other.mediacompounds_set
+        if s_comps.count() != o_comps.count():
+            log.debug('_cle: returning False on differing length')
+            return False
+
+        s_set=set([c for c in s_comps.all()])
+        o_set=set([c for c in o_comps.all()])
+        if s_set!=o_set: 
+            log.debug('_cle: returning False on set inequality')
+            return False
+
+        for s_mc in s_set:      # not sure this doesn't duplicate functionality above
+            if s_mc not in o_set:
+                log.debug('_cle: returning False on %s' % s_mc)
+                return False
+
+        log.debug('_cle: returning True')
+        return True
 
 class NamesOfCompounds(models.Model):
     nameid = models.AutoField(primary_key=True, db_column='nameID') # Field name made lowercase.
