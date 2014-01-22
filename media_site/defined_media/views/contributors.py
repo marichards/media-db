@@ -35,7 +35,8 @@ class NewMediaView(FormView):
             gd=GrowthData.objects.get(growthid=kwargs['pk'])
             self.gd=gd
             user=request.user
-            if gd.contributor_id != user.contributor.id:
+            if not user.contributor.can_edit_gd(gd):
+#            if gd.contributor_id != user.contributor.id:
                 log.debug('gd.contributor_id=%d, user.contributor.id=%d' % (gd.contributor_id, user.contributor.id))
                 return redirect('forbidden')
 
@@ -49,6 +50,7 @@ class NewMediaView(FormView):
     # login_required, as per urls.py
 #    @transaction.atomic()
     def post(self, request, *args, **kwargs):
+        log.debug('hi from contributors.post')
         form=NewMediaForm(request.POST)
 
         if not form.is_valid():
@@ -56,16 +58,24 @@ class NewMediaView(FormView):
             form.reformat_errors()
             return self.form_invalid(form)
 
-        try:
+
+
+        try:                    # finally only; reformats errors
             org=self.get_organism(form)
             source=self.get_source(form)
             media_name=self.get_media_name(form)
 
+            growth_data=self.get_growth_data(form, org, source, media_name)
+            clone=growth_data.find_clone()
+            log.debug('looking for clone; got: %r' % clone)
+            if clone is not None:
+                raise IntegrityError('A growth record with the same basic information (strain, media name, source, growth rate, ph, and temperature) already exists')
+
 #            with transaction.atomic():
-            try:
-                try: 
-                    growthid=request.POST['growthid']
-                    old_gd=GrowthData.objects.get(growthid=int(growthid)) # here
+            try:                # catches IntegrityErrors, does rollbackr
+                try:            # do full_delete if growthid present in form
+                    growthid=int(request.POST['growthid'])
+                    old_gd=GrowthData.objects.get(growthid=growthid) 
                     old_gd.full_delete()
                 except (KeyError, ValueError) as e:
                     log.debug('no valid growthid in form, not trying to call full_delete')
@@ -73,7 +83,6 @@ class NewMediaView(FormView):
 
                 media_name.save()
 
-                growth_data=self.get_growth_data(form, org, source, media_name)
                 growth_data.save()  # this can barf on IntegrityError: duplicate entry '8-304-113-1-7-35' for key 'unique_conditions' ????
                 log.debug('growth_data saved: growthid=%d' % growth_data.growthid)
 
@@ -89,6 +98,7 @@ class NewMediaView(FormView):
                 log.debug('yay! commitment!')
             except IntegrityError as ie:
                 log.debug('caught %s: %s; rolling back' % (type(ie), ie))
+                log.exception(ie)
                 log.debug('growth_data is: %r' % growth_data)
                 transaction.rollback()
                 form.errors['Error']=str(ie)
@@ -118,7 +128,8 @@ class NewMediaView(FormView):
             return MediaNames.objects.get(media_name=form.get1('media_name'))
         except MediaNames.DoesNotExist:
             try:
-                is_defined='Y' if 'is_defined' in self.request.POST else 'N'
+#                is_defined='Y' if 'is_defined' in self.request.POST else 'N'
+                is_defined='Y'  # always
                 is_minimal='Y' if 'is_minimal' in self.request.POST else 'N'
                 
                 args={'media_name': form.get1('media_name'),
@@ -146,6 +157,7 @@ class NewMediaView(FormView):
 
     def get_growth_data(self, form, org, source, media_name):
         args={'strainid': org,
+              'contributor_id': form.get1('contributor_id'),
               'medid': media_name,
               'sourceid': source,
               'growth_rate': form.get1('growth_rate'),

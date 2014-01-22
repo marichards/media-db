@@ -32,7 +32,8 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
         self.fields['genus']=forms.ChoiceField(required=True, label='Genus', 
                                                choices=[(x,x) for x in genuss])
 
-    growthid=forms.CharField(required=False, widget=forms.HiddenInput)
+    growthid=forms.IntegerField(required=False, widget=forms.HiddenInput)
+    contributor_id=forms.IntegerField(required=True, widget=forms.HiddenInput)
 
     species=forms.ChoiceField(required=True, label='Species', choices=())
     strain=forms.ChoiceField(required=True, label='Strain', choices=())
@@ -42,10 +43,10 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
     is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
     is_minimal=forms.CharField(label='Is minimal?', widget=forms.CheckboxInput)
 
-    pmid=forms.CharField(required=False, label='Pubmed ID')
+    pmid=forms.IntegerField(required=False, label='Pubmed ID')
     first_author=forms.CharField(label='First Author')
     journal=forms.CharField(label='Journal', max_length=255)
-    year=forms.CharField(label='Year')
+    year=forms.IntegerField(label='Year')
     title=forms.CharField(label='Title', max_length=255)
     link=forms.CharField(label='Link', max_length=255)
 

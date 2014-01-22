@@ -89,7 +89,6 @@ def user_profile(request, **kwargs):
 def user_profile_get(request, **kwargs):
     reg_form=RegistrationForm.from_user(request.user)
     added_context={'registration_form': reg_form}
-    gds=request.user.contributor.growthdata_set
     return render(request, 'registration/user_profile.html', added_context)
 
 

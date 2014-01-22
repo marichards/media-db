@@ -2,6 +2,7 @@ see also matt.todo
 
 * Todo:
 - Polish style
+- - Still getting color screw-up when right content div is shorter than left (eg, forbidden page)
 - Add external links to Kegg, etc.
 - Email IT for SSL cert, configure for https only (including redirect from http)
   Implement SSL all the time
@@ -10,6 +11,10 @@ Z - Display list of user's growth data records
 Z - Add link to login/user profile page to nav
 - Home, help pages
 - Clone growth_data records functionality
+- - possible bug: cloning a gd (shallow) copies things like medid, retaining a pointer to the original
+    media_name record.  Editing the new gd record will probably affect the old media_name record?
+    Maybe not; contributors.get_media_name does a lookup based on the value in the form, creates
+    a new one if not found.
 
 - Add new organism form
 Z - Add ISB styling (and then styling in general)
@@ -17,12 +22,15 @@ Z - Add ISB styling (and then styling in general)
 Z - put in collapsable fields for things like media compounds, search results, etc.
 - want to be able to search growth-data records?
 
+- getting weird bug in logfile: iterating over a string instead of a list somewhere in newmedia form (compound/amount recipies)
+
 ** Add custom users/authentication (do a side project?)
 - basics done, needs more testing
 - forgotten password functionality
 
 ** editing of existing gd records
 - basics done, needs more testing
+- - testing: make sure that a user only sees their gd records
 
 ** Mtg with Matt 22Nov
 *** merge seed ids into compounds, get rid of seed_compounds table
@@ -33,6 +41,14 @@ pubchem to kegg is 1:1
 *** reactants and products: leave for the moment
 *** compounds_exceptions and compounds_replacements: remove (after snapshotting)
 *** no longer need is_defined (always 'yes')
+
+
+** Cloning
+- Test basic functionality
+- Test adding duplicate record
+- Test transactionality (really a test of views/contributor.py)
+- Add delete feature? (might not want to allow delete straight-away; rather, mark for delete and don't show marked records)
+- Add sharing of gd records (so that someone else can edit your record?); or, add clone link to gd detail page, with transfer of ownership.
 
 
 

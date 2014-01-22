@@ -21,7 +21,9 @@ def model_classes():
 
 def snapshot(test, name):
     ''' dict: k=cls, v=count '''
-    setattr(test, name, {cls: cls.objects.count() for cls in model_classes()})
+    d={cls: cls.objects.count() for cls in model_classes()}
+    setattr(test, name, d)
+    return d
             
 def compare_snapshots(test, name1, name2, deltas={}, debug=False):
     ss1=getattr(test, name1)

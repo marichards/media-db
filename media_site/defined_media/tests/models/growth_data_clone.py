@@ -1,5 +1,6 @@
 from django.test import TestCase
 from defined_media.models import *
+from defined_media.tests.snapshot import *
 
 class TestGrowthData(TestCase):
     fixtures=['fixture.json']
@@ -11,13 +12,28 @@ class TestGrowthData(TestCase):
 
     def test_equals(self):
         gd0=GrowthData.objects.all()[0]
-        gd1=gd0.clone()
-        self.assertTrue(gd0.equals(gd1))
+        contributor=Contributor.objects.exclude(id=gd0.contributor_id)[0]
+        gd1=gd0.clone_and_save(contributor)
+        self.assertFalse(gd0.equals(gd1))
+        self.assertFalse(gd1.equals(gd0))
+
+        gd0.medid.media_name=gd1.medid.media_name
+        self.assertFalse(gd0.equals(gd1)) # still different
+        self.assertFalse(gd1.equals(gd0))
+
+        gd0.medid=gd1.medid
+        self.assertFalse(gd0.equals(gd1)) # still different
+        self.assertFalse(gd1.equals(gd0))
+
+        gd1.contributor=gd0.contributor
+        self.assertTrue(gd0.equals(gd1)) # now they're the same!
         self.assertTrue(gd1.equals(gd0))
+        
 
     def _test_not_equals(self, cls, attr, attr_id=None, sub_id=None):
         gd0=GrowthData.objects.all()[0]
-        gd1=gd0.clone()
+        contributor=Contributor.objects.exclude(id=gd0.contributor_id)[0]
+        gd1=gd0.clone_and_save(contributor)
 
         if attr_id is None: 
             attr_id='%s_id' % attr
@@ -54,13 +70,30 @@ class TestGrowthData(TestCase):
         pass                    # not sure we actually care about this
 
     def test_clone(self):
+        ss1=snapshot(self, 'before clone')
         gd0=GrowthData.objects.all()[0]
-        gd1=gd0.clone()
+        contributor=Contributor.objects.exclude(id=gd0.contributor_id)[0]
+        gd1=gd0.clone_and_save(contributor)
 
-        self.assertEqual(gd0.contributor_id, gd1.contributor_id)
+        self.assertEqual(gd1.contributor_id, contributor.id)
         self.assertEqual(gd0.strainid, gd1.strainid)
-        self.assertEqual(gd0.medid, gd1.medid)
+        self.assertEqual(gd0.medid.media_name+' (clone)', gd1.medid.media_name)
         self.assertEqual(gd0.sourceid, gd1.sourceid)
         
         for attr in 'growth_rate growth_units ph temperature_c measureid_id'.split(' '):
             self.assertEqual(getattr(gd0, attr), getattr(gd1, attr))
+
+        ss2=snapshot(self, 'after clone')
+        deltas={GrowthData: +1, 
+                MediaNames: +1, 
+                MediaCompounds: gd0.medid.mediacompounds_set.count(),
+                SecretionUptake: gd0.secretionuptake_set.count(),
+                }
+        compare_snapshots(self, 'before clone', 'after clone', debug=False, deltas=deltas)
+        
+
+    def test_find_clone(self):
+        gd0=GrowthData.objects.all()[0]
+        gd1=gd0.find_clone()
+        log.debug('gd1: %r' % gd1)
+        
