@@ -3,8 +3,8 @@
 {% block title %}Growth Data: {{ growthdata }}{% endblock %}
 
 {% block content %}
-<p>Growth Data: {{ growthdata }}
-</p>
+<h2>Growth Data: {{ growthdata }}</h2>
+{% if request.user.is_authenticated %}<p><a href='{% url 'clone_growth_data' growthdata.growthid %}'>Clone this record</a></p>{% endif %}
 
 <table>
 <tr><td>Organism: </td>
