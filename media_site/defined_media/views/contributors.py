@@ -53,11 +53,14 @@ class NewMediaView(FormView):
         log.debug('hi from contributors.post')
         form=NewMediaForm(request.POST)
 
+        # fixme: this only reports on certain errors; omits errors in get_organism, etc.
+        '''
         if not form.is_valid():
             log.debug('form is invalid, aborting')
             form.reformat_errors()
             return self.form_invalid(form)
-
+        '''
+        form.is_valid()   # checks errors, allows processing to continue
 
 
         try:                    # finally only; reformats errors
@@ -83,7 +86,7 @@ class NewMediaView(FormView):
 
                 media_name.save()
 
-                growth_data.save()  # this can barf on IntegrityError: duplicate entry '8-304-113-1-7-35' for key 'unique_conditions' ????
+                growth_data.save()  
                 log.debug('growth_data saved: growthid=%d' % growth_data.growthid)
 
                 media_comps=self.get_media_comps(form, media_name)
@@ -103,6 +106,9 @@ class NewMediaView(FormView):
                 transaction.rollback()
                 form.errors['Error']=str(ie)
 
+        except:
+            pass                # fixme: if this is the case, why bother raising exceptions? 
+                                # at least, non-Integrity errors (eg Organisms.DoesNotExist
         finally:
             form.reformat_errors()
 
@@ -115,10 +121,56 @@ class NewMediaView(FormView):
 
 
     def get_organism(self, form):
+        species=None
+        strain=None
+        genus=form.get1('new_genus')
+        new_org=False
+
+        if genus:               # new genus
+            species=form.get1('new_species')
+            if not species:
+                form.errors['new_species']='New genus requires new species'
+
+            strain=form.get1('new_strain')
+            if not strain:
+                form.errors['new_strain']='New genus requires new strain'
+
+            if species and strain:
+                new_org=True
+        else:
+            genus=form.get1('genus')
+
+        if not species:         # no new genus
+            species=form.get1('new_species')
+            if species:         # new species
+                strain=form.get1('new_strain')
+                if not strain or new_org: # new_org from new_genus
+                    form.errors['new_strain']='New species requires new strain'
+                else:
+                    new_org=True
+            else:
+                species=form.get1('species')
+
+        if not strain:
+            strain=form.get1('new_strain')
+            if strain:
+                new_org=True
+            else:
+                strain=form.get1('strain')
+        
+        for k,v in form.errors.items():
+            log.debug('get_org: form.errors[%s]=%s' % (k,v))
+        if new_org:
+            typeid=form.get1('new_org_type')
+            new_type=TypesOfOrganisms.objects.get(typeid=typeid)
+            org=Organisms(genus=genus, species=species, strain=strain, typeid=new_type)
+            org.save()
+            return org
+
         try:
-            return Organisms.objects.get(genus=form.get1('genus'),
-                                        species=form.get1('species'),
-                                        strain=form.get1('strain'))
+            return Organisms.objects.get(genus=genus,
+                                        species=species,
+                                        strain=strain)
         except Organisms.DoesNotExist, e:
             form.errors['Organism']="No such organism: "+str(e)
             raise e

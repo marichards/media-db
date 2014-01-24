@@ -38,6 +38,14 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
     species=forms.ChoiceField(required=True, label='Species', choices=())
     strain=forms.ChoiceField(required=True, label='Strain', choices=())
 
+    new_genus=forms.CharField(label='New Genus', required=False)
+    new_species=forms.CharField(label='New Species', required=False)
+    new_strain=forms.CharField(label='New Strain', required=False)
+    org_type_choices=[(t.typeid, t.organism_type) for t in TypesOfOrganisms.objects.all()]
+    new_org_type=forms.ChoiceField(label='New Type', choices=org_type_choices, required='False')
+
+                                   
+
     media_name=forms.CharField(required=True, label='Media Name',
                                widget=forms.TextInput(attrs={'size': 75}))
     is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
@@ -143,7 +151,7 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
                 self.errors['uptake%s' % n]='Uptake %s: These fields are required: %s' % (n, ', '.join(missing))
 
         for k,v in self.errors.items():
-            log.debug('errors: %s -> %s' % (k,v))
+            log.debug('is_valid: errors: %s -> %s' % (k,v))
         return len(self.errors)==0
 
 
