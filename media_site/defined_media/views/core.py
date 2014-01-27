@@ -49,6 +49,10 @@ class MediaDetail(DetailView):
 class BiomassDetail(DetailView):
     model=Biomass
 
+class BiomassList(ListView):
+    model=Biomass
+    
+
 class SourceDetail(DetailView):
     model=Sources
 
