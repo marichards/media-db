@@ -15,6 +15,7 @@ Z - Add link to login/user profile page to nav
     media_name record.  Editing the new gd record will probably affect the old media_name record?
     Maybe not; contributors.get_media_name does a lookup based on the value in the form, creates
     a new one if not found.
+- - verify appropriate error message on submission of duplicate form (even though that's unlikely)
 
 - Add new organism form
 Z - Add ISB styling (and then styling in general)
