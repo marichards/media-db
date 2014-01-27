@@ -3,7 +3,7 @@ from defined_media.models import Compounds
 
 class MediaNamesTestCase(TestCase):
     def setUp(self):
-        print 'fart'
+        pass
 
     def test_media_names(self):
         comp144=Compounds(compid=144)

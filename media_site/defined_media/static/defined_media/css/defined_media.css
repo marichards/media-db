@@ -8,6 +8,7 @@ body {
     width:100%;
     position:relative;
     overflow:hidden;
+    background-color: white;
 }
 #container1 {
     float:left;

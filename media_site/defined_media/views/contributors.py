@@ -35,7 +35,8 @@ class NewMediaView(FormView):
             gd=GrowthData.objects.get(growthid=kwargs['pk'])
             self.gd=gd
             user=request.user
-            if gd.contributor_id != user.contributor.id:
+            if not user.contributor.can_edit_gd(gd):
+#            if gd.contributor_id != user.contributor.id:
                 log.debug('gd.contributor_id=%d, user.contributor.id=%d' % (gd.contributor_id, user.contributor.id))
                 return redirect('forbidden')
 
@@ -49,23 +50,35 @@ class NewMediaView(FormView):
     # login_required, as per urls.py
 #    @transaction.atomic()
     def post(self, request, *args, **kwargs):
+        log.debug('hi from contributors.post')
         form=NewMediaForm(request.POST)
 
+        # fixme: this only reports on certain errors; omits errors in get_organism, etc.
+        '''
         if not form.is_valid():
             log.debug('form is invalid, aborting')
             form.reformat_errors()
             return self.form_invalid(form)
+        '''
+        form.is_valid()   # checks errors, allows processing to continue
 
-        try:
+
+        try:                    # finally only; reformats errors
             org=self.get_organism(form)
             source=self.get_source(form)
             media_name=self.get_media_name(form)
 
+            growth_data=self.get_growth_data(form, org, source, media_name)
+            clone=growth_data.find_clone()
+            log.debug('looking for clone; got: %r' % clone)
+            if clone is not None:
+                raise IntegrityError('A growth record with the same basic information (strain, media name, source, growth rate, ph, and temperature) already exists')
+
 #            with transaction.atomic():
-            try:
-                try: 
-                    growthid=request.POST['growthid']
-                    old_gd=GrowthData.objects.get(growthid=int(growthid)) # here
+            try:                # catches IntegrityErrors, does rollbackr
+                try:            # do full_delete if growthid present in form
+                    growthid=int(request.POST['growthid'])
+                    old_gd=GrowthData.objects.get(growthid=growthid) 
                     old_gd.full_delete()
                 except (KeyError, ValueError) as e:
                     log.debug('no valid growthid in form, not trying to call full_delete')
@@ -73,8 +86,7 @@ class NewMediaView(FormView):
 
                 media_name.save()
 
-                growth_data=self.get_growth_data(form, org, source, media_name)
-                growth_data.save()  # this can barf on IntegrityError: duplicate entry '8-304-113-1-7-35' for key 'unique_conditions' ????
+                growth_data.save()  
                 log.debug('growth_data saved: growthid=%d' % growth_data.growthid)
 
                 media_comps=self.get_media_comps(form, media_name)
@@ -89,10 +101,14 @@ class NewMediaView(FormView):
                 log.debug('yay! commitment!')
             except IntegrityError as ie:
                 log.debug('caught %s: %s; rolling back' % (type(ie), ie))
+                log.exception(ie)
                 log.debug('growth_data is: %r' % growth_data)
                 transaction.rollback()
                 form.errors['Error']=str(ie)
 
+        except:
+            pass                # fixme: if this is the case, why bother raising exceptions? 
+                                # at least, non-Integrity errors (eg Organisms.DoesNotExist
         finally:
             form.reformat_errors()
 
@@ -105,10 +121,19 @@ class NewMediaView(FormView):
 
 
     def get_organism(self, form):
+        genus, species, strain, new_org=form.get_organism_name()
+
+        if new_org:
+            typeid=form.get1('new_org_type')
+            new_type=TypesOfOrganisms.objects.get(typeid=typeid)
+            org=Organisms(genus=genus, species=species, strain=strain, typeid=new_type)
+            org.save()
+            return org
+
         try:
-            return Organisms.objects.get(genus=form.get1('genus'),
-                                        species=form.get1('species'),
-                                        strain=form.get1('strain'))
+            return Organisms.objects.get(genus=genus,
+                                        species=species,
+                                        strain=strain)
         except Organisms.DoesNotExist, e:
             form.errors['Organism']="No such organism: "+str(e)
             raise e
@@ -118,7 +143,8 @@ class NewMediaView(FormView):
             return MediaNames.objects.get(media_name=form.get1('media_name'))
         except MediaNames.DoesNotExist:
             try:
-                is_defined='Y' if 'is_defined' in self.request.POST else 'N'
+#                is_defined='Y' if 'is_defined' in self.request.POST else 'N'
+                is_defined='Y'  # always
                 is_minimal='Y' if 'is_minimal' in self.request.POST else 'N'
                 
                 args={'media_name': form.get1('media_name'),
@@ -146,6 +172,7 @@ class NewMediaView(FormView):
 
     def get_growth_data(self, form, org, source, media_name):
         args={'strainid': org,
+              'contributor_id': form.get1('contributor_id'),
               'medid': media_name,
               'sourceid': source,
               'growth_rate': form.get1('growth_rate'),

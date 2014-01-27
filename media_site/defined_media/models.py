@@ -9,7 +9,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-import re, inspect, logging
+import re, inspect, logging, copy
 from lazy import lazy
 
 log=logging.getLogger(__name__)
@@ -150,8 +150,8 @@ class GrowthData(models.Model):
 
     def __repr__(self):
         return "GrowthData(%s) %s: org(%s)=%s, media_name(%s)=%s, sourceid(%s)=%s, measureid(%s)=%s" % \
-            (self.growthid, self.contributor, self.strainid_id, self.strainid, self.medid_id, self.medid, 
-             self.sourceid_id, self.sourceid, self.measureid_id, self.measureid)
+            (self.growthid, self.contributor, self.strainid_id, self.strainid, self.medid_id, 
+             self.medid, self.sourceid_id, self.sourceid, self.measureid_id, self.measureid)
 
 
     def media_compounds_dicts(self):
@@ -183,25 +183,29 @@ class GrowthData(models.Model):
 
     def as_dict(gd):
         d={
-            'growthid':      gd.growthid,
-            'genus':         gd.strainid.genus,
-            'species' :      gd.strainid.species,
-            'strain' :       gd.strainid.strain,
+            'contributor_id': gd.contributor_id,
+            'genus':          gd.strainid.genus,
+            'species' :       gd.strainid.species,
+            'strain' :        gd.strainid.strain,
 
-            'media_name' :   gd.medid.media_name,
-            'is_defined' :   gd.medid.is_defined,
-            'is_minimal' :   gd.medid.is_minimal,
+            'media_name' :    gd.medid.media_name,
+            'is_defined' :    gd.medid.is_defined,
+            'is_minimal' :    gd.medid.is_minimal,
 
-            'first_author' : gd.sourceid.first_author,
-            'journal' :      gd.sourceid.journal,
-            'year' :         gd.sourceid.year,
-            'title' :        gd.sourceid.title,
-            'link' :         gd.sourceid.link,
-            
-            'growth_rate' :  gd.growth_rate,
-            'temperature' :  gd.temperature_c,
-            'ph' :           gd.ph,
+            'first_author' :  gd.sourceid.first_author,
+            'journal' :       gd.sourceid.journal,
+            'year' :          gd.sourceid.year,
+            'title' :         gd.sourceid.title,
+            'link' :          gd.sourceid.link,
+             
+            'growth_rate' :   gd.growth_rate,
+            'temperature' :   gd.temperature_c,
+            'ph' :            gd.ph,
             }
+
+        if hasattr(gd, 'growthid'):
+            d['growthid']=gd.growthid # clon3d gds lack this
+            
 
         # make comp1 and amount1 key/value pairs:
         n=1
@@ -233,6 +237,104 @@ class GrowthData(models.Model):
         # delete self
         self.delete()
 
+    def find_clone(self):
+        '''
+        find a growth data record that would cause self.save() to fail due to the 'unique_conditions' index:
+        '''
+        try:
+            args={
+                'strainid':self.strainid,
+                'medid':self.medid,
+                'sourceid':self.sourceid,
+                'growth_rate':self.growth_rate,
+                'ph':self.ph,
+                'temperature_c':self.temperature_c,
+                }
+            return GrowthData.objects.get(**args)
+        except GrowthData.DoesNotExist:
+            return None
+
+
+    def clone_and_save(self, contributor=None):
+        '''
+        clones may share: medid, contributor, strainid, sourceid, or any of the basic
+        info.  BUT: they can't share ALL of it.  So we create a new MediaNames object,
+        change its media_name field (by appending ' (clone)', and use that to satisfy
+        the uniqueness constraint.
+        '''
+        if contributor is None:
+            contributor=Contributor.objects.get(id=self.contributor_id)
+        clone=copy.copy(self)
+        clone.growthid=None
+        clone.contributor_id=contributor.id
+        clone.medid=self.medid.clone_and_save()
+        clone.save()
+
+        # have to copy medianames and secretionuptake objects:
+        '''
+        goddamit
+        In order to make copies of secretionuptake objects,
+        we need to set their growthid reference to the new
+        gd's growthid.  But that doesn't exist, until we save 
+        the new gd.  But saving a clone is going to trip against
+        the 'unique_conditions' index, unless we change one of
+        the contraints.  media_name is the best candidate for that
+        (append a "clone of %growthdata_id" to the name), but then
+        we also have to copy all of the media_compound objects.
+        
+        So we're at the point of saving all new versions of media_compound
+        objects and secretionuptake objects....  AND we have to save the new
+        gd object as well, in order for all this to work.
+        '''
+        for su in self.secretionuptake_set.all():
+            new_su=copy.copy(su)
+            new_su.secretionuptakeid=None
+            su.growthid=clone
+            su.save()
+
+        return clone
+
+    def equals(self, other):
+        # ignore growthid unless both are defined:
+        '''
+        try:
+            self_id=self.growthid
+            other_id=other.growthid
+            if self_id != None and other_id != None and self_id != other_id:
+                log.debug('returning False on self_id: %s, other_id=%s' % (self_id, other_id))
+                return False
+        except NameError:
+            pass
+        '''
+
+        if self.contributor_id != other.contributor_id:
+            log.debug('returning False on contributor_id: %s vs %s' % (self.contributor_id, other.contributor_id))
+            return False
+        if self.strainid_id != other.strainid_id: 
+            log.debug('returning False on strainid')
+            return False
+        if self.medid_id != other.medid_id:
+            log.debug('returning False on medid: %s vs %s' % (self.medid_id, other.medid_id))
+            return False
+        if self.sourceid_id != other.sourceid_id:
+            log.debug('returning False on sourceid')
+            return False
+        
+        for attr in 'growth_rate growth_units ph temperature_c'.split(' '):
+            if getattr(self, attr) != getattr(other, attr):
+                log.debug('returing False on %s' % attr)
+                return False
+            
+        if not self.medid._compound_list_equal(other.medid):
+            log.debug('returning False on compound_list')
+            return False
+
+        log.debug('returing True')
+        return True
+
+
+    def not_equals(self, other):
+        return not self.equals(other)
 
 class Measurements(models.Model):
     measureid = models.AutoField(primary_key=True, db_column='measureID') # Field name made lowercase.
@@ -255,6 +357,7 @@ class MediaCompounds(models.Model):
 
     def __repr__(self):
         return 'MediaCompound %d: medid=%s, compid=%s, amount_mm=%g' % (self.medcompid, self.medid, self.compid, self.amount_mm)
+
 
 class MediaNames(models.Model):
     medid = models.AutoField(primary_key=True, db_column='medID') # Field name made lowercase.
@@ -283,10 +386,6 @@ class MediaNames(models.Model):
     def keywords(self):
 	return [self.media_name]
 
-    def __repr__(self):
-        return '%s: id=%d, media_name=%s' % (type(self), self.medid, self.media_name)
-
-
     def sorted_compounds(self):
         ''' return a list of compounds for the MediaCompound, sorted on name '''
         # return sorted(self.mediacompounds_set.all(), key=lambda c: c.compid.keywords()[0]) # some compounds have no keywords, so keywords()[0] barfs
@@ -302,6 +401,43 @@ class MediaNames(models.Model):
 
     def uniq_sources(self):
         return list(set([x.sourceid for x in self.growthdata_set.all()]))
+
+    def _compound_list_equal(self, other):
+        s_comps=self.mediacompounds_set
+        o_comps=other.mediacompounds_set
+        if s_comps.count() != o_comps.count():
+            log.debug('_cle: returning False on differing length')
+            return False
+
+        s_set=set([c for c in s_comps.all()])
+        o_set=set([c for c in o_comps.all()])
+        if s_set!=o_set: 
+            log.debug('_cle: returning False on set inequality')
+            return False
+
+        for s_mc in s_set:      # not sure this doesn't duplicate functionality above
+            if s_mc not in o_set:
+                log.debug('_cle: returning False on %s' % s_mc)
+                return False
+
+        log.debug('_cle: returning True')
+        return True
+
+
+    def clone_and_save(self):
+        '''
+        make a clone of an existing MediaName object, store to db
+        ''' 
+        clone=copy.copy(self)
+        clone.medid=None
+        clone.media_name=self.media_name+' (clone)'
+        clone.save()
+        
+        for mc in self.mediacompounds_set.all():
+            mc.medcompid=None
+            mc.medid=clone
+            mc.save()
+        return clone
 
 class NamesOfCompounds(models.Model):
     nameid = models.AutoField(primary_key=True, db_column='nameID') # Field name made lowercase.
@@ -375,6 +511,7 @@ class SecretionUptake(models.Model):
     def __repr__(self):
         return 'SecretionUptake %s: growth=%s, compound=%s, rate=%s, units=%s, rateid=%s' \
             %(self.secretionuptakeid, self.growthid, self.compid, self.rate, self.units, self.rateid)
+
 
 class SecretionUptakeKey(models.Model):
     rateid = models.AutoField(primary_key=True, db_column='rateID') # Field name made lowercase.
@@ -488,6 +625,7 @@ class Contributor(models.Model):
     last_name=models.CharField(max_length=64, editable=False)
     user=models.OneToOneField(User)
     lab=models.ForeignKey('Lab')
+
     class Meta:
         db_table='contributor'
     
@@ -498,10 +636,21 @@ class Contributor(models.Model):
         return '%s %s (%s, lab=%s)' % (self.first_name, self.last_name, self.user.username, self.lab)
 
     def can_edit_gd(self, gd):
-        return self.user.is_superuser or (self.user.is_active and self==gd.contributor)
+        log.debug('contributor %s: is_superuser=%s, is_active=%s, self.id=%d, gd.id=%d' % (self, self.user.is_superuser, self.user.is_active, self.id, gd.contributor_id))
+        return self.user.is_superuser or (self.user.is_active and self.id==gd.contributor_id)
+
+    def editable_gds(self):
+        log.debug('editable_gds: user is %s' % self.user)
+        if self.user.is_superuser:
+            log.debug('superuser! returning all gds')
+            return GrowthData.objects.all()
+        else:
+            log.debug('muggle :( only returning loser gds')
+            return GrowthData.objects.filter(contributor_id=self.id)
 
     def name(self):
         return '%s %s' % (self.first_name, self.last_name)
+        
 
 class Lab(models.Model):
     name=models.CharField(max_length=64, unique=True)

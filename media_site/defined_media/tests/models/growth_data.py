@@ -130,3 +130,4 @@ class TestGrowthData(TestCase):
             self.assertEqual(n_orgs0, n_orgs1, 'Organisms: %d -> %d' % (n_orgs0, n_orgs1))
             self.assertEqual(n_comps0, n_comps1, 'Compounds: %d -> %d' % (n_comps0, n_comps1))
 
+

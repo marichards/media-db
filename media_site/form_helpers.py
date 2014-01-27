@@ -26,8 +26,8 @@ class Gets1(object):
     '''
     def get1(self, key, cls=None):
         ''' I cannot fucking figure out when form.cleaned_data[some_key] is a list or not: 
-            This should not raise any exceptions other than KeyError, or a TypeError/ValueError 
-            when cls != None
+            This should not raise any exceptions other than KeyError, (when key not in 
+            self.cleaned_data) or a TypeError/ValueError when cls != None
         '''
         maybe_a_list=self.cleaned_data[key] # this can throw
         try:
@@ -35,7 +35,7 @@ class Gets1(object):
         except TypeError:
             is_scalar=True
         except IndexError as e: # could be an empty string...
-            log.debug('caught %s: %s; maybe_a_list(%s) is "%s"' % (type(e), e, type(maybe_a_list), maybe_a_list))
+            log.debug('get1: caught %s: %s; key=%s, maybe_a_list(%s) is "%s"' % (type(e), e, key, type(maybe_a_list), maybe_a_list))
 #            if maybe_a_list=="": return ""
 #            if maybe_a_list==None: return None
             is_scalar=True      # this is untrue, but makes the logic below work...

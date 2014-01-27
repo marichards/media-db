@@ -32,20 +32,29 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
         self.fields['genus']=forms.ChoiceField(required=True, label='Genus', 
                                                choices=[(x,x) for x in genuss])
 
-    growthid=forms.CharField(required=False, widget=forms.HiddenInput)
+    growthid=forms.IntegerField(required=False, widget=forms.HiddenInput)
+    contributor_id=forms.IntegerField(required=True, widget=forms.HiddenInput)
 
     species=forms.ChoiceField(required=True, label='Species', choices=())
     strain=forms.ChoiceField(required=True, label='Strain', choices=())
+
+    new_genus=forms.CharField(label='New Genus', required=False)
+    new_species=forms.CharField(label='New Species', required=False)
+    new_strain=forms.CharField(label='New Strain', required=False)
+    org_type_choices=[(t.typeid, t.organism_type) for t in TypesOfOrganisms.objects.all()]
+    new_org_type=forms.ChoiceField(label='New Type', choices=org_type_choices, required=False)
+
+                                   
 
     media_name=forms.CharField(required=True, label='Media Name',
                                widget=forms.TextInput(attrs={'size': 75}))
     is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
     is_minimal=forms.CharField(label='Is minimal?', widget=forms.CheckboxInput)
 
-    pmid=forms.CharField(required=False, label='Pubmed ID')
+    pmid=forms.IntegerField(required=False, label='Pubmed ID')
     first_author=forms.CharField(label='First Author')
     journal=forms.CharField(label='Journal', max_length=255)
-    year=forms.CharField(label='Year')
+    year=forms.IntegerField(label='Year')
     title=forms.CharField(label='Title', max_length=255)
     link=forms.CharField(label='Link', max_length=255)
 
@@ -142,10 +151,54 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
                 self.errors['uptake%s' % n]='Uptake %s: These fields are required: %s' % (n, ', '.join(missing))
 
         for k,v in self.errors.items():
-            log.debug('errors: %s -> %s' % (k,v))
+            log.debug('is_valid: errors: %s -> %s' % (k,v))
         return len(self.errors)==0
 
 
-class OrganismForm(forms.ModelForm):
-    class Meta:
-        model=Organisms
+    def get_organism_name(self):
+        ''' return a tuple of genus, species, stain, and new_org (bool). 
+        Also writes to self.errors if new org fields incompletely 
+        specify a new org.
+        '''
+        species=None
+        strain=None
+        genus=self.get1('new_genus')
+        new_org=False
+
+        if genus:               # new genus
+            species=self.get1('new_species')
+            if not species:
+                self.errors['new_species']='New genus requires new species'
+
+            strain=self.get1('new_strain')
+            if not strain:
+                self.errors['new_strain']='New genus requires new strain'
+
+            if species and strain:
+                new_org=True
+        else:
+            genus=self.get1('genus')
+
+        if not species:         # no new genus
+            species=self.get1('new_species')
+            if species:         # new species
+                strain=self.get1('new_strain')
+                if not strain or new_org: # new_org from new_genus
+                    self.errors['new_strain']='New species requires new strain'
+                else:
+                    new_org=True
+            else:
+                species=self.get1('species')
+
+        if not strain:
+            strain=self.get1('new_strain')
+            if strain:
+                new_org=True
+            else:
+                strain=self.get1('strain')
+
+        return genus, species, strain, new_org
+
+#class OrganismForm(forms.ModelForm):
+#    class Meta:
+#        model=Organisms

@@ -8,11 +8,14 @@
 {% endblock %}
 
 {% block content %}
-<h2>Enter Media Information:{% if gd %}{{ gd.medid.media_name }}{% endif %}</h2>
+<h2>Enter Media Information:{% if gd %} {{ gd.medid.media_name }}{% endif %}</h2>
+
+{% if gd %}<a href='{% url 'clone_growth_data' gd.growthid %}'>Clone this record</a>{% endif %}
 
 <form id='id_newmedia_form' action='' method='post'>
 {% csrf_token %}
 {{ form.growthid }}
+{{ form.contributor_id }}
 
 <!-- errors start -->
 {% if form.my_errors %}{{ form.my_errors|length }} Errors
@@ -31,7 +34,31 @@
 
 <h4>Organism:</h4>
 <table id='id_organism_table'>
-<tr><td>Genus: {{ form.genus }}</td><td>Species: {{ form.species }}</td><td>Strain: {{ form.strain }}</td></tr>
+<tr><td>{{ form.genus.label }}</td><td>{{ form.genus }}</td>
+    <td>{{ form.species.label }}</td><td>{{ form.species }}</td>
+    <td>{{ form.strain.label }}</td><td>{{ form.strain }}</td>
+</tr>
+<tr><td colspan='6'>&nbsp;</td></tr>
+<tr><td colspan='6'>To define a new organism, fill in the following fields.  Otherwise, leave them blank.</td></tr>
+<tr>
+  <td>{{ form.new_genus.label }}</td>
+  <td>{{ form.new_genus }}</td>
+  <td><span class='error'>{{ form.my_errors.new_genus }}</span></td>
+</tr>
+<tr>
+  <td>{{ form.new_species.label }}</td>
+  <td>{{ form.new_species }}</td>
+  <td><span class='error'>{{ form.my_errors.new_species }}</span></td></td>
+</tr>
+<tr>
+  <td>{{ form.new_strain.label }}</td>
+  <td>{{ form.new_strain }}</td>
+  <td><span class='error'>{{ form.my_errors.new_strain }}</span></td></td>
+</tr>
+<tr>
+  <td>{{ form.new_org_type.label }}</td>
+  <td>{{ form.new_org_type }}</td>
+</tr>
 </table>
 
 <h4>Source:</h4>
@@ -132,4 +159,9 @@
 </table>
 
 </form>
+
+<!--
+{{ form }}
+-->
+
 {% endblock %}

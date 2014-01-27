@@ -17,14 +17,14 @@ class ViewFixture(TestCase):
         '''
         loop through classes defined in models.py, report number of rows in table for that class
         '''
-        ss=snapshot()
+        ss=snapshot(self, 'view_summary')
         for cls in sorted(ss.keys()):
             count=ss[cls]
             if count>0:
                 print '%-20s: %d rows' % (cls.__name__, count) 
 
     def test_view_fixture(self):
-        for cls in snapshot().keys():
+        for cls in snapshot(self, 'view_fixture').keys():
             print cls.__name__
             n=0
             for obj in cls.objects.all():
@@ -43,5 +43,5 @@ class ViewFixture(TestCase):
 
 
     def test_snapshot(self):
-        for cls, count in snapshot().items():
+        for cls, count in snapshot(self, 'snapshot').items():
             print '%s -> %s' % (cls, count)
