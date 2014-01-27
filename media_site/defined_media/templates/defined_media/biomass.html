@@ -3,15 +3,16 @@
 {% block title %}Media database: Biomass{% endblock %}
 
 {% block content %}
-{% if biomass_list %}
-	<p>Here are the biomass compositions</p>
+
+{% if object_list %}
+	<p>Biomass Compositions {{ page_obj.start_index }} - {{ page_obj.end_index }}</p>
 
 	<ul>
-	{% for biomass in biomass_list %}
-		<li><a href="{% url 'biomass_record' biomass.biomassid %}">{{ biomass }}</a></li>
+	{% for biomass in object_list %}
+		<li><a href="{% url 'biomass_record' biomass.biomassid %}"> {{ biomass }}</a></li>
 	{% endfor %}
 	</ul>
 {% else %}
-	<p>No biomasses are available.</p>
+	<p>No biomass compositions are available.</p>
 {% endif %}
 {% endblock %}
