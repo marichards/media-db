@@ -120,44 +120,7 @@ div.search_form_inner {
     bottom: 17px;
 }
 
-div.search_form_inner form {
-}
-/*
-    float:right; 
-*/
-}
-.content_tab {
-
-}
-
-#loading {
-   z-index:100;
-   position:absolute;
-   visibility:hidden;
-   text-align:center;
-   width:400px;
-   margin:0px;
-   padding:0px;
-   background-color:#fff;
-   border:1px solid #ccc;
-}
-
-#upload_target {
-    width:0px;
-    height:0px;
-    border:0px;
-}
-
-#upload_iframe {
-    width:400px;
-    height:400px;
-    border:0px;
-}
-
 span.error {
     color: red;
 }
 
-table#id_source_table td input {
-    width: 500px;
-}
