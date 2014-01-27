@@ -7,5 +7,5 @@ class TestNewContributor(TestCase):
         self.client=Client()
         
     def test_new_contributor_form(self):
-        reg_url=reverse('register')
+        reg_url=reverse('register_new_user')
         print 'reg_url is %s' % reg_url

@@ -6,15 +6,19 @@ from defined_media.forms import NewMediaForm
 from defined_media.views.contributors import NewMediaView
 from defined_media.tests.snapshot import snapshot, compare_snapshots
 
-#from django.test.client import Client
-#from django.core.urlresolvers import reverse
 
 log=logging.getLogger(__name__)
 
 class TestGetOrganism(TestCase):
+    '''
+    This tests the functionality that gets the organism name.  That code 
+    should have originally been written in the forms.NewMediaForm, where it 
+    now lives, but originally it wasn't and I'm too lazy to move this test 
+    under test.forms.
+    '''
+
     fixtures=['fixture.json']
     def setUp(self):
-#        self.client=Client()
         pass
     def tearDown(self):
         pass

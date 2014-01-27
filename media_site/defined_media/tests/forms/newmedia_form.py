@@ -22,6 +22,8 @@ class TestNewmedia_Form(TestCase):
             self._test_valid(k)
 
     def test_missing_uptake(self): # is still valid
+        for k,v in newmedia_inputs['minimal_valid']['args'].items():
+            log.debug('minimal: %s=%s' % (k,v))
         self._test_valid('minimal_valid')
 
     def test_full(self):

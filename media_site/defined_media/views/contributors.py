@@ -121,45 +121,8 @@ class NewMediaView(FormView):
 
 
     def get_organism(self, form):
-        species=None
-        strain=None
-        genus=form.get1('new_genus')
-        new_org=False
+        genus, species, strain, new_org=form.get_organism_name()
 
-        if genus:               # new genus
-            species=form.get1('new_species')
-            if not species:
-                form.errors['new_species']='New genus requires new species'
-
-            strain=form.get1('new_strain')
-            if not strain:
-                form.errors['new_strain']='New genus requires new strain'
-
-            if species and strain:
-                new_org=True
-        else:
-            genus=form.get1('genus')
-
-        if not species:         # no new genus
-            species=form.get1('new_species')
-            if species:         # new species
-                strain=form.get1('new_strain')
-                if not strain or new_org: # new_org from new_genus
-                    form.errors['new_strain']='New species requires new strain'
-                else:
-                    new_org=True
-            else:
-                species=form.get1('species')
-
-        if not strain:
-            strain=form.get1('new_strain')
-            if strain:
-                new_org=True
-            else:
-                strain=form.get1('strain')
-        
-        for k,v in form.errors.items():
-            log.debug('get_org: form.errors[%s]=%s' % (k,v))
         if new_org:
             typeid=form.get1('new_org_type')
             new_type=TypesOfOrganisms.objects.get(typeid=typeid)
