@@ -1,0 +1,21 @@
+{% extends "defined_media/base.html" %}
+
+{% block title %}Media database: Biomass{% endblock %}
+
+{% block content %}
+
+{% if object_list %}
+        Biomass Compositions:
+	<ul>
+	{% for biomass in object_list %}
+		<li><a href="{% url 'biomass_record' biomass.biomassid %}"> {{ biomass }}</a></li>
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No biomass compositions are available.</p>
+{% endif %}
+<div>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+{% endblock %}
