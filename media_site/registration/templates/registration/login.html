@@ -50,19 +50,19 @@ table.login th {
 	  {% csrf_token %}
 	  <table class='login'>
 	    <tr><th><label for="id_username">Username:</label></th>
-	      <td><input id="id_username" maxlength="64" name="username" type="text" value='{{ registration_form.username.value }}' /></td>
+	      <td><input id="id_username" maxlength="64" name="username" type="text" {% if registration_form.username.value %}value='{{ registration_form.username.value }}'{% endif %} /></td>
 	      <td><span class='error'>{{ registration_form.my_errors.username }}</span></td>
 	    </tr>
 	    <tr><th><label for="id_first_name">First Name:</label></th>
-	      <td><input id="id_first_name" maxlength="64" name="first_name" type="text" value='{{ registration_form.first_name.value }}' /></td>
+	      <td><input id="id_first_name" maxlength="64" name="first_name" type="text" {% if registration_form.first_name.value %}value='{{ registration_form.first_name.value }}'{% endif %} /></td>
 	      <td><span class='error'>{{ registration_form.my_errors.first_name }}</span></td>
 	    </tr>
 	    <tr><th><label for="id_last_name">Last Name:</label></th>
-	      <td><input id="id_last_name" maxlength="64" name="last_name" type="text" value='{{ registration_form.last_name.value }}' /></td>
+	      <td><input id="id_last_name" maxlength="64" name="last_name" type="text" {% if registration_form.last_name.value %}value='{{ registration_form.last_name.value }}'{% endif %} /></td>
 	      <td><span class='error'>{{ registration_form.my_errors.last_name }}</span></td>
 	    </tr>
 	    <tr><th><label for="id_email">Email:</label></th>
-	      <td><input id="id_email" name="email" type="email" value='{{ registration_form.email.value }}' /></td>
+	      <td><input id="id_email" name="email" type="email" {% if registration_form.email.value %}value='{{ registration_form.email.value }}'{% endif %} /></td>
 	      <td><span class='error'>{{ registration_form.my_errors.email }}</span></td>
 	    </tr>
 	    <tr><th><label for="id_password1">Password:</label></th>
@@ -74,10 +74,11 @@ table.login th {
 	      <td><span class='error'>{{ registration_form.my_errors.password2 }}</span></td>
 	    </tr>
 	    <tr><th><label for="id_lab">Lab:</label></th>
-	      <td><input id="id_lab" maxlength="255" name="lab" type="text" value='{{ registration_form.lab.value }}' /></td>
+	      <td><input id="id_lab" maxlength="255" name="lab" type="text" {% if registration_form.lab.value %}value='{{ registration_form.lab.value }}'{% endif %} /></td>
 	      <td><span class='error'>{{ registration_form.my_errors.lab }}</span></td>
 	    </tr>
-	    <tr><th><label for="id_lab_url">Lab Url:</label></th><td><input id="id_lab_url" maxlength="255" name="lab_url" type="url" value='{{ registration_form.lab_url.value }}' /></td></tr>
+	    <tr><th><label for="id_lab_url">Lab Url:</label></th><td><input id="id_lab_url" maxlength="255" name="lab_url" type="url" 
+									    {% if registration_form.lab_url.value %}value='{{ registration_form.lab_url.value }}'{% endif %} /></td></tr>
 	    
 	    <tr><td><input type='submit' value='Register' /></td></tr>
 	  </table>
@@ -87,6 +88,4 @@ table.login th {
   </tr>
 </table>
 
-{% if registration_form %}form is here{% else %}form is not here{% endif %}
-{% if fart2 %}fart2 is here{% else %}fart2 is not here{% endif %}
 {% endblock %}
