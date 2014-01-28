@@ -57,6 +57,7 @@ X - growth rate, temperature, and ph not required
 - add formulas from dumps/keggcompounds.txt (needs parser)
 - add formulas to search (and to CompoundManager.with_name)
 X - get rid of <!-- {{ form }} --> in production version of newmedia_form.html (????)
+
 - why no contributor_id?? In regular newmedia_form submission?
 - this:
 Traceback:
@@ -79,6 +80,7 @@ Exception Type: DoesNotExist at /profile/vcassen
 Exception Value: 
 
 - How to retain compound information when form submission fails?
+- add other compound ids to search.
 - get rid of product/reactant tables, compounds.user_id 
 - export csv file of media record
 - downloads page

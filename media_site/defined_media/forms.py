@@ -62,11 +62,11 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
     comp1=forms.CharField(required=True, label='Compound')
     amount1=forms.FloatField(required=True, label='Amount (Mm)', min_value=0)
 
-    growth_rate=forms.FloatField(min_value=0, required=True, label='Growth Rate',
+    growth_rate=forms.FloatField(min_value=0, required=False, label='Growth Rate',
                                  widget=forms.TextInput(attrs={'size':8}))
-    temperature=forms.FloatField(min_value=0, required=True, label='Temperature',
+    temperature=forms.FloatField(min_value=0, required=False, label='Temperature',
                                  widget=forms.TextInput(attrs={'size':8}))
-    ph=forms.FloatField(min_value=0, required=True, label='ph',
+    ph=forms.FloatField(min_value=0, required=False, label='ph',
                                  widget=forms.TextInput(attrs={'size':8}))
 
     uptake_comp1=forms.CharField(label='Compound', required=False)
