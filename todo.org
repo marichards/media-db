@@ -17,13 +17,14 @@ Z - Add link to login/user profile page to nav
     a new one if not found.
 - - verify appropriate error message on submission of duplicate form (even though that's unlikely)
 
-- Add new organism form
+X - Add new organism form
 Z - Add ISB styling (and then styling in general)
 - still a few small things in /mnt/price3/Matt/Media DB Project/minor website fixes.txt
 Z - put in collapsable fields for things like media compounds, search results, etc.
 - want to be able to search growth-data records?
 
 - getting weird bug in logfile: iterating over a string instead of a list somewhere in newmedia form (compound/amount recipies)
+- Add a link back to home page at top of navbar.
 
 ** Add custom users/authentication (do a side project?)
 - basics done, needs more testing

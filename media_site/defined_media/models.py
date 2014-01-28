@@ -61,9 +61,6 @@ class CompoundReplacements(models.Model):
         db_table = 'compound_replacements'
 
 class CompoundManager(models.Manager):
-    '''
-    fixme: add in formulas
-    '''
     def with_name(self, name):
         try:
             return Compounds.objects.get(name=name)
@@ -81,7 +78,7 @@ class CompoundManager(models.Manager):
         except NamesOfCompounds.DoesNotExist, e:
             pass
 
-
+        
         raise Compounds.DoesNotExist(e) 
 
 class Compounds(models.Model):
@@ -110,14 +107,18 @@ class Compounds(models.Model):
 
     def keywords(self):
         nocs=[noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
+        log.debug('nocs1: %s' % ','.join(nocs))
         if (self.name and self.name != self.compid):
             nocs.insert(0, self.name)
+        log.debug('nocs2: %s' % ','.join(nocs))
 
         # add in various ids:
         for attr in 'formula seed_id kegg_id'.split(' '):
             if hasattr(self, attr) and getattr(self, attr):
                 nocs.append(getattr(self, attr))
+                log.debug('nocs-%s: %s' % (attr, ','.join(nocs)))
 
+        log.debug('nocs3: %s' % ','.join(nocs))
         return nocs
 
     def names(self):
@@ -135,9 +136,6 @@ class Compounds(models.Model):
         return 'http://seed-viewer.theseed.org/seedviewer.cgi?page=CompoundViewer&compound=%s&model=' % self.seed_id
 
     
-
-    def keywords(self):
-        return [x.name for x in self.namesofcompounds_set.all()]
 
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
