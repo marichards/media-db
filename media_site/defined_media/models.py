@@ -61,15 +61,28 @@ class CompoundReplacements(models.Model):
         db_table = 'compound_replacements'
 
 class CompoundManager(models.Manager):
+    '''
+    fixme: add in formulas
+    '''
     def with_name(self, name):
         try:
             return Compounds.objects.get(name=name)
         except Compounds.DoesNotExist:
-            try:
-                synonym=NamesOfCompounds.objects.get(name=name)
-                return synonym.compid
-            except NamesOfCompounds.DoesNotExist, e:
-                raise Compounds.DoesNotExist(e) 
+            pass
+
+        try:
+            return Compounds.objects.get(formula=name)
+        except Compounds.DoesNotExist:
+            pass
+
+        try:
+            synonym=NamesOfCompounds.objects.get(name=name)
+            return synonym.compid
+        except NamesOfCompounds.DoesNotExist, e:
+            pass
+
+
+        raise Compounds.DoesNotExist(e) 
 
 class Compounds(models.Model):
     compid = models.AutoField(primary_key=True, db_column='compID') # Field name made lowercase.

@@ -53,6 +53,38 @@ pubchem to kegg is 1:1
 
 
 
+- growth rate, temperature, and ph not required
+- add formulas from dumps/keggcompounds.txt (needs parser)
+- add formulas to search (and to CompoundManager.with_name)
+- get rid of <!-- {{ form }} --> in production version of newmedia_form.html (????)
+- why no contributor_id?? In regular newmedia_form submission?
+- this:
+Traceback:
+File "/users/vcassen/vpython2.7/lib/python2.7/site-packages/django/core/handlers/base.py" in get_response
+  115.                         response = callback(request, *callback_args, **callback_kwargs)
+File "/users/vcassen/vpython2.7/lib/python2.7/site-packages/django/contrib/auth/decorators.py" in _wrapped_view
+  25.                 return view_func(request, *args, **kwargs)
+File "/local/local_webservices/mediadb/mediadb/media_site/registration/views.py" in user_profile
+  92.         return user_profile_get(request, **kwargs)
+File "/local/local_webservices/mediadb/mediadb/media_site/registration/views.py" in user_profile_get
+  99.     reg_form=RegistrationForm.from_user(request.user)
+File "/local/local_webservices/mediadb/mediadb/media_site/registration/forms.py" in from_user
+  34.         lab=user.contributor.lab.name
+File "/users/vcassen/vpython2.7/lib/python2.7/site-packages/django/utils/functional.py" in inner
+  203.         return func(self._wrapped, *args)
+File "/users/vcassen/vpython2.7/lib/python2.7/site-packages/django/db/models/fields/related.py" in __get__
+  279.             raise self.related.model.DoesNotExist
+
+Exception Type: DoesNotExist at /profile/vcassen
+Exception Value: 
+
+- How to retain compound information when form submission fails?
+- add other compound ids to search.
+- get rid of product/reactant tables, compounds.user_id 
+- export csv file of media record
+- downloads page
+
+
 * Detail Pages:
 ORGANISM_RECORD:
 -Organism genus, species, strain
