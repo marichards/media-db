@@ -112,6 +112,12 @@ class Compounds(models.Model):
         nocs=[noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
         if (self.name and self.name != self.compid):
             nocs.insert(0, self.name)
+
+        # add in various ids:
+        for attr in 'formula seed_id kegg_id'.split(' '):
+            if hasattr(self, attr) and getattr(self, attr):
+                nocs.append(getattr(self, attr))
+
         return nocs
 
     def names(self):
