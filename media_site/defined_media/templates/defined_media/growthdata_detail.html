@@ -4,7 +4,12 @@
 
 {% block content %}
 <h2>Growth Data: {{ growthdata }}</h2>
-{% if request.user.is_authenticated %}<p><a href='{% url 'clone_growth_data' growthdata.growthid %}'>Clone this record</a></p>{% endif %}
+{% if request.user.is_authenticated %}<p>
+  {% if request.user.contributor.can_edit growthdata.growthid %}
+  <a href='{% url 'new_media_form' growthdata.growthid %}'>Edit this record</a>
+  {% endif %}
+  <a href='{% url 'clone_growth_data' growthdata.growthid %}'>Clone this record</a>
+</p>{% endif %}
 
 <table>
 <tr><td>Organism: </td>
