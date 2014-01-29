@@ -113,15 +113,9 @@ class NewMediaView(FormView):
         finally:
             form.reformat_errors()
 
-        log.debug('got here: %d form errors' % len(form.errors))
         if len(form.errors)==0:
             # we're redirecting towards ourself?  why?
-            log.debug('setting success message')
-            c=self.get_context_data(msg='Growth record successfully updated')
-            for k,v in c.items():
-                log.debug('c[%s]: %s' % (k,v)) # of course it's not showing up: we're redirecting to a whole new place
-                # maybe we should go to the growth_detail page from here?
-            url=reverse('new_media_form', args=(growth_data.growthid,))
+            url=reverse('growth_record', args=(growth_data.growthid,))
             return redirect(url)
         else:
             return self.form_invalid(form)

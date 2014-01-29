@@ -19,7 +19,7 @@
 {% if gd %}
 <p>
 <a href='{% url 'clone_growth_data' gd.growthid %}'>Clone this record</a><br />
-This record {% if gd.approved %}<b>is</b>{% else %}is not{% endif %} approved.<br />
+This record {% if gd.approved %}<b>is</b>{% else %}is not yet{% endif %} approved.<br />
 {% if request.user.is_superuser %}Approve this record: {{ form.approved }}{% endif %}
 </p>
 {% endif %}
