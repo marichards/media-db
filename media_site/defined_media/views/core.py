@@ -70,3 +70,8 @@ class GrowthDataListView(ListView):
 class GrowthDataDetail(DetailView):
     model=GrowthData
 
+    def get_context_data(self, **kwargs):
+        context=super(GrowthDataDetail,self).get_context_data(**kwargs)
+        context['can_edit']=self.request.user.contributor.can_edit_gd(context['growthdata'])
+        return context
+

@@ -10,12 +10,21 @@
 {% block content %}
 <h2>Enter Media Information:{% if gd %} {{ gd.medid.media_name }}{% endif %}</h2>
 
-{% if gd %}<a href='{% url 'clone_growth_data' gd.growthid %}'>Clone this record</a>{% endif %}
 
 <form id='id_newmedia_form' action='' method='post'>
 {% csrf_token %}
 {{ form.growthid }}
 {{ form.contributor_id }}
+
+{% if gd %}
+<p>
+<a href='{% url 'clone_growth_data' gd.growthid %}'>Clone this record</a><br />
+This record {% if gd.approved %}<b>is</b>{% else %}is not{% endif %} approved.<br />
+{% if request.user.is_superuser %}Approve this record: {{ form.approved }}{% endif %}
+</p>
+{% endif %}
+
+Message: {{ msg }}
 
 <!-- errors start -->
 {% if form.my_errors %}{{ form.my_errors|length }} Errors
@@ -29,7 +38,8 @@
 <table id='id_medianames_table'>
 <tr><td>{{ form.media_name.label }}</td><td>{{ form.media_name }}</td><td><span class='error'>{{ form.my_errors.media_name }}</span></td></tr>
 <tr>
-    <td>{{ form.is_minimal.label }}{{ form.is_minimal }}</td></tr>
+    <td>{{ form.is_minimal.label }}{{ form.is_minimal }}</td>
+</tr>
 </table>
 
 <h4>Organism:</h4>

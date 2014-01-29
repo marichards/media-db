@@ -53,6 +53,7 @@ class NewMediaView(FormView):
         log.debug('hi from contributors.post')
         form=NewMediaForm(request.POST)
 
+
         # fixme: this only reports on certain errors; omits errors in get_organism, etc.
         '''
         if not form.is_valid():
@@ -112,8 +113,14 @@ class NewMediaView(FormView):
         finally:
             form.reformat_errors()
 
+        log.debug('got here: %d form errors' % len(form.errors))
         if len(form.errors)==0:
-            log.debug('growth_data.growthid: %s' % growth_data.growthid)
+            # we're redirecting towards ourself?  why?
+            log.debug('setting success message')
+            c=self.get_context_data(msg='Growth record successfully updated')
+            for k,v in c.items():
+                log.debug('c[%s]: %s' % (k,v)) # of course it's not showing up: we're redirecting to a whole new place
+                # maybe we should go to the growth_detail page from here?
             url=reverse('new_media_form', args=(growth_data.growthid,))
             return redirect(url)
         else:
@@ -171,7 +178,8 @@ class NewMediaView(FormView):
         return med_comps
 
     def get_growth_data(self, form, org, source, media_name):
-        args={'strainid': org,
+        args={'approved': form.get1('approved'),
+              'strainid': org,
               'contributor_id': form.get1('contributor_id'),
               'medid': media_name,
               'sourceid': source,
