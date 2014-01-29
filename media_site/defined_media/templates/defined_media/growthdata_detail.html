@@ -4,8 +4,16 @@
 
 {% block content %}
 <h2>Growth Data: {{ growthdata }}</h2>
-{% if request.user.is_authenticated %}<p><a href='{% url 'clone_growth_data' growthdata.growthid %}'>Clone this record</a></p>{% endif %}
+{% if request.user.is_authenticated %}<p>
+  {% if can_edit %}
+  <a href='{% url 'new_media_form' growthdata.growthid %}'>Edit this record</a>
+  {% endif %}
+  <a href='{% url 'clone_growth_data' growthdata.growthid %}'>Clone this record</a>
+</p>{% endif %}
 
+<p>
+This record <b>{% if growthdata.approved %}is{% else %}is not yet{% endif %}</b> approved.<br />
+</p>
 <table>
 <tr><td>Organism: </td>
 <td><a href='{% url 'organism_record' growthdata.strainid_id%}'>{{ growthdata.strainid }}</a></td></tr>

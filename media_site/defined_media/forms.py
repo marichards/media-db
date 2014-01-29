@@ -32,6 +32,7 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
         self.fields['genus']=forms.ChoiceField(required=True, label='Genus', 
                                                choices=[(x,x) for x in genuss])
 
+    approved=forms.BooleanField(label='Approved', required=False) # otherwise will choke if not checked
     growthid=forms.IntegerField(required=False, widget=forms.HiddenInput)
     contributor_id=forms.IntegerField(required=True, widget=forms.HiddenInput)
 
@@ -43,8 +44,6 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
     new_strain=forms.CharField(label='New Strain', required=False)
     org_type_choices=[(t.typeid, t.organism_type) for t in TypesOfOrganisms.objects.all()]
     new_org_type=forms.ChoiceField(label='New Type', choices=org_type_choices, required=False)
-
-                                   
 
     media_name=forms.CharField(required=True, label='Media Name',
                                widget=forms.TextInput(attrs={'size': 75}))

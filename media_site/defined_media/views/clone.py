@@ -21,10 +21,8 @@ class CloneGrowthDataView(FormView):
             raise Http404()         # or something
 
         contributor=request.user.contributor
-        if not contributor.can_edit_gd(old_gd):
-            return redirect('forbidden')
-
         new_gd=old_gd.clone_and_save(contributor)
+        new_gd.approved=False;
         form=NewMediaForm.from_growth_data(new_gd)
 #        form.is_valid()         # why? to get form.cleaned_data?
 
