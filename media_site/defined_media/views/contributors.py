@@ -36,13 +36,11 @@ class NewMediaView(FormView):
             self.gd=gd
             user=request.user
             if not user.contributor.can_edit_gd(gd):
-#            if gd.contributor_id != user.contributor.id:
-                log.debug('gd.contributor_id=%d, user.contributor.id=%d' % (gd.contributor_id, user.contributor.id))
                 return redirect('forbidden')
 
             form=NewMediaForm.from_growth_data(gd)
         except (GrowthData.DoesNotExist, KeyError):
-            form=NewMediaForm()
+            form=NewMediaForm(initial={'contributor_id': request.user.contributor.id})
             
         return self.form_invalid(form) 
 
