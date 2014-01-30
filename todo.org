@@ -1,86 +1,46 @@
-see also matt.todo
 
 * Todo:
 - Polish style
 - - Still getting color screw-up when right content div is shorter than left (eg, forbidden page)
-- Add external links to Kegg, etc.
-- Email IT for SSL cert, configure for https only (including redirect from http)
-  Implement SSL all the time
-Z - Add link to newmedia when logged in
-Z - Display list of user's growth data records
-Z - Add link to login/user profile page to nav
-- Home, help pages
+- help pages
 - Clone growth_data records functionality
 - - possible bug: cloning a gd (shallow) copies things like medid, retaining a pointer to the original
     media_name record.  Editing the new gd record will probably affect the old media_name record?
     Maybe not; contributors.get_media_name does a lookup based on the value in the form, creates
     a new one if not found.
 - - verify appropriate error message on submission of duplicate form (even though that's unlikely)
+- - 
 
-X - Add new organism form
 Z - Add ISB styling (and then styling in general)
 - still a few small things in /mnt/price3/Matt/Media DB Project/minor website fixes.txt
 Z - put in collapsable fields for things like media compounds, search results, etc.
 - want to be able to search growth-data records?
 
 - getting weird bug in logfile: iterating over a string instead of a list somewhere in newmedia form (compound/amount recipies)
-- Add a link back to home page at top of navbar.
 
 ** Add custom users/authentication (do a side project?)
-- basics done, needs more testing
 - forgotten password functionality
 
 ** editing of existing gd records
 - basics done, needs more testing
-- - testing: make sure that a user only sees their gd records
 
 ** Mtg with Matt 22Nov
-*** merge seed ids into compounds, get rid of seed_compounds table
-*** get compound ids from external sources
 pubchem to kegg is 1:1
 
-*** get rid of organisms_sources
 *** reactants and products: leave for the moment
 *** compounds_exceptions and compounds_replacements: remove (after snapshotting)
-*** no longer need is_defined (always 'yes')
 
 
 ** Cloning
-- Test basic functionality
-- Test adding duplicate record
 - Test transactionality (really a test of views/contributor.py)
 - Add delete feature? (might not want to allow delete straight-away; rather, mark for delete and don't show marked records)
 - Add sharing of gd records (so that someone else can edit your record?); or, add clone link to gd detail page, with transfer of ownership.
+- Add an 'approved' field, only allow superusers to change it; only show growth data records that are approved.
 
 
 
-- growth rate, temperature, and ph not required
-- add formulas from dumps/keggcompounds.txt (needs parser)
-- add formulas to search (and to CompoundManager.with_name)
-- get rid of <!-- {{ form }} --> in production version of newmedia_form.html (????)
 - why no contributor_id?? In regular newmedia_form submission?
-- this:
-Traceback:
-File "/users/vcassen/vpython2.7/lib/python2.7/site-packages/django/core/handlers/base.py" in get_response
-  115.                         response = callback(request, *callback_args, **callback_kwargs)
-File "/users/vcassen/vpython2.7/lib/python2.7/site-packages/django/contrib/auth/decorators.py" in _wrapped_view
-  25.                 return view_func(request, *args, **kwargs)
-File "/local/local_webservices/mediadb/mediadb/media_site/registration/views.py" in user_profile
-  92.         return user_profile_get(request, **kwargs)
-File "/local/local_webservices/mediadb/mediadb/media_site/registration/views.py" in user_profile_get
-  99.     reg_form=RegistrationForm.from_user(request.user)
-File "/local/local_webservices/mediadb/mediadb/media_site/registration/forms.py" in from_user
-  34.         lab=user.contributor.lab.name
-File "/users/vcassen/vpython2.7/lib/python2.7/site-packages/django/utils/functional.py" in inner
-  203.         return func(self._wrapped, *args)
-File "/users/vcassen/vpython2.7/lib/python2.7/site-packages/django/db/models/fields/related.py" in __get__
-  279.             raise self.related.model.DoesNotExist
-
-Exception Type: DoesNotExist at /profile/vcassen
-Exception Value: 
-
-- How to retain compound information when form submission fails?
-- add other compound ids to search.
+- How to retain compound information when form submission fails?  Particularly compound/amount variable lists (and secretion/uptake)
 - get rid of product/reactant tables, compounds.user_id 
 - export csv file of media record
 - downloads page
@@ -125,7 +85,6 @@ GROWTH_RECORD:
 
 * matt.todo:
 SEARCH
-X -I get a lot of duplicates when I search a compound (e.g. I tried "Biotin" and got 22 compounds, but 8 were duplicates).  I don't seem to have the same problem with media
 
 INPUT FORM
 
@@ -133,28 +92,18 @@ INPUT FORM
 COMPOUNDS
 ! -We should get rid of all things that say "Transferred to D-----" because they're useless: victor: get rid of all these (double check first)
 
-X -On a Compound Record, I think we should change "0 common names" to "0 Alternate Names"
 ! -Can we add a compound formula as a column that shows up here?  I have the KEGG compounds file with all of those in it, the file just needs to be properly parsed
 -Once we've added formulas, can we incorporate that into the search results so people could search by chemical formula?
 ! -Still need to add the alternate classifiers (SEED, ChEBI, Pubchem) (pubchem is 1:1; other two are n:n; make changes to script, webpage; re-run script, actually save results this time) victor
 
-X -I want to hide our "compound IDs" and just use those behind the scenes if possible.  I don't want to add to the multiple identifier problem if possible
 
 MEDIA FORMULATIONS
 -I'd love to add a download ability so people can export a media formulation and choose to swap in different compound IDs if they so choose (ie, translate to different id set)
  (export a "recipe": tsv (most likely), use compound ids,  
-X -Let's take the "Mm" off each compound and instead make the header "Amount (mM)"
-X -->Another note on this: it should be "mM", not "Mm"
-X -The "Amount" pops up in the hyperlink and should be taken out of there
-X -Format-wise, we should put a space before "# Organisms"
 
-X? -Both here and in biomass composition, we should show the compound name that's stored along with the compound (the "first" name), not the first "common name" stored in the names_of_compounds table. 
 
-X media/277 produces error! (was in sorted_compounds())
 
 ORGANISMS
-X -Need to remove the '-' strain designation from organisms without a specified strain.  It was put there to satisfy a uniqueness criterium that we probably don't need anymore
-X -An Organism should link to growth conditions; right now it just links to the source.  
 - We could also link it directly to the media, but I think the growth condition is paramount. 
 -->Might want to have the list of possible media there too, just out of convenience. I'm undecided. But that links through the growth conditions table anyway
 -I'd really like to link to the NCBI page for a search of a given organism.  What's the best way to do this?  Manually search for each and just keep the results so we can later follow them? 
@@ -162,9 +111,7 @@ X -An Organism should link to growth conditions; right now it just links to the 
 
 
 SOURCES
-X -THE GROWTH DATA LINK GOES THE WRONG PLACE...it goes to the growth condition of the same primary key as the source instead of the one that's linked to the source (e.g. Source 32 goes to Growth Condition 32)
 ? -We should alphabetize these by first author's last name.  (/defined_media/sources; list of all sources)
-X -Should add Pubmed ID to all sources if possible(**I'll take care of this stuff)
 -->Also, should probably change the link to the Pubmed source, just for consistency
 
 
@@ -172,10 +119,8 @@ X -Should add Pubmed ID to all sources if possible(**I'll take care of this stuf
  these exist in orgamisms_sources table, which is slated to be removed; any other tables?  double check that no other table refs these records, then delete
 
 -->We'll pull these out into storage somewhere; I doubt we'll ever NEED them
-X -If there's no article link (e.g. Source 16), we shouldn't have a link to the article; right now there's one, its just a broken link. 
 
 BIOMASS COMPOSITIONS
-X -Genus needs to be capitalized
 -Both here and in media formulation, we should show the compound name that's stored along with the compound (the "first" name), not the first "common name" stored in the names_of_compounds table. 
 - detail page: second column needs explanation (matt)
 
@@ -190,3 +135,42 @@ DOWNLOADS
 
 HOMEPAGE
 - logo
+
+* Done
+X - Email IT for SSL cert, configure for https only (including redirect from http)
+X - Home, 
+X - Add new organism form
+X - Add a link back to home page at top of navbar.
+X - basics done, needs more testing
+X - - testing: make sure that a user only sees their gd records
+X - Test basic functionality
+X - Test adding duplicate record
+X - growth rate, temperature, and ph not required
+X - add formulas from dumps/keggcompounds.txt (needs parser)
+X - add formulas to search (and to CompoundManager.with_name)
+X - get rid of <!-- {{ form }} --> in production version of newmedia_form.html (????)
+X - add other compound ids to search.
+X - Add external links to Kegg, etc.
+X - Implement SSL all the time
+*** X merge seed ids into compounds, get rid of seed_compounds table
+*** X get compound ids from external sources
+*** X get rid of organisms_sources
+*** X no longer need is_defined (always 'yes')
+X -I get a lot of duplicates when I search a compound (e.g. I tried "Biotin" and got 22 compounds, but 8 were duplicates).  I don't seem to have the same problem with media
+X -On a Compound Record, I think we should change "0 common names" to "0 Alternate Names"
+X -I want to hide our "compound IDs" and just use those behind the scenes if possible.  I don't want to add to the multiple identifier problem if possible
+X -Let's take the "Mm" off each compound and instead make the header "Amount (mM)"
+X -->Another note on this: it should be "mM", not "Mm"
+X -The "Amount" pops up in the hyperlink and should be taken out of there
+X -Format-wise, we should put a space before "# Organisms"
+X? -Both here and in biomass composition, we should show the compound name that's stored along with the compound (the "first" name), not the first "common name" stored in the names_of_compounds table. 
+X media/277 produces error! (was in sorted_compounds())
+X -Need to remove the '-' strain designation from organisms without a specified strain.  It was put there to satisfy a uniqueness criterium that we probably don't need anymore
+X -An Organism should link to growth conditions; right now it just links to the source.  
+X -THE GROWTH DATA LINK GOES THE WRONG PLACE...it goes to the growth condition of the same primary key as the source instead of the one that's linked to the source (e.g. Source 32 goes to Growth Condition 32)
+X -Should add Pubmed ID to all sources if possible(**I'll take care of this stuff)
+X -If there's no article link (e.g. Source 16), we shouldn't have a link to the article; right now there's one, its just a broken link. 
+X -Genus needs to be capitalized
+Z - Add link to newmedia when logged in
+Z - Display list of user's growth data records
+Z - Add link to login/user profile page to nav
