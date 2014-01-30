@@ -19,8 +19,8 @@ class RegistrationForm(forms.Form, ReformatsErrors):
     email=forms.EmailField(label='Email')
     password1=forms.CharField(label='Password', max_length=64, widget=forms.PasswordInput)
     password2=forms.CharField(label='Password (confirm)', max_length=64, widget=forms.PasswordInput)
-    lab=forms.CharField(label='Lab', max_length=255)
-    lab_url=forms.URLField(label='Lab Url', max_length=255)
+    lab=forms.CharField(label='Lab', max_length=255, required=False)
+    lab_url=forms.URLField(label='Lab Url', max_length=255, required=False)
 
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)

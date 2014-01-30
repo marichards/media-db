@@ -32,6 +32,7 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
         self.fields['genus']=forms.ChoiceField(required=True, label='Genus', 
                                                choices=[(x,x) for x in genuss])
 
+    approved=forms.BooleanField(label='Approved', required=False) # otherwise will choke if not checked
     growthid=forms.IntegerField(required=False, widget=forms.HiddenInput)
     contributor_id=forms.IntegerField(required=True, widget=forms.HiddenInput)
 
@@ -43,8 +44,6 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
     new_strain=forms.CharField(label='New Strain', required=False)
     org_type_choices=[(t.typeid, t.organism_type) for t in TypesOfOrganisms.objects.all()]
     new_org_type=forms.ChoiceField(label='New Type', choices=org_type_choices, required=False)
-
-                                   
 
     media_name=forms.CharField(required=True, label='Media Name',
                                widget=forms.TextInput(attrs={'size': 75}))
@@ -62,11 +61,11 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
     comp1=forms.CharField(required=True, label='Compound')
     amount1=forms.FloatField(required=True, label='Amount (Mm)', min_value=0)
 
-    growth_rate=forms.FloatField(min_value=0, required=True, label='Growth Rate',
+    growth_rate=forms.FloatField(min_value=0, required=False, label='Growth Rate',
                                  widget=forms.TextInput(attrs={'size':8}))
-    temperature=forms.FloatField(min_value=0, required=True, label='Temperature',
+    temperature=forms.FloatField(min_value=0, required=False, label='Temperature',
                                  widget=forms.TextInput(attrs={'size':8}))
-    ph=forms.FloatField(min_value=0, required=True, label='ph',
+    ph=forms.FloatField(min_value=0, required=False, label='ph',
                                  widget=forms.TextInput(attrs={'size':8}))
 
     uptake_comp1=forms.CharField(label='Compound', required=False)

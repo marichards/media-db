@@ -14,6 +14,16 @@ def add_contributors(media_objs):
     for con in Contributor.objects.all(): 
         media_objs['Contributor'].append(con)
 
+def add_100_compounds_with_formulas(media_objs):
+
+    c100s=list([c for c in Compounds.objects.exclude(formula__isnull=True)[:100]])
+    try:
+        media_objs['Compounds'].extend(c100s)
+    except KeyError:
+        media_objs['Compounds']=c100s
+        
+
+
 def add_growth_data(media_objs):
     growth_ids=[254, 265, 210]  # one for each unit type
     gd_objs=set()

@@ -61,9 +61,6 @@ class CompoundReplacements(models.Model):
         db_table = 'compound_replacements'
 
 class CompoundManager(models.Manager):
-    '''
-    fixme: add in formulas
-    '''
     def with_name(self, name):
         try:
             return Compounds.objects.get(name=name)
@@ -81,7 +78,7 @@ class CompoundManager(models.Manager):
         except NamesOfCompounds.DoesNotExist, e:
             pass
 
-
+        
         raise Compounds.DoesNotExist(e) 
 
 class Compounds(models.Model):
@@ -112,6 +109,12 @@ class Compounds(models.Model):
         nocs=[noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
         if (self.name and self.name != self.compid):
             nocs.insert(0, self.name)
+
+        # add in various ids:
+        for attr in 'formula seed_id kegg_id'.split(' '):
+            if hasattr(self, attr) and getattr(self, attr):
+                nocs.append(getattr(self, attr))
+
         return nocs
 
     def names(self):
@@ -129,9 +132,6 @@ class Compounds(models.Model):
         return 'http://seed-viewer.theseed.org/seedviewer.cgi?page=CompoundViewer&compound=%s&model=' % self.seed_id
 
     
-
-    def keywords(self):
-        return [x.name for x in self.namesofcompounds_set.all()]
 
 class Contributors(models.Model):
     contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
@@ -154,6 +154,8 @@ class GrowthData(models.Model):
     temperature_c = models.FloatField(null=True, db_column='Temperature_C', blank=True) # Field name made lowercase.
     measureid = models.ForeignKey('Measurements', null=True, db_column='measureID', blank=True) # Field name made lowercase.
     additional_notes = models.CharField(max_length=255L, db_column='Additional_Notes', blank=True, null=True) # Field name made lowercase.
+    approved=models.BooleanField(default=False)
+
     class Meta:
         db_table = 'growth_data'
 	verbose_name_plural = 'growth data'
@@ -162,9 +164,9 @@ class GrowthData(models.Model):
         return '%s on %s' %(self.strainid,self.medid)   
 
     def __repr__(self):
-        return "GrowthData(%s) %s: org(%s)=%s, media_name(%s)=%s, sourceid(%s)=%s, measureid(%s)=%s" % \
+        return "GrowthData(%s) %s: org(%s)=%s, media_name(%s)=%s, sourceid(%s)=%s, measureid(%s)=%s approved=%s" % \
             (self.growthid, self.contributor, self.strainid_id, self.strainid, self.medid_id, 
-             self.medid, self.sourceid_id, self.sourceid, self.measureid_id, self.measureid)
+             self.medid, self.sourceid_id, self.sourceid, self.measureid_id, self.measureid, self.approved)
 
 
     def media_compounds_dicts(self):
@@ -403,21 +405,17 @@ class MediaNames(models.Model):
         s_comps=self.mediacompounds_set
         o_comps=other.mediacompounds_set
         if s_comps.count() != o_comps.count():
-            log.debug('_cle: returning False on differing length')
             return False
 
         s_set=set([c for c in s_comps.all()])
         o_set=set([c for c in o_comps.all()])
         if s_set!=o_set: 
-            log.debug('_cle: returning False on set inequality')
             return False
 
         for s_mc in s_set:      # not sure this doesn't duplicate functionality above
             if s_mc not in o_set:
-                log.debug('_cle: returning False on %s' % s_mc)
                 return False
 
-        log.debug('_cle: returning True')
         return True
 
 
@@ -633,16 +631,12 @@ class Contributor(models.Model):
         return '%s %s (%s, lab=%s)' % (self.first_name, self.last_name, self.user.username, self.lab)
 
     def can_edit_gd(self, gd):
-        log.debug('contributor %s: is_superuser=%s, is_active=%s, self.id=%d, gd.id=%d' % (self, self.user.is_superuser, self.user.is_active, self.id, gd.contributor_id))
         return self.user.is_superuser or (self.user.is_active and self.id==gd.contributor_id)
 
     def editable_gds(self):
-        log.debug('editable_gds: user is %s' % self.user)
         if self.user.is_superuser:
-            log.debug('superuser! returning all gds')
             return GrowthData.objects.all()
         else:
-            log.debug('muggle :( only returning loser gds')
             return GrowthData.objects.filter(contributor_id=self.id)
 
     def name(self):
