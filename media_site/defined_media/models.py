@@ -308,41 +308,25 @@ class GrowthData(models.Model):
         return clone
 
     def equals(self, other):
-        # ignore growthid unless both are defined:
         '''
-        try:
-            self_id=self.growthid
-            other_id=other.growthid
-            if self_id != None and other_id != None and self_id != other_id:
-                log.debug('returning False on self_id: %s, other_id=%s' % (self_id, other_id))
-                return False
-        except NameError:
-            pass
+        Check various fields and lists in the growth record to determine equality.
         '''
-
         if self.contributor_id != other.contributor_id:
-            log.debug('returning False on contributor_id: %s vs %s' % (self.contributor_id, other.contributor_id))
             return False
         if self.strainid_id != other.strainid_id: 
-            log.debug('returning False on strainid')
             return False
         if self.medid_id != other.medid_id:
-            log.debug('returning False on medid: %s vs %s' % (self.medid_id, other.medid_id))
             return False
         if self.sourceid_id != other.sourceid_id:
-            log.debug('returning False on sourceid')
             return False
         
         for attr in 'growth_rate growth_units ph temperature_c'.split(' '):
             if getattr(self, attr) != getattr(other, attr):
-                log.debug('returing False on %s' % attr)
                 return False
             
         if not self.medid._compound_list_equal(other.medid):
-            log.debug('returning False on compound_list')
             return False
 
-        log.debug('returing True')
         return True
 
 
