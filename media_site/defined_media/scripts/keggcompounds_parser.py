@@ -14,7 +14,7 @@ class KeggCompoundsParser(object):
                     kegg_id=mg.group(1)
 #                    print 'got kegg_id: %s' % kegg_id
                     continue
-                mg=re.search(r'^FORMULA\s+(\w+)', line)
+                mg=re.search(r'^FORMULA\s+([()\w]+)', line)
                 if mg:
                     formula=mg.group(1)
                     try:
