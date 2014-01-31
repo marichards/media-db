@@ -49,5 +49,6 @@ class Gets1(object):
         else:
             return val
 
-
-
+    def is_required(self, field):
+        return self.fields[field].required
+        

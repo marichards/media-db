@@ -15,6 +15,8 @@ class TestMediaForm(TestCase):
     fixtures=['fixture.json']
     def setUp(self):
         self.client=Client()
+        self.logged_in=self.client.login(username='vcassen', password='Bsa441_md')
+        log.debug('logged in? %s' % self.logged_in)
 
     def tearDown(self):
         pass
@@ -71,18 +73,23 @@ class TestMediaForm(TestCase):
 
     def test_media_form_post(self):
         log.debug('\n*** test_media_form_post ***')
-        n_gd=GrowthData.objects.count()
-        n_src=Sources.objects.count()
-        n_mn=MediaNames.objects.count()
+        ss1=snapshot(self, 'start')
+#        n_gd=GrowthData.objects.count()
+#        n_src=Sources.objects.count()
+#        n_mn=MediaNames.objects.count()
 
         url=reverse('new_media_form')
+        log.debug('url is %s' % url)
         args=copy.copy(newmedia_inputs['minimal_valid']['args'])
         response=self.client.post(url, args)
         self.assertEqual(response.status_code, 302)
-
-        self.assertEqual(GrowthData.objects.count(), n_gd+1)
-        self.assertEqual(Sources.objects.count(), n_src+1)
-        self.assertEqual(MediaNames.objects.count(), n_mn+1)
+        log.debug('response: %s' % response)
+        log.debug('content: %s' % response.content)
+        ss2=snapshot(self, 'finish')
+        compare_snapshots(self, 'start', 'finish', {GrowthData: +1, Sources: +1, MediaNames: +1, MediaCompounds: +1})
+#        self.assertEqual(GrowthData.objects.count(), n_gd+1)
+#        self.assertEqual(Sources.objects.count(), n_src+1)
+#        self.assertEqual(MediaNames.objects.count(), n_mn+1)
 
     def test_media_form_post_four_compounds_two_uptakes(self):
         log.debug('\n*** test_media_form_four_compounds_two_uptakes ***')
@@ -208,15 +215,29 @@ class TestMediaForm(TestCase):
             return None
 
     def test_missing_fields(self):
+        '''
+        delete one necessary field at a time, make sure 
+        '''
         url=reverse('new_media_form')
+        form=NewMediaForm()
+
         for f in newmedia_inputs['full_valid']['args'].keys():
+            
             if f.startswith('uptake'): 
                 continue        # uptakes aren't required
             if f.startswith('is_'):
                 continue        # likewise
+            if not form.is_required(f):
+                continue        # never mind
             args=copy.copy(newmedia_inputs['full_valid']['args'])
+            log.debug('deleting %s' % f)
             del args[f]
             response=self.client.post(url, args)
+
+            # is f required?
+            form=NewMediaForm()
+
+
             self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
 
             errors=self.get_errors(response.content)
@@ -227,10 +248,7 @@ class TestMediaForm(TestCase):
 
     def test_missing_amount(self):
         log.debug('\n*** test_missing_amount ***')
-        n_gd=GrowthData.objects.count()
-        n_src=Sources.objects.count()
-        n_mn=MediaNames.objects.count()
-        n_uptake=SecretionUptake.objects.count()
+        ss1=snapshot(self, 'start')
 
         url=reverse('new_media_form')
         args=copy.copy(newmedia_inputs['full_valid']['args'])
@@ -243,10 +261,11 @@ class TestMediaForm(TestCase):
         expected='amount1: This field is required'
         self.assertIn(expected, content, 'not found: "%s"' % expected)
 
-        self.assertEqual(GrowthData.objects.count(), n_gd)
-        self.assertEqual(Sources.objects.count(), n_src)
-        self.assertEqual(MediaNames.objects.count(), n_mn)
-        self.assertEqual(SecretionUptake.objects.count(), n_uptake)
+        ss2=snapshot(self, 'finish')
+        compare_snapshots(self, 'start', 'finish')
+
+
+
 
     
     def check_compounds(self, args):

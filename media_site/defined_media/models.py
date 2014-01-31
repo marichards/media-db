@@ -261,13 +261,22 @@ class GrowthData(models.Model):
                 'strainid':self.strainid,
                 'medid':self.medid,
                 'sourceid':self.sourceid,
-                'growth_rate':self.growth_rate,
-                'ph':self.ph,
-                'temperature_c':self.temperature_c,
                 }
+            
+            # sometimes these are not defined:
+            for f in 'growth_rate ph temperature_c'.split(' '):
+                try:
+                    args[f]=float(getattr(self, f))
+                except (ValueError, TypeError) as e:
+                    log.debug("can't convert %s to float, but nevermind" % getattr(self, f))
+                    pass
+
+            for k,v in args.items():
+                log.debug('find_clone: %s=%s' % (k,v))
             return GrowthData.objects.get(**args)
         except GrowthData.DoesNotExist:
             return None
+
 
 
     def clone_and_save(self, contributor=None):
@@ -373,10 +382,10 @@ class MediaNames(models.Model):
 	return '%s' % self.media_name.capitalize()
 
     def __repr__(self):
-        return 'MediaNames: (%d, %s, %s, %s)' % (self.medid, 
-                                                 self.media_name, 
-                                                 self.is_defined, 
-                                                 self.is_minimal)
+        return 'MediaNames: (medid=%s, %s, %s, %s)' % (self.medid, 
+                                                       self.media_name, 
+                                                       self.is_defined, 
+                                                       self.is_minimal)
 
     #Define searchable terms
     def keywords(self):

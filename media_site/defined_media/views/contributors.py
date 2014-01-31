@@ -51,23 +51,28 @@ class NewMediaView(FormView):
         log.debug('hi from contributors.post')
         form=NewMediaForm(request.POST)
 
-
         # fixme: this only reports on certain errors; omits errors in get_organism, etc.
-        '''
+        # originally, it was meant that if the form was valid, we could go ahead and
+        # create everything.
         if not form.is_valid():
             log.debug('form is invalid, aborting')
             form.reformat_errors()
             return self.form_invalid(form)
-        '''
-        form.is_valid()   # checks errors, allows processing to continue
+#        form.is_valid()   # checks errors, allows processing to continue so we can detect more errors
 
 
+        growth_data=None
         try:                    # finally only; reformats errors
             org=self.get_organism(form)
             source=self.get_source(form)
             media_name=self.get_media_name(form)
+            if media_name is not None:
+                log.debug('media_name: %r' % media_name)
+            else:
+                log.debug('media_name is None')
 
             growth_data=self.get_growth_data(form, org, source, media_name)
+
             clone=growth_data.find_clone()
             log.debug('looking for clone; got: %r' % clone)
             if clone is not None:
@@ -83,12 +88,13 @@ class NewMediaView(FormView):
                     log.debug('no valid growthid in form, not trying to call full_delete')
                     pass
 
-                media_name.save()
-
+                media_name.save() # can save, but media_comps depend on it
+                growth_data.medid=media_name
+                log.debug('attempting to save growth_data: %r' % growth_data)
                 growth_data.save()  
                 log.debug('growth_data saved: growthid=%d' % growth_data.growthid)
 
-                media_comps=self.get_media_comps(form, media_name)
+                media_comps=self.get_media_comps(form, media_name) # barfing on missing key
                 for mcomp in media_comps:
                     mcomp.save()
 
@@ -101,22 +107,28 @@ class NewMediaView(FormView):
             except IntegrityError as ie:
                 log.debug('caught %s: %s; rolling back' % (type(ie), ie))
                 log.exception(ie)
-                log.debug('growth_data is: %r' % growth_data)
+                log.debug('rolling back: growth_data is: %r' % growth_data)
                 transaction.rollback()
                 form.errors['Error']=str(ie)
 
-        except:
-            pass                # fixme: if this is the case, why bother raising exceptions? 
-                                # at least, non-Integrity errors (eg Organisms.DoesNotExist
+        except Exception as e:
+            log.debug('ignoring exception %s: %s' % (type(e), e))
+            log.exception(e)
+            pass                # if this is the case, why bother raising exceptions? 
+                                # answer: because we're using the try/except/finally
+                                # as flow control, essentially.
         finally:
             form.reformat_errors()
 
-        if len(form.errors)==0:
-            # we're redirecting towards ourself?  why?
+        log.debug('%d form.errors' % len(form.errors))
+        if len(form.errors)==0 and growth_data:
+            # on success, redirect to growth record detail:
             url=reverse('growth_record', args=(growth_data.growthid,))
             return redirect(url)
         else:
-            return self.form_invalid(form)
+            log.debug('rolling back on %d errors' % len(form.errors))
+            transaction.rollback()
+            return self.form_invalid(form) # status code 200, right?
 
 
     def get_organism(self, form):
@@ -175,18 +187,21 @@ class NewMediaView(FormView):
               'contributor_id': form.get1('contributor_id'),
               'medid': media_name,
               'sourceid': source,
-              'growth_rate': form.get1('growth_rate'),
               'growth_units': '1/h',
-              'ph': form.get1('ph'),
-              'temperature_c': form.get1('temperature'),
               'additional_notes': '',
               }
-        try:
-            args['growthid']=form.get1('growthid', int)
-            log.debug('existing args[growthid]=%s' % args['growthid'])
-        except (ValueError, KeyError, TypeError) as e:
-            log.debug('get_growth_data: no "growthid" form (ok)')
-            pass
+
+        conversions={'growth_id': int,
+                     'ph': float,
+                     'growth_rate': float,
+                     'temperature_c': float}
+        for f,t in conversions.items():
+            try:
+                args[f]=form.get1(f,t)
+                log.debug('existing args[%s]=%s' % (f, args[f]))
+            except (ValueError, KeyError, TypeError) as e:
+                log.debug('get_growth_data: no "%s" form (ok)' % f)
+                pass
 
         gd=GrowthData(**args)
         gd.strainid=org
