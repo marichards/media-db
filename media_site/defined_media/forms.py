@@ -50,12 +50,17 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
     is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
     is_minimal=forms.CharField(label='Is minimal?', widget=forms.CheckboxInput)
 
-    pmid=forms.IntegerField(required=False, label='Pubmed ID')
-    first_author=forms.CharField(label='First Author')
-    journal=forms.CharField(label='Journal', max_length=255)
+    pmid=forms.IntegerField(required=False, label='Pubmed ID',
+                            widget=forms.TextInput(attrs={'size': 75}))
+    first_author=forms.CharField(label='First Author', max_length=255,
+                                 widget=forms.TextInput(attrs={'size': 75}))
+    journal=forms.CharField(label='Journal', max_length=255,
+                            widget=forms.TextInput(attrs={'size': 75}))
     year=forms.IntegerField(label='Year')
-    title=forms.CharField(label='Title', max_length=255)
-    link=forms.CharField(label='Link', max_length=255)
+    title=forms.CharField(label='Title', max_length=255,
+                          widget=forms.TextInput(attrs={'size': 75}))
+    link=forms.CharField(label='Link', max_length=255,
+                         widget=forms.TextInput(attrs={'size': 75}))
 
 
     comp1=forms.CharField(required=True, label='Compound')
