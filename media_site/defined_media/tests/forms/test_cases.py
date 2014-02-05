@@ -13,6 +13,7 @@ newmedia_inputs={
 #                 'temperature': '37.4',
 #                 'ph': 7.1,
                  'contributor_id':1,
+                 'additional_notes': '',
 #              'uptake_comp1': 'Iron',
 #              'uptake_rate1': '0.2',
                },
@@ -36,6 +37,7 @@ newmedia_inputs={
                  'uptake_unit1': '1/h',
                  'uptake_type1': 1,
                  'contributor_id':1,
+                 'additional_notes': '',
                },
         'valid': True},
     'missing_amount1': {
@@ -55,6 +57,7 @@ newmedia_inputs={
                  'uptake_comp1': 'Iron',
                  'uptake_rate1': '0.2',
                  'contributor_id':1,
+                 'additional_notes': '',
               }, 
         'valid': False},
     'missing_rate1' : {
@@ -73,6 +76,7 @@ newmedia_inputs={
                  'ph': 7.1,
                  'uptake_comp1': 'Iron',
                  'contributor_id':1,
+                 'additional_notes': '',
                  #              'uptake_rate1': '0.2',
                  },
         'valid': False},
@@ -95,6 +99,7 @@ newmedia_inputs={
                  'uptake_comp1': 'Iron',
                  'uptake_rate1': '0.2',
                  'contributor_id':1,
+                 'additional_notes': '',
                  },
         'valid': False},
     'missing_bad_compound': {
@@ -116,6 +121,7 @@ newmedia_inputs={
                  'uptake_comp1': 'Iron',
                  'uptake_rate1': '0.2',
                  'contributor_id':1,
+                 'additional_notes': '',
                  },
         'valid': False},
 }

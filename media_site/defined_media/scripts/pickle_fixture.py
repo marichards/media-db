@@ -25,7 +25,7 @@ def add_100_compounds_with_formulas(media_objs):
 
 
 def add_growth_data(media_objs):
-    growth_ids=[254, 265, 210]  # one for each unit type
+    growth_ids=[254, 265, 210, 258]  # one for each unit type, and one that is ref'd by a sec-uptake
     gd_objs=set()
     bad_gds=[]
     attrs=['strainid', 'medid', 'sourceid', 'measureid']
@@ -253,7 +253,12 @@ def add_obj(a, media_objs):
     try:
         media_objs[classname].add(a)
     except KeyError:
-        media_objs[classname]=set(a)
+        try:
+            media_objs[classname]=set(a)
+        except TypeError as e:
+            print 'warning: unable to add %s: %s: %s' % (classname, a, e)
+            pass
+
 
 if __name__=='__main__':
     main()

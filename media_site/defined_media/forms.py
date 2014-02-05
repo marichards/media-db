@@ -79,8 +79,28 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
     uptake_unit1=forms.ChoiceField(label='Units', required=False, choices=unit_choices)
     type_choices=[(u.rateid,u.rate_type) for u in SecretionUptakeKey.objects.all()]
     uptake_type1=forms.ChoiceField(label='Type', required=False, choices=type_choices)
+    additional_notes=forms.CharField(required=False, 
+                                     widget=forms.Textarea(attrs={'rows':3, 'cols': 40}))
 
     def is_valid(self):
+        '''
+        This method does several things (redflag!), besides call its super():
+        - removes false errors in the organism form that exist because initially 
+          they're blank (fix: could safely remove 'required' from form spec)
+        - updates self.cleaned_data with addition args passed to the form (really necessary?)
+        - checks for existence of amounts associated with compounds; can't do this
+          in super because of dynamically added (by client) form fields.
+        - should also call get_organism_name, but currently doesn't.  That method
+          has the logic to check validity of organism name correctly.
+
+        What the method should do:
+        - Attempt to guarantee, as far as possible, that the new growth data
+          record can be successfully saved.  That includes:
+        - Check for completeness: all compounds have amounts, all fields of source are specified, etc;
+        - Check for the existence of all named compounds;
+        - Check that organism name is valid;
+        - Check that floating point values are actually floating points;
+        '''
         valid=super(NewMediaForm, self).is_valid()
         if not hasattr(self, 'orig_args'):
             return valid
@@ -203,6 +223,3 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
 
         return genus, species, strain, new_org
 
-#class OrganismForm(forms.ModelForm):
-#    class Meta:
-#        model=Organisms

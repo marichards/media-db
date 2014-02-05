@@ -39,6 +39,6 @@ def compare_snapshots(test, name1, name2, deltas={}, debug=False):
             if debug: log.debug('%s: yay!' % cls.__name__)
         except AssertionError:
             errors[cls]=msg
-            if debug: log.debug('%s: boo!' % cls.__name__)
+            if debug: log.debug('%s: boo!' % msg)
     if debug: log.debug('errors: %s' % errors)
     test.assertEquals(len(errors), 0, str(errors))

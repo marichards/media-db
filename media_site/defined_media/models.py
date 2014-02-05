@@ -8,7 +8,7 @@
 # into your database.
 from __future__ import unicode_literals
 
-from django.db import models
+from django.db import models, IntegrityError
 import re, inspect, logging, copy
 from lazy import lazy
 
@@ -169,6 +169,24 @@ class GrowthData(models.Model):
              self.medid, self.sourceid_id, self.sourceid, self.measureid_id, self.measureid, self.approved)
 
 
+    # fixme: get rid of this
+    def save21(self):
+        '''
+        check the values of growth rate, temp, and ph;
+        '''
+        for attr in 'growth_rate temperature_c ph'.split(' '):
+            try:
+                value=float(getattr(self, attr))
+                if value is not None and value<=0:
+                    raise IntegrityError('growth_rate < 0')
+            except TypeError:
+                raise IntegrityError('%s not a floating point value (val=%s)' % (attr, getattr(self, attr)))
+            except AttributeError:
+                continue
+
+        super(GrowthData,self).save()
+
+
     def media_compounds_dicts(self):
         return [{'comp': mc.compid.name, 'amount': mc.amount_mm} for mc in self.medid.mediacompounds_set.all()]
 
@@ -268,11 +286,9 @@ class GrowthData(models.Model):
                 try:
                     args[f]=float(getattr(self, f))
                 except (ValueError, TypeError) as e:
-                    log.debug("can't convert %s to float, but nevermind" % getattr(self, f))
+#                    log.debug("can't convert %s to float, but nevermind" % getattr(self, f))
                     pass
 
-            for k,v in args.items():
-                log.debug('find_clone: %s=%s' % (k,v))
             return GrowthData.objects.get(**args)
         except GrowthData.DoesNotExist:
             return None
@@ -358,7 +374,8 @@ class MediaCompounds(models.Model):
         db_table = 'media_compounds'
 
     def __unicode__(self):
-        return '%s %gmm' % (self.compid.__unicode__(), self.amount_mm)
+#        return '%s %gmm' % (self.compid.__unicode__(), self.amount_mm)
+        return '%s %smm' % (self.compid.__unicode__(), self.amount_mm)
 
     def __repr__(self):
         return 'MediaCompound %d: medid=%s, compid=%s, amount_mm=%g' % (self.medcompid, self.medid, self.compid, self.amount_mm)
@@ -451,18 +468,32 @@ class NamesOfCompounds(models.Model):
         return '%s' %self.name
 
 class Organisms(models.Model):
-    strainid = models.AutoField(primary_key=True, db_column='strainID') # Field name made lowercase.
-    genus = models.CharField(max_length=255L, db_column='Genus', blank=True) # Field name made lowercase.
-    species = models.CharField(max_length=255L, db_column='Species', blank=True) # Field name made lowercase.
-    strain = models.CharField(max_length=255L, db_column='Strain', blank=True) # Field name made lowercase.
-#    contributorid = models.ForeignKey(Contributors, null=True, db_column='contributorID', blank=True) # Field name made lowercase.
-    typeid = models.ForeignKey('TypesOfOrganisms', null=True, db_column='typeID', blank=True) # Field name made lowercase.
+    strainid = models.AutoField(primary_key=True, db_column='strainID')
+    # Not sure about blank=False on these; might mess up newmediaform since species and strain added dynamically
+    genus = models.CharField(max_length=255L, db_column='Genus', blank=False, null=False)
+    species = models.CharField(max_length=255L, db_column='Species', blank=False, null=False)
+    strain = models.CharField(max_length=255L, db_column='Strain', blank=False, null=False) 
+    typeid = models.ForeignKey('TypesOfOrganisms', null=True, db_column='typeID', blank=True)
+
     class Meta:
         db_table = 'organisms'
         verbose_name_plural = 'organisms'
     #Call the Organisms object and return the Strain Name and such instead
     def __unicode__(self):
         return '%s %s %s' %(self.genus.capitalize(),self.species.lower(),self.strain)
+
+    def save(self):
+        missing=[]
+        for attr in 'genus species strain'.split(' '):
+            try:
+                if len(getattr(self, attr))==0:
+                    missing.append('%s blank' % attr)
+            except AttributeError:
+                missing.append('%s missing' % attr)
+        if len(missing)>0:
+            raise IntegrityError(', '.join(missing))
+
+        return super(Organisms,self).save()
 
     #Define searchable terms
     def keywords(self):
@@ -509,9 +540,12 @@ class SecretionUptake(models.Model):
     class Meta:
         db_table = 'secretion_uptake'
 
+    def __unicode__(self):
+        return repr(self)
+
     def __repr__(self):
-        return 'SecretionUptake %s: growth=%s, compound=%s, rate=%s, units=%s, rateid=%s' \
-            %(self.secretionuptakeid, self.growthid, self.compid, self.rate, self.units, self.rateid)
+        return 'SecretionUptake %s: growth (%d)=%s, compound=%s, rate=%s, units=%s, rateid=%s' \
+            %(self.secretionuptakeid, self.growthid_id, self.growthid, self.compid, self.rate, self.units, self.rateid)
 
 
 class SecretionUptakeKey(models.Model):

@@ -10,23 +10,25 @@ from defined_media.models import *
 from defined_media.forms import NewMediaForm
 from defined_media.tests.snapshot import *
 
+SUCCESS=302
+FAILURE=200
 
 class TestMediaForm(TestCase):
     fixtures=['fixture.json']
     def setUp(self):
         self.client=Client()
         self.logged_in=self.client.login(username='vcassen', password='Bsa441_md')
-        log.debug('logged in? %s' % self.logged_in)
 
     def tearDown(self):
         pass
 
         
     def test_media_form_get_empty(self):
+        self.verify_fresh_fixture()
         log.debug('\n*** test_media_form_get_empty ***')
         response=self.client.get(reverse('new_media_form'))
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, FAILURE)
         content=response.content
         self.assertIn('<h2>Enter Media Information:</h2>', content)
         self.assertIn("<input type='hidden' name='csrfmiddlewaretoken'", content)
@@ -34,20 +36,22 @@ class TestMediaForm(TestCase):
 
 
     def test_media_form_get_populated(self):
+        self.verify_fresh_fixture()
         log.debug('\n*** test_media_form_get_populated ***')
         gd=GrowthData.objects.all()[0]
         log.debug(repr(gd))
         url=reverse('new_media_form', args=(gd.growthid,))
         response=self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, FAILURE)
         # tests to see if various form fields are populated?
         
 
     def test_media_form_get_id(self):
+        self.verify_fresh_fixture()
         log.debug('\n*** test_media_form_get_empty ***')
         response=self.client.get(reverse('new_media_form'))
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, FAILURE)
         content=response.content
         self.assertIn('<h2>Enter Media Information:</h2>', content)
         self.assertIn("<input type='hidden' name='csrfmiddlewaretoken'", content)
@@ -55,6 +59,7 @@ class TestMediaForm(TestCase):
 
 
     def test_media_form_is_valid(self):
+        self.verify_fresh_fixture()
         log.debug('\n*** test_media_form_is_valid ***')
         url=reverse('new_media_form')
         for name, data in newmedia_inputs.items():
@@ -62,43 +67,37 @@ class TestMediaForm(TestCase):
             args=data['args']
             expected_valid=data['valid']
             response=self.client.post(url, args)
-            expected_code=302 if expected_valid else 200
+            expected_code=SUCCESS if expected_valid else FAILURE
             log.debug('code (%s, ev=%s): expected %s, got %s' % (name,
                                                                  expected_valid, 
                                                                  expected_code, 
                                                                  response.status_code))
-            self.assertEqual(response.status_code, expected_code)
+            self.assertEqual(response.status_code, expected_code, name)
 
 
 
     def test_media_form_post(self):
+        self.verify_fresh_fixture()
         log.debug('\n*** test_media_form_post ***')
         ss1=snapshot(self, 'start')
-#        n_gd=GrowthData.objects.count()
-#        n_src=Sources.objects.count()
-#        n_mn=MediaNames.objects.count()
 
         url=reverse('new_media_form')
         log.debug('url is %s' % url)
         args=copy.copy(newmedia_inputs['minimal_valid']['args'])
         response=self.client.post(url, args)
-        self.assertEqual(response.status_code, 302)
-        log.debug('response: %s' % response)
-        log.debug('content: %s' % response.content)
+        self.assertEqual(response.status_code, SUCCESS)
         ss2=snapshot(self, 'finish')
-        compare_snapshots(self, 'start', 'finish', {GrowthData: +1, Sources: +1, MediaNames: +1, MediaCompounds: +1})
-#        self.assertEqual(GrowthData.objects.count(), n_gd+1)
-#        self.assertEqual(Sources.objects.count(), n_src+1)
-#        self.assertEqual(MediaNames.objects.count(), n_mn+1)
+        compare_snapshots(self, 'start', 'finish', {GrowthData: +1, 
+                                                    Sources: +1, 
+                                                    MediaNames: +1, 
+                                                    MediaCompounds: +1})
 
     def test_media_form_post_four_compounds_two_uptakes(self):
+        self.verify_fresh_fixture()
         log.debug('\n*** test_media_form_four_compounds_two_uptakes ***')
-        n_gd=GrowthData.objects.count()
-        n_src=Sources.objects.count()
-        n_mn=MediaNames.objects.count()
-        n_uptake=SecretionUptake.objects.count()
-
+        
         url=reverse('new_media_form')
+        ss1=snapshot(self, 'start')
 
         args=copy.copy(newmedia_inputs['full_valid']['args'])
         args['comp2']='atp'
@@ -117,25 +116,27 @@ class TestMediaForm(TestCase):
         args['uptake_unit2']='1/h'
         args['uptake_type2']=1
         response=self.client.post(url, args)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, SUCCESS)
 
-        self.assertEqual(GrowthData.objects.count(), n_gd+1)
-        self.assertEqual(Sources.objects.count(), n_src+1)
-        self.assertEqual(MediaNames.objects.count(), n_mn+1)
-        self.assertEqual(SecretionUptake.objects.count(), n_uptake+2)
+        ss2=snapshot(self, 'finish')
+        compare_snapshots(self, 'start', 'finish', {
+                GrowthData: +1,
+                Sources: +1,
+                MediaNames: +1,
+                SecretionUptake: +2, # normally would be +2, but fixture singularity
+                MediaCompounds: +4,
+                })
 
     def test_bad_compound(self):
+        self.verify_fresh_fixture()
         log.debug('\n*** test_bad_compound ***')
-        n_gd=GrowthData.objects.count()
-        n_src=Sources.objects.count()
-        n_mn=MediaNames.objects.count()
-        n_uptake=SecretionUptake.objects.count()
+        ss1=snapshot(self, 'start')
 
         url=reverse('new_media_form')
         args=copy.copy(newmedia_inputs['full_valid']['args'])
         args['comp1']='fred'
         response=self.client.post(url, args)
-        self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
+        self.assertEqual(response.status_code, FAILURE) # form_invalid(form) returns 200
         content=response.content
         mg=re.search(r'errors start(.*)errors end', content)
         if mg:
@@ -147,23 +148,19 @@ class TestMediaForm(TestCase):
         expected='Compound 1: Unknown compound &quot;fred'
         self.assertIn(expected, content, expected)
 
-        self.assertEqual(GrowthData.objects.count(), n_gd)
-        self.assertEqual(Sources.objects.count(), n_src)
-        self.assertEqual(MediaNames.objects.count(), n_mn)
-        self.assertEqual(SecretionUptake.objects.count(), n_uptake)
+        ss2=snapshot(self, 'finish')
+        compare_snapshots(self, 'start', 'finish')
 
     def test_bad_uptake_compound(self):
+        self.verify_fresh_fixture()
         log.debug('\n*** test_bad_uptake_compound ***')
-        n_gd=GrowthData.objects.count()
-        n_src=Sources.objects.count()
-        n_mn=MediaNames.objects.count()
-        n_uptake=SecretionUptake.objects.count()
+        ss1=snapshot(self, 'start')
 
         url=reverse('new_media_form')
         args=copy.copy(newmedia_inputs['full_valid']['args'])
         args['uptake_comp1']='fred'
         response=self.client.post(url, args)
-        self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
+        self.assertEqual(response.status_code, FAILURE) # form_invalid(form) returns 200
         content=response.content
         mg=re.search(r'errors start(.*)errors end', content)
         if mg:
@@ -176,15 +173,15 @@ class TestMediaForm(TestCase):
         log.debug('errors: %s' % self.get_errors(content))
         self.assertIn(expected, content, expected)
 
-        self.assertEqual(GrowthData.objects.count(), n_gd)
-        self.assertEqual(Sources.objects.count(), n_src)
-        self.assertEqual(MediaNames.objects.count(), n_mn)
-        self.assertEqual(SecretionUptake.objects.count(), n_uptake)
+        ss2=snapshot(self, 'finish')
+        compare_snapshots(self, 'start', 'finish')
 
         
 
     def test_bad_amount(self):
+        self.verify_fresh_fixture()
         log.debug('\n*** test_bad_amount ***')
+        ss1=snapshot(self, 'start')
         n_gd=GrowthData.objects.count()
         n_src=Sources.objects.count()
         n_mn=MediaNames.objects.count()
@@ -194,16 +191,14 @@ class TestMediaForm(TestCase):
         args=copy.copy(newmedia_inputs['full_valid']['args'])
         args['amount1']='fred'
         response=self.client.post(url, args)
-        self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
+        self.assertEqual(response.status_code, FAILURE) # form_invalid(form) returns 200
         content=response.content
         
         self.assertIn('1 Error', content, 'not found: "1 Error"')
         self.assertIn('amount1: Enter a number', content, 'not found: "amount1: Enter a number"')
 
-        self.assertEqual(GrowthData.objects.count(), n_gd)
-        self.assertEqual(Sources.objects.count(), n_src)
-        self.assertEqual(MediaNames.objects.count(), n_mn)
-        self.assertEqual(SecretionUptake.objects.count(), n_uptake)
+        ss2=snapshot(self, 'finish')
+        compare_snapshots(self, 'start', 'finish')
 
 
     def get_errors(self, content):
@@ -215,38 +210,50 @@ class TestMediaForm(TestCase):
             return None
 
     def test_missing_fields(self):
+        self.verify_fresh_fixture()
         '''
         delete one necessary field at a time, make sure 
         '''
-        url=reverse('new_media_form')
         form=NewMediaForm()
 
         for f in newmedia_inputs['full_valid']['args'].keys():
-            
             if f.startswith('uptake'): 
                 continue        # uptakes aren't required
             if f.startswith('is_'):
                 continue        # likewise
             if not form.is_required(f):
                 continue        # never mind
-            args=copy.copy(newmedia_inputs['full_valid']['args'])
-            log.debug('deleting %s' % f)
-            del args[f]
-            response=self.client.post(url, args)
+            self._test_missing_field(f)
+    '''
+    def test_missing_amount1(self):
+    self.verify_fresh_fixture()
+        self._test_missing_field('amount1')
 
-            # is f required?
-            form=NewMediaForm()
+    def test_missing_title(self):
+    self.verify_fresh_fixture()
+        self._test_missing_field('title')
 
+    def test_missing_comp1(self):
+    self.verify_fresh_fixture()
+        self._test_missing_field('comp1')
+    '''
 
-            self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
+    def _test_missing_field(self, f):
+        url=reverse('new_media_form')
+        args=copy.copy(newmedia_inputs['full_valid']['args'])
+        log.debug('deleting %s' % f)
+        del args[f]
 
-            errors=self.get_errors(response.content)
-            log.debug('errors: %s' % errors)
-            self.assertIn('1 Errors', errors)
-            log.debug('looking for "%s" in errors' % f)
-            self.assertIn('%s: This field is required' % f, errors)
+        response=self.client.post(url, args)
+        self.assertEqual(response.status_code, FAILURE) # form_invalid(form) returns 200
+        
+        errors=self.get_errors(response.content)
+#        self.assertIn('1 Errors', '%s %s' % (f, errors))
+        # may be other errors....
+        self.assertIn('%s: This field is required' % f, '%s %s' % (f, errors))
 
     def test_missing_amount(self):
+        self.verify_fresh_fixture()
         log.debug('\n*** test_missing_amount ***')
         ss1=snapshot(self, 'start')
 
@@ -254,7 +261,7 @@ class TestMediaForm(TestCase):
         args=copy.copy(newmedia_inputs['full_valid']['args'])
         del args['amount1']
         response=self.client.post(url, args)
-        self.assertEqual(response.status_code, 200) # form_invalid(form) returns 200
+        self.assertEqual(response.status_code, FAILURE) # form_invalid(form) returns 200
         content=response.content
 
         self.assertIn('1 Error', content, 'not found: "1 Error"')
@@ -264,33 +271,26 @@ class TestMediaForm(TestCase):
         ss2=snapshot(self, 'finish')
         compare_snapshots(self, 'start', 'finish')
 
-
-
-
     
     def check_compounds(self, args):
-        log.debug('%d compounds in test db' % Compounds.objects.count())
         errors=[]
         for key in [c for c in args.keys() if 'comp' in c]:
             try: comp_name=args[key][0]
             except TypeError: comp_name=args[key]
             try:
                 comp=Compounds.objects.with_name(comp_name)
-                log.debug('found compounds %s' % comp_name)
             except Compounds.DoesNotExist:
                 errors.append('missing needed compound: %s' % comp_name)
         if len(errors)>0:
             for err in errors:
-                log.debug('+++ %s +++' % err)
+                log.debug('check_compounds: error=%s' % err)
             self.fail()
 
 
     def test_two_uptakes(self):
+        self.verify_fresh_fixture()
         log.debug('\n*** test_two_uptakes ***')
-        n_gd=GrowthData.objects.count()
-        n_src=Sources.objects.count()
-        n_mn=MediaNames.objects.count()
-        n_uptake=SecretionUptake.objects.count()
+        ss1=snapshot(self, 'start')
 
         url=reverse('new_media_form')
         args=copy.copy(newmedia_inputs['full_valid']['args'])
@@ -306,16 +306,20 @@ class TestMediaForm(TestCase):
         self.check_compounds(args)
 
         response=self.client.post(url, args)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, SUCCESS)
         content=response.content
 
-        self.assertEqual(GrowthData.objects.count(), n_gd+1)
-        self.assertEqual(Sources.objects.count(), n_src+1)
-        self.assertEqual(MediaNames.objects.count(), n_mn+1)
-        self.assertEqual(SecretionUptake.objects.count(), n_uptake+2)
+        ss2=snapshot(self, 'finish')
+        compare_snapshots(self, 'start', 'finish', 
+                          {GrowthData: +1, 
+                           Sources: +1, 
+                           MediaNames: +1, 
+                           SecretionUptake: +2, # Normally this would be +2, but there's a weirdness in the fixture
+                           MediaCompounds: +1})
 
 
     def test_good_update(self):
+        self.verify_fresh_fixture()
         ''' 
         Alters as many fields as possible while still allowing a successful update.
         '''
@@ -329,7 +333,7 @@ class TestMediaForm(TestCase):
 
         # make changes to form_dict (don't add any new records) (yet):
         form_dict['media_name']='new media name'     # was something else
-        form_dict['temperature']=38.0     # was 37.0
+        form_dict['temperature_c']=38.0     # was 37.0
 
         form_dict['genus']='Porphyromonas'
         form_dict['species']='gingivalis'
@@ -351,11 +355,7 @@ class TestMediaForm(TestCase):
         log.debug('status_code: %d' % response.status_code)
 #        log.debug('content: %s' % response.content)
         msg='status: %d (should be 302 on success, 200 on error)' % response.status_code
-        self.assertEqual(response.status_code, 302, msg)
-
-        # verify no new records were added
-        for gd in GrowthData.objects.all():
-            log.debug("Existing gd object: %r" %gd)
+        self.assertEqual(response.status_code, SUCCESS, msg)
 
         # nothing new should be created:
         ss2=snapshot(self, 'after')
@@ -365,7 +365,7 @@ class TestMediaForm(TestCase):
         gd1=GrowthData.objects.get(growthid=265)
         log.debug('gd1: %s' % gd1)
         self.assertEqual(gd1.medid.media_name, form_dict['media_name'])
-        self.assertEqual(gd1.temperature_c,    form_dict['temperature'])
+        self.assertEqual(gd1.temperature_c,    form_dict['temperature_c'])
         self.assertEqual(gd1.strainid.genus,   form_dict['genus'])
         self.assertEqual(gd1.strainid.species, form_dict['species'])
         self.assertEqual(gd1.strainid.strain,  form_dict['strain'])
@@ -396,3 +396,13 @@ class TestMediaForm(TestCase):
 
 
         # verify no other records were deleted (Compounds, etc)
+
+    def verify_fresh_fixture(self):
+        for cls, expected in {GrowthData: 4,
+                              Compounds: 78,
+                              MediaNames: 187,
+                              MediaCompounds: 375,
+                              Sources: 8,
+                              Organisms: 30,
+                              SecretionUptake: 13}.items():
+            self.assertEqual(cls.objects.count(), expected)

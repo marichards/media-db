@@ -48,7 +48,6 @@ class NewMediaView(FormView):
     # login_required, as per urls.py
 #    @transaction.atomic()
     def post(self, request, *args, **kwargs):
-        log.debug('hi from contributors.post')
         form=NewMediaForm(request.POST)
 
         # fixme: this only reports on certain errors; omits errors in get_organism, etc.
@@ -58,78 +57,98 @@ class NewMediaView(FormView):
             log.debug('form is invalid, aborting')
             form.reformat_errors()
             return self.form_invalid(form)
+
 #        form.is_valid()   # checks errors, allows processing to continue so we can detect more errors
-
-
-        growth_data=None
-        try:                    # finally only; reformats errors
-            org=self.get_organism(form)
-            source=self.get_source(form)
-            media_name=self.get_media_name(form)
-            if media_name is not None:
-                log.debug('media_name: %r' % media_name)
-            else:
-                log.debug('media_name is None')
-
-            growth_data=self.get_growth_data(form, org, source, media_name)
-
-            clone=growth_data.find_clone()
-            log.debug('looking for clone; got: %r' % clone)
-            if clone is not None:
-                raise IntegrityError('A growth record with the same basic information (strain, media name, source, growth rate, ph, and temperature) already exists')
-
-#            with transaction.atomic():
-            try:                # catches IntegrityErrors, does rollbackr
-                try:            # do full_delete if growthid present in form
-                    growthid=int(request.POST['growthid'])
-                    old_gd=GrowthData.objects.get(growthid=growthid) 
-                    old_gd.full_delete()
-                except (KeyError, ValueError) as e:
-                    log.debug('no valid growthid in form, not trying to call full_delete')
-                    pass
-
-                media_name.save() # can save, but media_comps depend on it
-                growth_data.medid=media_name
-                log.debug('attempting to save growth_data: %r' % growth_data)
-                growth_data.save()  
-                log.debug('growth_data saved: growthid=%d' % growth_data.growthid)
-
-                media_comps=self.get_media_comps(form, media_name) # barfing on missing key
-                for mcomp in media_comps:
-                    mcomp.save()
-
-                uptakes=self.get_uptakes(form, growth_data)
-                for uptake in uptakes:
-                    uptake.save()
+        # as it currently stands, some errors that should cause a rollback currently 
+        # don't (eg missing amount1)
+        try:
+            with transaction.atomic():
+                growth_data=self.get_growth_data(form)
+                growth_data.strainid=self.get_organism(form)
+                growth_data.sourceid=self.get_source(growth_data, form)
+                growth_data.medid=self.get_media_name(growth_data, form)
                 
-                transaction.commit()
-                log.debug('yay! commitment!')
-            except IntegrityError as ie:
-                log.debug('caught %s: %s; rolling back' % (type(ie), ie))
-                log.exception(ie)
-                log.debug('rolling back: growth_data is: %r' % growth_data)
-                transaction.rollback()
-                form.errors['Error']=str(ie)
+                clone=growth_data.find_clone()
+                log.debug('looking for clone; got: %r' % clone)
+                if clone is not None:
+                    form.errors['Clone']='A growth record with the same information (strain, media name, source, growth rate, ph, and temperature) already exists'
+                    raise Exception('clone found')
+
+                growth_data.save() # to get growth_data.growthid, so we can add objects:
+            
+                for media_comp in growth_data.medid.mediacompounds_set.all():
+                    media_comp.delete()
+                media_comps=self.get_media_comps(form, growth_data.medid) # barfing on missing key
+                for mcomp in media_comps:
+                    if mcomp not in growth_data.medid.mediacompounds_set.all():
+                        growth_data.medid.mediacompounds_set.add(mcomp)
+
+
+                for uptake in growth_data.secretionuptake_set.all():
+                    uptake.delete()
+                uptakes=self.get_uptakes(form, growth_data)
+                log.debug('get_uptakes returned %d uptakes' % len(uptakes))
+                log.debug('start: %d uptakes in gd' % growth_data.secretionuptake_set.count())
+                for uptake in growth_data.secretionuptake_set.all():
+                    log.debug('gd.uptake: %s' % uptake)
+                for uptake in uptakes:
+                    if uptake not in growth_data.secretionuptake_set.all():
+                        growth_data.secretionuptake_set.add(uptake) # adding also calls .save()
+                        log.debug('appending: %s' % uptake)
+                    else:
+                        log.debug('skipping uptake %s' % uptake)
+                log.debug('finish: %d uptakes in gd' % growth_data.secretionuptake_set.count())
+                
 
         except Exception as e:
-            log.debug('ignoring exception %s: %s' % (type(e), e))
+            log.debug('caught and ignoring %s: %s' % (type(e), e))
             log.exception(e)
-            pass                # if this is the case, why bother raising exceptions? 
-                                # answer: because we're using the try/except/finally
-                                # as flow control, essentially.
-        finally:
-            form.reformat_errors()
+            form.errors['Error']=str(e)
 
         log.debug('%d form.errors' % len(form.errors))
-        if len(form.errors)==0 and growth_data:
+        for k,v in form.errors.items():
+            log.debug('error: %s=%s' % (k,v))
+
+        form.reformat_errors()
+        if len(form.errors)==0 and growth_data: # fixme: all these conditions still necessary?
             # on success, redirect to growth record detail:
             url=reverse('growth_record', args=(growth_data.growthid,))
+            log.debug('returning redirect to %s code=302' % url)
             return redirect(url)
         else:
-            log.debug('rolling back on %d errors' % len(form.errors))
-            transaction.rollback()
+            log.debug('returning form_invalid (code=200(?))')
             return self.form_invalid(form) # status code 200, right?
 
+
+    def get_growth_data(self, form):
+        '''
+        return an existing growth_data record, based on the form's growthid field, 
+        or create a new one:
+        '''
+        try:
+            gd=GrowthData.objects.get(growthid=form.get1('growthid'))
+        except (KeyError, GrowthData.DoesNotExist) as e:
+            gd=GrowthData()
+
+        gd.approved=form.get1('approved')
+        gd.contributor_id=form.get1('contributor_id')
+        gd.growth_units='1/h'
+        gd.additional_notes=form.get1('additional_notes')
+
+        # these really shouldn't be necessary; form.cleaned_data is supposed to 
+        # do the conversions for us, and get1 does use cleaned_data
+        conversions={'ph': float,
+                     'growth_rate': float,
+                     'temperature_c': float}
+        for f,t in conversions.items():
+            try:
+                setattr(gd,f,form.get1(f,t))
+#                log.debug('set gd.%s to %s' % (f, getattr(gd, f)))
+            except (ValueError, KeyError, TypeError) as e:
+#                log.debug('get_growth_data: no "%s" form (ok)' % f)
+                pass
+
+        return gd
 
     def get_organism(self, form):
         genus, species, strain, new_org=form.get_organism_name()
@@ -138,7 +157,6 @@ class NewMediaView(FormView):
             typeid=form.get1('new_org_type')
             new_type=TypesOfOrganisms.objects.get(typeid=typeid)
             org=Organisms(genus=genus, species=species, strain=strain, typeid=new_type)
-            org.save()
             return org
 
         try:
@@ -149,23 +167,18 @@ class NewMediaView(FormView):
             form.errors['Organism']="No such organism: "+str(e)
             raise e
     
-    def get_media_name(self, form):
+    def get_media_name(self, gd, form):
         try:
-            return MediaNames.objects.get(media_name=form.get1('media_name'))
-        except MediaNames.DoesNotExist:
-            try:
-#                is_defined='Y' if 'is_defined' in self.request.POST else 'N'
-                is_defined='Y'  # always
-                is_minimal='Y' if 'is_minimal' in self.request.POST else 'N'
-                
-                args={'media_name': form.get1('media_name'),
-                      'is_defined': is_defined,
-                      'is_minimal': is_minimal
-                      }
-                return MediaNames(**args)
-            except Exception, e:
-                form.errors['MediaNames']="Unable to create media name record: "+str(e)
-                raise e
+            medid=gd.medid
+        except (AttributeError, MediaNames.DoesNotExist) as e:
+            medid=MediaNames()
+
+        # now update fields (might already be the same):
+        medid.media_name=form.get1('media_name')
+        medid.is_defined='Y'  # always
+        medid.is_minimal='Y' if 'is_minimal' in self.request.POST else 'N'
+        medid.save()
+        return medid
 
     def get_media_comps(self, form, media_name):
         ''' get the list of comp/amount objects, referencing the media_name object: '''
@@ -175,55 +188,29 @@ class NewMediaView(FormView):
             n=ckey.split('comp')[1]
             akey='amount'+n
             comp=Compounds.objects.with_name(form.get1(ckey))
-            amount=form.get1(akey)
+            try: amount=form.get1(akey)
+            except KeyError: amount=None
             med_comp=MediaCompounds(medid=media_name, compid=comp, amount_mm=amount)
             med_comps.append(med_comp)
 
         return med_comps
 
-    def get_growth_data(self, form, org, source, media_name):
-        args={'approved': form.get1('approved'),
-              'strainid': org,
-              'contributor_id': form.get1('contributor_id'),
-              'medid': media_name,
-              'sourceid': source,
-              'growth_units': '1/h',
-              'additional_notes': '',
-              }
 
-        conversions={'growth_id': int,
-                     'ph': float,
-                     'growth_rate': float,
-                     'temperature_c': float}
-        for f,t in conversions.items():
-            try:
-                args[f]=form.get1(f,t)
-                log.debug('existing args[%s]=%s' % (f, args[f]))
-            except (ValueError, KeyError, TypeError) as e:
-                log.debug('get_growth_data: no "%s" form (ok)' % f)
-                pass
-
-        gd=GrowthData(**args)
-        gd.strainid=org
-        gd.sourceid=source
-        gd.medid=media_name
-        return gd
-
-    def get_source(self, form):
+    def get_source(self, gd, form):
         ''' fixme: what happens if one field of an existing Sources record is changed?
             create a totally new record?  Leave the old record dangling?
         '''
-        fields=['first_author', 'journal', 'year', 'title', 'link']
-        args=dict((k,v) for (k,v) in [(f,form.get1(f)) for f in fields])
         try:
-            src, created=Sources.objects.get_or_create(**args)
-        except IntegrityError as e:
-            form.errors['Sources']='Error creating Source: %s' % e
-            raise e
+            src=Sources.objects.get(pk=gd.sourceid_id)
+        except Sources.DoesNotExist:
+            fields=['first_author', 'journal', 'year', 'title', 'link']
+            args=dict((k,v) for (k,v) in [(f,form.get1(f)) for f in fields])
+            try:
+                src=Sources.objects.get(**args)
+            except Exception as e:
+                src=Sources(**args)
+        src.save()
         return src
-
-
-                          
 
     def get_uptakes(self, form, gd):
         '''
@@ -235,10 +222,9 @@ class NewMediaView(FormView):
             n=key.split('uptake_comp')[1]
             try: 
                 comp_name=form.get1(key)
-                log.debug('comp_name for key=%s: %s'% (key, comp_name))
                 if comp_name==None or len(comp_name)==0: continue # ignore the whole row
             except (TypeError, ValueError) as e: 
-                log.debug('no comp_name for key=%s: e=%s' % (key, e))
+#                log.debug('no comp_name for key=%s: e=%s' % (key, e))
                 continue # this only happens for key=='uptake_comp1'
             
             try:
@@ -258,6 +244,7 @@ class NewMediaView(FormView):
                                    rate=rate,
                                    units=units,
                                    rateid=up_type)
+            log.debug('get_uptakes() appending: %s' % uptake)
             uptakes.append(uptake)
         return uptakes
 
