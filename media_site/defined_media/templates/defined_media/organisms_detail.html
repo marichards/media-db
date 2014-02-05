@@ -3,7 +3,7 @@
 {% block title %}Organism: {{ organisms }}{% endblock %}
 
 {% block content %}
-<h2>Organism: {{ organisms }}</h2>
+<h2>Organism: {{ organisms }} ({{ organisms.typeid }})</h2>
 
 {% with growth_data=organisms.growthdata_set.all %}
 

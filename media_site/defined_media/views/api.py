@@ -92,13 +92,11 @@ def efetch_pmid(request, *args, **kwargs):
                 mg=re.search(r'19\d\d|20\d\d', value) # this seems error-prone
                 if mg:
                     year=mg.group(0)
-                    print 'year is ' + year
                     data['year']=year
             elif code=='AU':
                 if not data['author']:
                     data['author']=value
             last_code=code
     
-    print 'efetch: data is %s' % data
     return HttpResponse(json.dumps(data), mimetype='application/json')
 

@@ -300,7 +300,7 @@ class GrowthData(models.Model):
         clones may share: medid, contributor, strainid, sourceid, or any of the basic
         info.  BUT: they can't share ALL of it.  So we create a new MediaNames object,
         change its media_name field (by appending ' (clone)', and use that to satisfy
-        the uniqueness constraint.
+        the uniqueness constraint).
         '''
         if contributor is None:
             contributor=Contributor.objects.get(id=self.contributor_id)
@@ -473,7 +473,7 @@ class Organisms(models.Model):
     genus = models.CharField(max_length=255L, db_column='Genus', blank=False, null=False)
     species = models.CharField(max_length=255L, db_column='Species', blank=False, null=False)
     strain = models.CharField(max_length=255L, db_column='Strain', blank=False, null=False) 
-    typeid = models.ForeignKey('TypesOfOrganisms', null=True, db_column='typeID', blank=True)
+    typeid = models.ForeignKey('TypesOfOrganisms', db_column='typeID')
 
     class Meta:
         db_table = 'organisms'
@@ -609,9 +609,12 @@ class Sources(models.Model):
 class TypesOfOrganisms(models.Model):
     typeid = models.AutoField(primary_key=True, db_column='typeID') # Field name made lowercase.
     organism_type = models.CharField(max_length=255L, unique=True, db_column='Organism_type', blank=True) # Field name made lowercase.
+    
     class Meta:
         db_table = 'types_of_organisms'
 
+    def __unicode__(self):
+        return self.organism_type
 
 
 class SearchResult(models.Model):
