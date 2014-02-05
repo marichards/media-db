@@ -12,6 +12,11 @@ class SearchForm(forms.Form):
     search_term=forms.CharField()
 
 
+class OrganismForm(forms.ModelForm):
+    class Meta:
+        model=Organisms
+        
+
 class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
     @classmethod
     def from_growth_data(self, gd):
