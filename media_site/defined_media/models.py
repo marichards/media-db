@@ -572,9 +572,9 @@ class Sources(models.Model):
     sourceid = models.AutoField(primary_key=True, db_column='sourceID') # Field name made lowercase.
     first_author = models.CharField(max_length=255L, db_column='First_Author', blank=True) # Field name made lowercase.
     journal = models.CharField(max_length=255L, db_column='Journal', blank=True) # Field name made lowercase.
-    year = models.TextField(db_column='Year', blank=True) # Field name made lowercase. This field type is a guess.
+    year = models.CharField(db_column='Year', blank=True, max_length=4L) # Field name made lowercase. This field type is a guess.
     title = models.CharField(max_length=255L, unique=True, db_column='Title', blank=True) # Field name made lowercase.
-    link = models.CharField(max_length=255L, unique=True, db_column='Link', blank=True) # Field name made lowercase.
+    link = models.CharField(max_length=255L, unique=False, db_column='Link', blank=True) # Field name made lowercase.
     pubmed_id = models.IntegerField(null=True, blank=True)
 
     def is_pdf(self):

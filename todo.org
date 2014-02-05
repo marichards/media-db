@@ -1,5 +1,6 @@
 
 * Todo:
+- Turn off debug, and create an error page.
 - Polish style
 - - Still getting color screw-up when right content div is shorter than left (eg, forbidden page)
 - help pages

@@ -48,6 +48,7 @@ urlpatterns = patterns(view_prefix,
 
                        # Model Create/Edit views
                        url(r'^neworg/$', login_required(views.organism.NewOrganismView.as_view()), name='new_org'),
+                       url(r'^newsource/$', login_required(views.source.NewSourceView.as_view()), name='new_source'),
                        
 
                        # REST api
