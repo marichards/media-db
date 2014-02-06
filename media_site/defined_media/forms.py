@@ -21,13 +21,81 @@ class SourceForm(forms.ModelForm):
         model=Sources
         widgets={'pubmed_id': forms.TextInput(attrs={})}
 
-class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
-    @classmethod
+class MediaNamesForm(forms.Form):
+    @classmethod                # why can't we just NewCompoundMediaForm(gd)?  Because we need to follow lists
+    def from_media_name(self, mn):
+        return NewCompoundMediaForm(mn.as_dict())
+            
+    class Meta:
+#        fields='media_name is_minimal'.split(' ')
+#        widgets={'is_minimal': forms.CheckboxInput()}
+#        model=MediaNames
+        pass
+
+    media_name=forms.CharField(label='Name', required=True)
+    is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
+    comp1=forms.CharField(label='Compound 1', required=True)
+    amount1=forms.CharField(label='Amount', required=True)
+
+    def __init__(self, *args, **kwargs):
+        super(MediaNamesForm,self).__init__(*args, **kwargs)
+        
+        try:
+            log.debug('MediaNamesForm.__init__(): self.instance is %s' % self.instance)
+        except AttributeError:
+            pass
+
+        try:
+            mn=args[0]
+            self.mn=mn
+            log.debug('MediaNames is %s' % mn)
+            for medcomp in mn.mediacompounds_set.all():
+                self._add_medcomp_fields(medcomp)
+        except Exception as e:  # nevermind
+            log.debug('MediaNamesForm.__init__(): ignoring %s: %s' % (type(e), e))
+
+    def _add_medcomp_fields(self, medcomp):
+        ''' add a form field for a comp/amount pair '''
+        log.debug('adding field for medcomp %s' % medcomp)
+        n=len(self.medcomp_fields())
+        log.debug('n=%d' % n)
+        self.fields['comp%d' % n]=forms.CharField(label='Compound %d' % n, required=False)
+        self.fields['amount%d' % n]=forms.FloatField(label='Amount', required=False)
+        
+
+    def medcomp_values(self):
+        try:
+            return [{'comp':comp.compid.name, 'amount':comp.amount_mm} for comp in self.mn.mediacompounds_set.all()]
+        except AttributeError:
+            return []
+
+    def medcomp_fields(self):
+        import re
+        mc_fields=[]
+        for k in self.fields.keys():
+            if not k.startswith('comp'):
+                continue
+            amount_key=re.sub('comp', 'amount', k)
+            amount_field=self.fields[amount_key]
+            to_append={'comp': self.fields[k], 'amount':amount_field}
+            mc_fields.append(to_append)
+        return mc_fields
+
+
+class GrowthDataForm(forms.ModelForm):
+    class Meta:
+        model=GrowthData
+
+
+class NewCompoundMediaForm(forms.Form, ReformatsErrors, Gets1):
+    ''' this is obsolete! '''
+    ''' and really badly named! '''
+    @classmethod                # why can't we just NewCompoundMediaForm(gd)?  Because we need to follow lists
     def from_growth_data(self, gd):
-        return NewMediaForm(gd.as_dict())
+        return NewCompoundMediaForm(gd.as_dict())
             
     def __init__(self, *args, **kwargs):
-        super(NewMediaForm, self).__init__(*args, **kwargs)
+        super(NewCompoundMediaForm, self).__init__(*args, **kwargs)
 
         if len(args)>0:
             ''' Attach the original args (args[0]) if present so that
@@ -110,7 +178,7 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
         - Check that organism name is valid;
         - Check that floating point values are actually floating points;
         '''
-        valid=super(NewMediaForm, self).is_valid()
+        valid=super(NewCompoundMediaForm, self).is_valid()
         if not hasattr(self, 'orig_args'):
             return valid
 

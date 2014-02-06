@@ -1,0 +1,52 @@
+{% extends 'defined_media/base.html' %}
+
+{% block js_files %}
+{% load static %}
+<script src='{% static 'defined_media/js/jquery-1.10.2.min.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/jquery-ui.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/new_sources.js' %}' type='text/javascript'></script>
+{% endblock %}
+
+{% block content %}
+<form id='id_source_form' action='' method='POST'>
+{% csrf_token %}
+
+{% if Error %}Error: {{ Error }}{% endif %}
+
+<table>
+<tr><td>{{form.media_name.label}}</td><td>{{form.media_name}}</td></tr>
+<tr><td>{{form.is_defined.label}}</td><td>{{form.is_defined}}</td></tr>
+</table>
+
+<!-- copied and altered from newmedia_form.html -->
+<h4>Compounds:</h4>
+<table>
+<tr><th>Compound:</th><th>Amount (mM)</th></tr>
+{% if mn %}
+  {% for d in mn.media_compounds_dicts %}
+<tr id='id_comp_row{{ forloop.counter }}'>
+    <td><input id="id_comp{{ forloop.counter }}" name="comp{{ forloop.counter }}" type="text" value="{{ d.comp }}" /></td>
+    <td><input id="id_amount{{ forloop.counter }}" name="amount{{ forloop.counter }}" type="text" value="{{ d.amount }}" /></td>
+
+    {% if forloop.first %}
+    <td><input id='id_add_compound1' type='button' value='Add' /></td>
+    {% else %}
+    <td><input type='button' value='Remove' id='id_rm_compound{{ forloop.counter }}' class='compound_rm_button' /></td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+{% else %}
+<tr id='id_comp_row1'>
+    <td>{{ form.comp1 }}</td>
+    <td>{{ form.amount1 }}</td>
+    <td><input id='id_add_compound1' type='button' value='Add' /></td>
+</tr>
+{% endif %}
+</table>
+<!-- end copy -->
+
+
+<tr><td><input id='id_submit_button' type='button' value='Submit' /></td></tr>
+</table>
+</form>
+{% endblock %}

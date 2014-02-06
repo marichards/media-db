@@ -169,26 +169,8 @@ class GrowthData(models.Model):
              self.medid, self.sourceid_id, self.sourceid, self.measureid_id, self.measureid, self.approved)
 
 
-    # fixme: get rid of this
-    def save21(self):
-        '''
-        check the values of growth rate, temp, and ph;
-        '''
-        for attr in 'growth_rate temperature_c ph'.split(' '):
-            try:
-                value=float(getattr(self, attr))
-                if value is not None and value<=0:
-                    raise IntegrityError('growth_rate < 0')
-            except TypeError:
-                raise IntegrityError('%s not a floating point value (val=%s)' % (attr, getattr(self, attr)))
-            except AttributeError:
-                continue
-
-        super(GrowthData,self).save()
-
-
     def media_compounds_dicts(self):
-        return [{'comp': mc.compid.name, 'amount': mc.amount_mm} for mc in self.medid.mediacompounds_set.all()]
+        return self.medid.media_compounds_dicts()
 
     def dump(self):
         '''
@@ -237,15 +219,11 @@ class GrowthData(models.Model):
             }
 
         if hasattr(gd, 'growthid'):
-            d['growthid']=gd.growthid # clon3d gds lack this
+            d['growthid']=gd.growthid # cloned gds lack this
             
 
         # make comp1 and amount1 key/value pairs:
-        n=1
-        for medcomp in gd.medid.mediacompounds_set.all():
-           d['comp%d' % n]=medcomp.compid.name
-           d['amount%d' % n]=medcomp.amount_mm
-           n+=1
+        d.update(gd.medid.as_dict())
 
         n=1
         for su in gd.secretionuptake_set.all():
@@ -457,6 +435,20 @@ class MediaNames(models.Model):
             mc.save()
         return clone
 
+
+    def media_compounds_dicts(self):
+        return [{'comp': mc.compid.name, 'amount': mc.amount_mm} for mc in self.mediacompounds_set.all()]
+
+    def as_dict(self):
+        n=1
+        d={}
+        for medcomp in self.mediacompounds_set.all():
+           d['comp%d' % n]=medcomp.compid.name
+           d['amount%d' % n]=medcomp.amount_mm
+           n+=1
+        return d
+
+
 class NamesOfCompounds(models.Model):
     nameid = models.AutoField(primary_key=True, db_column='nameID') # Field name made lowercase.
     compid = models.ForeignKey(Compounds, db_column='compID') # Field name made lowercase.
@@ -589,6 +581,8 @@ class Sources(models.Model):
     class Meta:
         db_table = 'sources'
         verbose_name_plural = 'sources'
+        unique_together='first_author journal title'.split(' ')
+
     def __unicode__(self):
         year=self.year or ''
         return '%s et al, %s' %(self.first_author.capitalize(),year)
@@ -674,13 +668,18 @@ class Contributor(models.Model):
         return '%s %s (%s, lab=%s)' % (self.first_name, self.last_name, self.user.username, self.lab)
 
     def can_edit_gd(self, gd):
-        return self.user.is_superuser or (self.user.is_active and self.id==gd.contributor_id)
+        return self.user.is_superuser
+#        return self.user.is_superuser or (self.user.is_active and self.id==gd.contributor_id)
 
     def editable_gds(self):
         if self.user.is_superuser:
             return GrowthData.objects.all()
         else:
-            return GrowthData.objects.filter(contributor_id=self.id)
+#            return GrowthData.objects.filter(contributor_id=self.id)
+            return []
+
+    def can_edit_mn(self, mn):
+        return self.user.is_superuser
 
     def name(self):
         return '%s %s' % (self.first_name, self.last_name)

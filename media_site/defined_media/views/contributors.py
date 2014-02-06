@@ -1,7 +1,7 @@
 import logging
 log=logging.getLogger(__name__)
 
-from defined_media.forms import NewMediaForm, OrganismForm
+from defined_media.forms import NewCompoundMediaForm, OrganismForm
 from defined_media.models import *
 
 from django.views.generic.edit import FormView, CreateView
@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 
 
-class NewMediaView(FormView):
+class NewGrowthDataView(FormView):
     '''
     Basic "goal" is to store one GrowthData record, with as many attendent 
     compound/amount pairs (MediaCompound) records as provided.  Additionally,
@@ -18,7 +18,7 @@ class NewMediaView(FormView):
     secretion uptake records may be associated with the growth data record.
     '''
     template_name='defined_media/newmedia_form.html'
-    form_class=NewMediaForm
+    form_class=NewCompoundMediaForm
 #    success_url=reverse('new_media_form')
     success_url='/defined_media/newmedia'
 
@@ -26,7 +26,6 @@ class NewMediaView(FormView):
         context = super(NewMediaView, self).get_context_data(**kwargs)
         try: context['gd']=self.gd
         except (KeyError, AttributeError) as e: pass
-            
         return context
 
     # login_required, as per urls.py
@@ -38,9 +37,9 @@ class NewMediaView(FormView):
             if not user.contributor.can_edit_gd(gd):
                 return redirect('forbidden')
 
-            form=NewMediaForm.from_growth_data(gd)
+            form=NewCompoundMediaForm.from_growth_data(gd)
         except (GrowthData.DoesNotExist, KeyError):
-            form=NewMediaForm(initial={'contributor_id': request.user.contributor.id})
+            form=NewCompoundMediaForm(initial={'contributor_id': request.user.contributor.id})
             
         return self.form_invalid(form) 
 
@@ -48,7 +47,7 @@ class NewMediaView(FormView):
     # login_required, as per urls.py
 #    @transaction.atomic()
     def post(self, request, *args, **kwargs):
-        form=NewMediaForm(request.POST)
+        form=NewCompoundMediaForm(request.POST)
 
         # fixme: this only reports on certain errors; omits errors in get_organism, etc.
         # originally, it was meant that if the form was valid, we could go ahead and

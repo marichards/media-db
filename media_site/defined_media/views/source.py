@@ -24,14 +24,24 @@ class NewSourceView(CreateView):
 
     def post(self, request, *args, **kwargs):
         try:
+            keys='first_author journal year title'.split(' ')
+            args={k:self.request.POST[k] for k in keys}
+            n_sources=Sources.objects.filter(**args).count()
+            if n_sources > 0:
+                log.debug('barf')
+                self.object=None
+                raise IntegrityError('This message is not used')
+
             return super(NewSourceView,self).post(request, *args, **kwargs)
         except IntegrityError:
-            self.Error='This source already exists!'
+            self.Error='This source already exists in the database.'
             form=SourceForm(self.request.POST)
             return self.form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context=super(NewSourceView,self).get_context_data(**kwargs)
         try: context['Error']=self.Error
+        except AttributeError: pass
+        try: context['object']=self.object
         except AttributeError: pass
         return context

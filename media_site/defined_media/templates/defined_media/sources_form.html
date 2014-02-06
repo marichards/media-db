@@ -8,23 +8,21 @@
 {% endblock %}
 
 {% block content %}
-<form action='' method='POST'>
+<form id='id_source_form' action='' method='POST'>
 {% csrf_token %}
 
 {% if Error %}Error: {{ Error }}{% endif %}
 
 <table>
-{{ form.as_table }}
-<!--
-<tr><td>{{ form.pubmed_id.label }}</td><td>{{ form.pubmed_id }}</td></tr>
-<tr><td>{{ form.first_author.label }}</td><td>{{ form.first_author }}</td></tr>
-<tr><td>{{ form.journal.label }}</td><td>{{ form.journal }}</td></tr>
-<tr><td>{{ form.year.label }}</td><td>{{ form.year }}</td></tr>
-<tr><td>{{ form.title.label }}</td><td>{{ form.title }}</td></tr>
-<tr><td>{{ form.link.label }}</td><td>{{ form.link }}</td></tr>
--->
+<tr><td>{{ form.pubmed_id.label }}:</td><td>{{ form.pubmed_id }}</td></tr>
+<tr><td>{{ form.first_author.label }}:</td><td>{{ form.first_author }}</td></tr>
+<tr><td>{{ form.journal.label }}:</td><td>{{ form.journal }}</td></tr>
+<tr><td>{{ form.year.label }}:</td><td>{{ form.year }}</td></tr>
+<tr><td>{{ form.title.label }}:</td><td>{{ form.title }}</td></tr>
+<tr><td>{{ form.link.label }}:</td><td>{{ form.link }}</td></tr>
 </table>
 
-<input type='submit' value='Submit' />
+<tr><td><input id='id_submit_button' type='button' value='Submit' /></td></tr>
+
 </form>
 {% endblock %}
