@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 
 from defined_media.tests.forms.test_cases import newmedia_inputs
 from defined_media.models import *
-from defined_media.forms import NewMediaForm
+from defined_media.forms import NewCompoundMediaForm
 from defined_media.tests.snapshot import *
 
 SUCCESS=302
@@ -214,7 +214,7 @@ class TestMediaForm(TestCase):
         '''
         delete one necessary field at a time, make sure 
         '''
-        form=NewMediaForm()
+        form=NewCompoundMediaForm()
 
         for f in newmedia_inputs['full_valid']['args'].keys():
             if f.startswith('uptake'): 

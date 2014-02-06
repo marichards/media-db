@@ -2,7 +2,7 @@ import logging
 import copy
 from django.test import TestCase
 from defined_media.models import *
-from defined_media.forms import NewMediaForm
+from defined_media.forms import NewCompoundMediaForm
 from defined_media.views.contributors import NewMediaView
 from defined_media.tests.snapshot import snapshot, compare_snapshots
 
@@ -12,7 +12,7 @@ log=logging.getLogger(__name__)
 class TestGetOrganism(TestCase):
     '''
     This tests the functionality that gets the organism name.  That code 
-    should have originally been written in the forms.NewMediaForm, where it 
+    should have originally been written in the forms.NewCompoundMediaForm, where it 
     now lives, but originally it wasn't and I'm too lazy to move this test 
     under test.forms.
     '''
@@ -89,7 +89,7 @@ class TestGetOrganism(TestCase):
 ########################################################################
 
     def _test_get_organism(self, formargs, expect_success, expected_class, errors={}, deltas=None):
-        form=NewMediaForm(formargs)
+        form=NewCompoundMediaForm(formargs)
         self.assertFalse(form.is_valid())
         try:
             cd=form.cleaned_data

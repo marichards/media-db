@@ -22,10 +22,12 @@ def add_100_compounds_with_formulas(media_objs):
     except KeyError:
         media_objs['Compounds']=c100s
         
-
+def add_measurements(media_objs):
+    media_objs['Measurements']=set(Measurements.objects.all())
+    
 
 def add_growth_data(media_objs):
-    growth_ids=[254, 265, 210, 258]  # one for each unit type, and one that is ref'd by a sec-uptake
+    growth_ids=[254, 265, 210, 258, 266]  # one for each unit type, and one that is ref'd by a sec-uptake
     gd_objs=set()
     bad_gds=[]
     attrs=['strainid', 'medid', 'sourceid', 'measureid']
@@ -151,6 +153,7 @@ def main():
     add_media_names(media_objs, compounds)
     add_growth_data(media_objs)
     add_contributor(media_objs)
+    add_measurements(media_objs)
 
 #    add_reactants(media_objs)
 

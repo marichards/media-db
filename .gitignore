@@ -18,7 +18,6 @@ out.*
 *.pyc
 schema*
 settings.py
-settings.py*
 *.sql
 *.swp
 *.txt

@@ -22,9 +22,9 @@ class SourceForm(forms.ModelForm):
         widgets={'pubmed_id': forms.TextInput(attrs={})}
 
 class MediaNamesForm(forms.Form):
-    @classmethod                # why can't we just NewCompoundMediaForm(gd)?  Because we need to follow lists
+    @classmethod                # why can't we just NewMediaForm(gd)?  Because we need to follow lists
     def from_media_name(self, mn):
-        return NewCompoundMediaForm(mn.as_dict())
+        return NewMediaForm(mn.as_dict())
             
     class Meta:
 #        fields='media_name is_minimal'.split(' ')
@@ -34,35 +34,45 @@ class MediaNamesForm(forms.Form):
 
     media_name=forms.CharField(label='Name', required=True)
     is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
-    comp1=forms.CharField(label='Compound 1', required=True)
-    amount1=forms.CharField(label='Amount', required=True)
+    is_minimal=forms.CharField(label='Is minimal?', widget=forms.CheckboxInput) # we don't actually display this in the template, because it's always 'Y'
+#    comp1=forms.CharField(label='Compound 1', required=True)
+#    amount1=forms.CharField(label='Amount', required=True)
 
     def __init__(self, *args, **kwargs):
         super(MediaNamesForm,self).__init__(*args, **kwargs)
         
+        # attempt to add form fields if args[0] is a MediaNames object:
         try:
-            log.debug('MediaNamesForm.__init__(): self.instance is %s' % self.instance)
-        except AttributeError:
-            pass
+            try:
+                mn=args[0]
+                d=mn.as_dict()
+                self.mn=mn
+            except AttributeError:
+                d=args[0]
+            n=1
+            for k,v in d.items():
+                if k.startswith('comp'):
+                    comp_name=v
+                    amount_key=re.sub('comp', 'amount', k)
+                    try: amount=d[amount_key]
+                    except KeyError: amount=''
+                    self._add_medcomp_field(n, comp_name, amount)
+                    n+=1
 
-        try:
-            mn=args[0]
-            self.mn=mn
-            log.debug('MediaNames is %s' % mn)
-            for medcomp in mn.mediacompounds_set.all():
-                self._add_medcomp_fields(medcomp)
-        except Exception as e:  # nevermind
+        except Exception as e:  # nevermind, maybe args[0] wasn't a MediaNames object or something
             log.debug('MediaNamesForm.__init__(): ignoring %s: %s' % (type(e), e))
 
-    def _add_medcomp_fields(self, medcomp):
+        # if nothing happened, we need to at least create the first compound/amount CharFields:
+        if 'comp1' not in self.fields:
+            self._add_medcomp_field(1, '', '')
+
+    def _add_medcomp_field(self, n, comp_name, amount):
         ''' add a form field for a comp/amount pair '''
-        log.debug('adding field for medcomp %s' % medcomp)
-        n=len(self.medcomp_fields())
-        log.debug('n=%d' % n)
-        self.fields['comp%d' % n]=forms.CharField(label='Compound %d' % n, required=False)
-        self.fields['amount%d' % n]=forms.FloatField(label='Amount', required=False)
+        self.fields['comp%d' % n]=forms.CharField(label='Compound %d' % n, required=False, initial=comp_name)
+        self.fields['amount%d' % n]=forms.FloatField(label='Amount', required=False, initial=amount)
         
 
+    '''
     def medcomp_values(self):
         try:
             return [{'comp':comp.compid.name, 'amount':comp.amount_mm} for comp in self.mn.mediacompounds_set.all()]
@@ -80,7 +90,7 @@ class MediaNamesForm(forms.Form):
             to_append={'comp': self.fields[k], 'amount':amount_field}
             mc_fields.append(to_append)
         return mc_fields
-
+    '''
 
 class GrowthDataForm(forms.ModelForm):
     class Meta:

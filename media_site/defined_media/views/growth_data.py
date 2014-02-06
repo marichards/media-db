@@ -2,7 +2,7 @@ import logging
 log=logging.getLogger(__name__)
 
 from defined_media.models import *
-from defined_media.forms import NewMediaForm
+from defined_media.forms import NewCompoundMediaForm
 from django.views.generic.edit import FormView, CreateView
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
@@ -13,7 +13,7 @@ class NewGrowthData(CreateView):
 
 class CloneGrowthDataView(FormView):
     template_name='defined_media/newmedia_form.html'
-    form_class=NewMediaForm
+    form_class=NewCompoundMediaForm
     success_url='/defined_media/newmedia'
 
     def get(self, request, *args, **kwargs):
@@ -26,7 +26,7 @@ class CloneGrowthDataView(FormView):
         contributor=request.user.contributor
         new_gd=old_gd.clone_and_save(contributor)
         new_gd.approved=False;
-        form=NewMediaForm.from_growth_data(new_gd)
+        form=NewCompoundMediaForm.from_growth_data(new_gd)
 #        form.is_valid()         # why? to get form.cleaned_data?
 
         context=self.get_context_data(new_gd=new_gd, 
