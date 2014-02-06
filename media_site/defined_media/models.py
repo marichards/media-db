@@ -440,12 +440,11 @@ class MediaNames(models.Model):
         return [{'comp': mc.compid.name, 'amount': mc.amount_mm} for mc in self.mediacompounds_set.all()]
 
     def as_dict(self):
-        n=1
-        d={}
-        for medcomp in self.mediacompounds_set.all():
+        d={attr:getattr(self, attr) for attr in 'media_name is_defined is_minimal'.split(' ')}
+
+        for n,medcomp in enumerate(self.mediacompounds_set.all()):
            d['comp%d' % n]=medcomp.compid.name
            d['amount%d' % n]=medcomp.amount_mm
-           n+=1
         return d
 
 

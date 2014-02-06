@@ -1,3 +1,7 @@
+Next up: medianames editting server side
+         Ok, there's a reason there's a CreateView and an UpdateView.  You 
+	 do two separte urls for two different views, and you don't have to
+	 worry about whether or not you're updating or overwriting or whatevs
 
 * Todo:
 - Turn off debug, and create an error page.
