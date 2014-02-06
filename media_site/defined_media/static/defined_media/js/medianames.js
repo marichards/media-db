@@ -1,7 +1,7 @@
 console.log('hi from new_medianames.js')
 
 
-NewMediaEditor=function(o) {
+MediaNamesEditor=function(o) {
     this.init_funcs=[]
     this.urlmap={}
     this.urlmap_url='/defined_media/api/urlmap'
@@ -11,7 +11,7 @@ NewMediaEditor=function(o) {
 }
 
 
-NewMediaEditor.prototype={
+MediaNamesEditor.prototype={
     push_init_func : function(f, args) { 
         this.init_funcs.push([f, args]) 
     },
@@ -44,7 +44,7 @@ NewMediaEditor.prototype={
 	$('#id_add_compound1').click(document.editor.add_compound)
 	$('#id_newmedia_form').submit(document.editor.prevent_submission)
 	$('#id_submit_button').click(document.editor.submit)
-
+	$('.compound_rm_button').click(document.editor.remove_compound)
 	// add event handlers for comp and uptake rm buttons
     },
 
@@ -52,21 +52,25 @@ NewMediaEditor.prototype={
     add_compound : function(eventObj) {
 	// this is a callback for when an 'Add' button is clicked.
 	// It inserts a new compound row into the document.
+	console.log('hi from add_compound')
 
 	// create tr element and three td elements:
 	n=document.editor.compound_n+1
+	console.log('n is '+n)
 	row=$('<tr></tr>', {id: 'id_comp_row'+n})
 	row.append($('<td></td>').append($('<input>', {id:'id_comp'+n, name:'comp'+n, type: 'text'})))
 	row.append($('<td></td>').append($('<input>', {id:'id_amount'+n, name:'amount'+n, type: 'text'})))
 
-	add_button=$('<input>', {type: 'button', value: 'Remove', id: 'id_rm_compound'+n})
+	add_button=$('<input>', {type: 'button', value: 'Remove', id: 'id_rm_compound'+n, 'class': 'compound_rm_button'})
 	add_button.click(document.editor.remove_compound)
 	row.append($('<td></td>').append(add_button))
 	$('#id_comp_row1').after(row)
 	document.editor.compound_n+=1
+	console.log('add_compound done')
     },
 
     remove_compound: function(eventObj) {
+	console.log('remove_compound entered')
 	button_id=eventObj.target.id
 	n=button_id.split('compound')[1]
 	row_id='#id_comp_row'+n
@@ -107,8 +111,12 @@ NewMediaEditor.prototype={
 }
 
 $(document).ready(function() {
-    editor=new NewMediaEditor() // needs to be moved to <head>?
+    console.log('hello?')
+    editor=new MediaNamesEditor() // needs to be moved to <head>?
     document.editor=editor
+    console.log('editorship')
     editor.push_init_func(editor.init_callbacks,[])
+    console.log('about to init')
     editor.init()
+    console.log('all ready')
 })
