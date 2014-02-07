@@ -10,12 +10,12 @@
 {% block content %}
 <form id='id_newmedia_form' action='' method='POST'>
 {% csrf_token %}
+{{ form.medid }}
 
 {% if form.errors %}{{ form.errors|length }} Error(s): 
-<ol>
-{% for k,v in form.errors.items %}
+<ol>{% for k,v in form.errors.items %}
 <li>{{k}}: {{v}}</li>
-{% endfor %}
+{% endfor %}</ol>
 {% endif %}
 
 <table>

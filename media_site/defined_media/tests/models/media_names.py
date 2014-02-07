@@ -50,3 +50,20 @@ class TestMediaNames(TestCase):
         except MediaNames.DoesNotExist:
             log.debug('MediaNames.objects.get(medid=277) does not exist')
             
+
+    def test_as_dict(self):
+        args={'media_name': 'some name',
+              'is_defined': 'Y',
+              'is_minimal': 'Y',
+              }
+        mn=MediaNames(**args)
+        d=mn.as_dict()
+        self.assertTrue(d, args)
+
+        args['medid']=-3
+        mn=MediaNames(**args)
+        d=mn.as_dict()
+        self.assertTrue(d, args)
+        self.fail(str(d))
+
+

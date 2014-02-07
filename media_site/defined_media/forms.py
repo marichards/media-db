@@ -22,21 +22,14 @@ class SourceForm(forms.ModelForm):
         widgets={'pubmed_id': forms.TextInput(attrs={})}
 
 class MediaNamesForm(forms.Form):
-    @classmethod                # why can't we just NewMediaForm(gd)?  Because we need to follow lists
+    @classmethod                # why can't we just MediaNamesForm(gd)?  Because we need to follow lists
     def from_media_name(self, mn):
-        return NewMediaForm(mn.as_dict())
+        return MediaNamesForm(mn.as_dict())
             
-    class Meta:
-#        fields='media_name is_minimal'.split(' ')
-#        widgets={'is_minimal': forms.CheckboxInput()}
-#        model=MediaNames
-        pass
-
+    medid=forms.IntegerField(required=False, widget=forms.HiddenInput)
     media_name=forms.CharField(label='Name', required=True)
     is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
     is_minimal=forms.CharField(label='Is minimal?', widget=forms.CheckboxInput) # we don't actually display this in the template, because it's always 'Y'
-#    comp1=forms.CharField(label='Compound 1', required=True)
-#    amount1=forms.CharField(label='Amount', required=True)
 
     def __init__(self, *args, **kwargs):
         super(MediaNamesForm,self).__init__(*args, **kwargs)
@@ -61,6 +54,7 @@ class MediaNamesForm(forms.Form):
 
         except Exception as e:  # nevermind, maybe args[0] wasn't a MediaNames object or something
             log.debug('MediaNamesForm.__init__(): ignoring %s: %s' % (type(e), e))
+            log.exception(e)
 
         # if nothing happened, we need to at least create the first compound/amount CharFields:
         if 'comp1' not in self.fields:

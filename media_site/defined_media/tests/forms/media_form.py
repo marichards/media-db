@@ -18,6 +18,18 @@ class TestMediaNamesForm(TestCase):
     def tearDown(self):
         pass
 
+    def test_medid_field(self):
+        ''' why isn't {{ form.medid }} including the value of mn.medid? '''
+        mn=MediaNames.objects.first()
+        self.assertTrue(mn.medid > 0)
+        form=MediaNamesForm(mn.as_dict())
+        self.assertTrue(form.is_valid())
+        field=form.fields['medid']
+        widget=field.widget
+#        for d in dir(widget):
+#            log.debug('%s: %s' % (d, type(getattr(widget, d))))
+        self.fail(widget.render())
+
     def test_add_medcomp_fields(self):
         mn=MediaNames.objects.first()
         form=MediaNamesForm(mn)

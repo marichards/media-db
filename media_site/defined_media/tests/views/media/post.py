@@ -40,7 +40,7 @@ class TestPost(TestCase):
         ss2=snapshot(self, 'finish')
         compare_snapshots(self, 'start', 'finish', {MediaNames: +1, MediaCompounds: +2})
 
-    def test_missing_amount(self):
+    def test_missing_amount_create(self):
         '''
         A compound named, but with a missing amount, should cause an error.
         '''
@@ -57,3 +57,24 @@ class TestPost(TestCase):
         self.assertTrue(response.status_code, FAILURE)
         ss2=snapshot(self, 'finish')
         compare_snapshots(self, 'start', 'finish', {MediaNames: +0, MediaCompounds: +0})
+
+    def test_missing_amount_edit(self):
+        '''
+        A compound named, but with a missing amount, should cause an error.
+        '''
+        args={'media_name': 'Some media name',
+              'is_defined': True,
+              'is_minimal': True, 
+              'comp1': 'water',
+              'amount1': '3.32',
+              'comp2': 'NADH',
+              }
+        ss1=snapshot(self, 'start')
+
+        mn=MediaNames.objects.first()
+        url=reverse('new_media', args=(mn.medid,))
+        response=self.client.post(url, args)
+        self.assertTrue(response.status_code, FAILURE)
+        ss2=snapshot(self, 'finish')
+        compare_snapshots(self, 'start', 'finish', {MediaNames: +0, MediaCompounds: +0})
+
