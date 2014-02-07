@@ -8,10 +8,15 @@
 {% endblock %}
 
 {% block content %}
-<form id='id_source_form' action='' method='POST'>
+<form id='id_newmedia_form' action='' method='POST'>
 {% csrf_token %}
 
-{% if Error %}Error: {{ Error }}{% endif %}
+{% if form.errors %}{{ form.errors|length }} Error(s): 
+<ol>
+{% for k,v in form.errors.items %}
+<li>{{k}}: {{v}}</li>
+{% endfor %}
+{% endif %}
 
 <table>
 <tr><td>{{form.media_name.label}}</td><td>{{form.media_name}}</td></tr>

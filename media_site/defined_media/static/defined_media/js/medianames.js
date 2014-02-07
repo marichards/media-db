@@ -1,6 +1,3 @@
-console.log('hi from new_medianames.js')
-
-
 MediaNamesEditor=function(o) {
     this.init_funcs=[]
     this.urlmap={}
@@ -94,29 +91,30 @@ MediaNamesEditor.prototype={
     },  
 
     prevent_submission: function() {
-//        console.log('ha ha')
+        console.log('ha ha')
 	return false 
     }, 
 
     allow_submission: function() {
-//        console.log('away we go')
+        console.log('away we go')
         return true
     }, 
 
     submit: function(eventObj) {
+	// open the gate, allow submission, and close the gate:
+	console.log('submit() entered')
 	$('#id_newmedia_form').unbind('submit')
-//	$('#id_newmedia_form').submit()
+	console.log('submit() gate opened')
+	$('#id_newmedia_form').submit()
+	console.log('submit() submit called')
 	$('#id_newmedia_form').submit(document.editor.prevent_submission)
+	console.log('submit() leaving')
     },  
 }
 
 $(document).ready(function() {
-    console.log('hello?')
     editor=new MediaNamesEditor() // needs to be moved to <head>?
     document.editor=editor
-    console.log('editorship')
     editor.push_init_func(editor.init_callbacks,[])
-    console.log('about to init')
     editor.init()
-    console.log('all ready')
 })

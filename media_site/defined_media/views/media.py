@@ -38,7 +38,7 @@ class NewMediaView(FormView):
         if not form.is_valid():
             # maybe do something about reformatting errors....
             log.debug('form not valid: errors=%s' % form.errors)
-            return self.form_invalid()
+            return self.form_invalid(form)
 
         # probably something about getting/creating the MediaNames,
         # setting up its mediacompounds_set, and possibly saving
