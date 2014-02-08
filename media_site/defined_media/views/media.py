@@ -44,8 +44,7 @@ class NewMediaView(FormView):
             log.debug('form not valid: errors=%s' % form.errors)
             return self.form_invalid(form)
 
-        # probably something about getting/creating the MediaNames,
-        # setting up its mediacompounds_set, and possibly saving
+
         comps=self.get_compounds(form)
         try:
             with transaction.atomic():
@@ -123,16 +122,20 @@ class NewMediaView(FormView):
             try:
                 comp=comps[key]
                 medcomp=MediaCompounds(medid=mn, compid=comp, amount_mm=amount)
-                mn.mediacompounds_set.add(medcomp) # doesn't work unless mn has been saved
-                log.debug('added medcomp %s' % medcomp)
-            except TransactionManagementError as e:
-                log.debug('Transaction Management Error, probably due to trying to add existing media_comp; ignoring')
-            except IntegrityError as e:
-                log.debug('IntegrityError: %s, probably due to trying to add existing media_comp; ignoring' % e)
-            except Exception as e:
+                try:
+                    with transaction.atomic():
+                        mn.mediacompounds_set.add(medcomp) # doesn't work unless mn has been saved
+                        log.debug('added medcomp %s' % medcomp)
+                except IntegrityError:
+                    log.debug('saving medcomp %s (instead of adding)' % medcomp)
+                    medcomp.save()
+            except (ValueError, TypeError) as e:
                 log.debug('Unable to create compound for %s, %s: %s (%s)' % (form.cleaned_data.get(key), amount, e, type(e)))
 #                log.exception(e)
                 form.errors[amt_key]='Bad compound'
+            except Exception as e:
+                log.debug('caught and passing along %s: %s' % (type(e), e))
+                raise e
 
         return mn
         
