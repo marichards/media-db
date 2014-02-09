@@ -1,7 +1,7 @@
 import logging
 log=logging.getLogger(__name__)
 
-from defined_media.forms import MediaNamesForm
+from defined_media.forms.media_names_form import MediaNamesForm
 from defined_media.models import *
 
 from django.views.generic.edit import FormView

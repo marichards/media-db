@@ -1,4 +1,8 @@
-Next up: medianames editting server side
+Next up: design and implement growth data editing page.  Maybe research the item below (CreateView vs. EditView)
+
+Impose uniqueness on MediaNames.media_name and test for it.
+
+
          Ok, there's a reason there's a CreateView and an UpdateView.  You 
 	 do two separte urls for two different views, and you don't have to
 	 worry about whether or not you're updating or overwriting or whatevs

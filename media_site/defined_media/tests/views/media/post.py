@@ -5,7 +5,7 @@ from django.test.client import Client
 from django.core.urlresolvers import reverse
 
 from defined_media.views.media import NewMediaView
-from defined_media.forms import MediaNamesForm
+from defined_media.forms.media_names_form import MediaNamesForm
 from defined_media.tests.snapshot import snapshot, compare_snapshots
 
 log=logging.getLogger(__name__)
