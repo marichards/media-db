@@ -69,10 +69,8 @@ class NewMediaView(FormView):
         # and returns either form_invalid() or redirect()?
         success=len(form.errors)==0
         if success:
-            log.debug('post: success')
             return redirect(self.get_success_url())
         else:
-            log.debug('post: failure: %d mediacomps in mn' % self.mn.mediacompounds_set.count())
             newform=MediaNamesForm(request.POST)
             for f,err in form.errors.items():
                 newform.errors[f]=err

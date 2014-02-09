@@ -361,7 +361,7 @@ class MediaCompounds(models.Model):
 
 class MediaNames(models.Model):
     medid = models.AutoField(primary_key=True, db_column='medID') # Field name made lowercase.
-    media_name = models.CharField(max_length=255L, db_column='Media_name', blank=True) # Field name made lowercase.
+    media_name = models.CharField(max_length=255L, db_column='Media_name', blank=False, unique=True) # Field name made lowercase.
     is_defined = models.CharField(max_length=1L, db_column='Is_defined', blank=True) # Field name made lowercase.
     is_minimal = models.CharField(max_length=1L, db_column='Is_minimal', blank=True) # Field name made lowercase.
     class Meta:
