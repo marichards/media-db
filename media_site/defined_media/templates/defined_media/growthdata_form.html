@@ -1,0 +1,9 @@
+{% extends 'defined_media/base.html' %}
+{% block content %}
+
+<form action='' method='POST'>
+{% csrf_token %}
+
+<input type='submit' value='Submit' />
+</form>
+{% endblock %}

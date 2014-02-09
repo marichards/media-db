@@ -1,5 +1,5 @@
 import logging
-import django.forms
+import django.forms as forms
 from defined_media.models import MediaNames, Compounds
 
 log=logging.getLogger(__name__)
