@@ -33,15 +33,18 @@ class MediaNamesForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(MediaNamesForm,self).__init__(*args, **kwargs)
-        
+        self.media_compounds_list=[]
+
         # attempt to add form fields if args[0] is a MediaNames object:
         try:
             try:
                 mn=args[0]
                 d=mn.as_dict()
                 self.mn=mn
+                log.debug('got args from mn %s' % mn)
             except AttributeError:
                 d=args[0]
+                log.debug('got args from args[0]')
             n=1
             for k,v in d.items():
                 if k.startswith('comp'):
@@ -63,29 +66,42 @@ class MediaNamesForm(forms.Form):
     def _add_medcomp_field(self, n, comp_name, amount):
         ''' add a form field for a comp/amount pair '''
         self.fields['comp%d' % n]=forms.CharField(label='Compound %d' % n, required=False, initial=comp_name)
+        self.media_compounds_list.append({'comp': comp_name, 'amount': amount})
         self.fields['amount%d' % n]=forms.FloatField(label='Amount', required=False, initial=amount)
+        log.debug('form.medcomp field added: %s-%s' %(comp_name, amount))
         
 
-    '''
-    def medcomp_values(self):
-        try:
-            return [{'comp':comp.compid.name, 'amount':comp.amount_mm} for comp in self.mn.mediacompounds_set.all()]
-        except AttributeError:
-            return []
+    def is_valid(self):
+        valid=super(MediaNamesForm, self).is_valid()
 
-    def medcomp_fields(self):
-        import re
-        mc_fields=[]
-        for k in self.fields.keys():
-            if not k.startswith('comp'):
+        def _compkeys(self):
+            return [k for k in self.cleaned_data.keys() if k.startswith('comp')]
+            
+        # check that compounds are known
+        # for each compound that exists, make sure it has an amount field
+        for compkey in _compkeys(self):
+            comp_name=self.cleaned_data.get(compkey)
+            if comp_name is None or len(comp_name)==0:
                 continue
-            amount_key=re.sub('comp', 'amount', k)
-            amount_field=self.fields[amount_key]
-            to_append={'comp': self.fields[k], 'amount':amount_field}
-            mc_fields.append(to_append)
-        return mc_fields
-    '''
+            try:
+                comp=Compounds.objects.with_name(comp_name)
+            except Compounds.DoesNotExist:
+                self.errors[compkey]='Unknown compound "%s"' % comp_name
+                log.debug('%s: Unknown compound "%s"' % (compkey, comp_name))
+                valid=False
 
+            amt_key='amount'+compkey.split('comp')[1]
+            amount=self.cleaned_data.get(amt_key)
+            if amount is None:
+                self.errors[amt_key]='Amount needed for compound %s' % comp_name
+                log.debug('%s(%s): Amount needed for compound "%s"' % (compkey, amt_key, comp_name))
+                valid=False
+
+        log.debug('form.is_valid() returning %s' % valid)
+        for k,v in self.errors.items():
+            log.debug('form.errors[%s]=%s' % (k,v))
+        return valid
+                
 class GrowthDataForm(forms.ModelForm):
     class Meta:
         model=GrowthData

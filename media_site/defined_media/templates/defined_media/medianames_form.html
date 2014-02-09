@@ -27,8 +27,8 @@
 <h4>Compounds:</h4>
 <table>
 <tr><th>Compound:</th><th>Amount (mM)</th></tr>
-{% if mn %}
-  {% for d in mn.media_compounds_dicts %}
+
+{% for d in form.media_compounds_list %}
 <tr id='id_comp_row{{ forloop.counter }}'>
     <td><input id="id_comp{{ forloop.counter }}" name="comp{{ forloop.counter }}" type="text" value="{{ d.comp }}" /></td>
     <td><input id="id_amount{{ forloop.counter }}" name="amount{{ forloop.counter }}" type="text" value="{{ d.amount }}" /></td>
@@ -39,14 +39,8 @@
     <td><input type='button' value='Remove' id='id_rm_compound{{ forloop.counter }}' class='compound_rm_button' /></td>
     {% endif %}
   </tr>
-  {% endfor %}
-{% else %}
-<tr id='id_comp_row1'>
-    <td>{{ form.comp1 }}</td>
-    <td>{{ form.amount1 }}</td>
-    <td><input id='id_add_compound1' type='button' value='Add' /></td>
-</tr>
-{% endif %}
+{% endfor %}
+
 </table>
 <!-- end copy -->
 
@@ -54,4 +48,16 @@
 <tr><td><input id='id_submit_button' type='button' value='Submit' /></td></tr>
 </table>
 </form>
+{% endblock %}
+
+{% block scrap %}
+{% if mn %}
+
+{% else %}
+<tr id='id_comp_row1'>
+    <td>{{ form.comp1 }}</td>
+    <td>{{ form.amount1 }}</td>
+    <td><input id='id_add_compound1' type='button' value='Add' /></td>
+</tr>
+{% endif %}
 {% endblock %}

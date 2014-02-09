@@ -6,8 +6,16 @@ log=logging.getLogger(__name__)
 
 class MockPostDict(dict):
     def __init__(self, mn0, seeder=None):
-        ''' initialize from mn0 '''
+        ''' 
+        Mock up the MediaNames POST dict.  
+        Entries: "compN" -> compound name
+                 "amountN" -> float (in string form)
+        initialize from mn0 
+        '''
         if seeder is not None: seed(seeder)
+
+        for field in 'media_name is_defined is_minimal'.split(' '):
+            self[field]=getattr(mn0, field)
 
         for i,mc in enumerate(mn0.mediacompounds_set.all()):
             compkey='comp%d' % i

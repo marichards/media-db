@@ -44,6 +44,84 @@ class NewMediaView(FormView):
             log.debug('form not valid: errors=%s' % form.errors)
             return self.form_invalid(form)
 
+        try:
+            medid=form.cleaned_data.get('medid')
+            if medid is not None:
+                mn=MediaNames.objects.get(medid=medid)
+        except MediaNames.DoesNotExist:
+            raise Http404
+
+        try:
+            with transaction.atomic():
+                if medid is not None:
+                    mn.delete()
+                mn=self.build_mn(form) # saves everything
+                self.mn=mn
+        except IntegrityError as e:
+            form.errors['error']=str(e)
+
+        # random spurious comment
+
+        # also have to save state between calls if there's an error
+        # so Matt doesn't have to re-enter everything on any little mistake.
+
+        # what is the mixin that checks the form for validity, does the create/edit,
+        # and returns either form_invalid() or redirect()?
+        success=len(form.errors)==0
+        if success:
+            log.debug('post: success')
+            return redirect(self.get_success_url())
+        else:
+            log.debug('post: failure: %d mediacomps in mn' % self.mn.mediacompounds_set.count())
+            newform=MediaNamesForm(request.POST)
+            for f,err in form.errors.items():
+                newform.errors[f]=err
+            return self.form_invalid(newform)
+
+
+
+    def build_mn(self, form):
+        fcd=form.cleaned_data
+        media_name=fcd.get('media_name')
+        is_defined='Y'
+        is_minimal='Y' if fcd.get('is_minimal') else 'N'
+        mn=MediaNames(media_name=media_name, is_defined=is_defined, is_minimal=is_minimal)
+        medid=fcd.get('medid')
+        if medid is not None:
+            mn.medid=medid
+        mn.save()
+
+        # build media compound objects (don't want to try and re-use existing ones?)
+        for compkey in [k for k in fcd.keys() if k.startswith('comp')]:
+            comp_name=fcd.get(compkey)
+            if comp_name is None or len(comp_name)==0:
+                continue
+            amt_key='amount'+compkey.split('comp')[1]
+            amount=fcd.get(amt_key)
+            if amount is None:
+                form.errors[amt_key]='Amount needed for compound %s!' % comp_name # should have already been checked in form.is_valid()
+                continue
+            comp=Compounds.objects.with_name(comp_name)
+            medcomp=MediaCompounds(compid=comp, amount_mm=amount)
+            mn.mediacompounds_set.add(medcomp) # should save medcomp
+
+
+        return mn
+
+            
+        
+    def get_context_data(self, **kwargs):
+        context=super(NewMediaView,self).get_context_data(**kwargs)
+        try: context['mn']=self.mn
+        except AttributeError: pass
+        return context
+
+    def get_success_url(self, *args, **kwargs):
+        return reverse('media_record', args=(self.mn.medid,))
+
+
+            
+''' scrap code
 
         comps=self.get_compounds(form)
         try:
@@ -61,32 +139,14 @@ class NewMediaView(FormView):
 #            log.exception(e)
             pass
 
-        # also have to save state between calls if there's an error
-        # so Matt doesn't have to re-enter everything on any little mistake.
 
-        # what is the mixin that checks the form for validity, does the create/edit,
-        # and returns either form_invalid() or redirect()?
-        success=len(form.errors)==0
-        if success:
-            log.debug('post: success')
-            return redirect(self.get_success_url())
-        else:
-            log.debug('post: failure: %d mediacomps in mn' % self.mn.mediacompounds_set.count())
-#            log.debug('post: failure: creating form from:')
-            # rollbacks probably cause mn to lose all medcomps?  But it shouldn't...
-            d=mn.as_dict()
-#            for k,v in d.items():
-#                log.debug('d[%s]: %s' % (k,v))
-            newform=MediaNamesForm(mn.as_dict())
-            for f,err in form.errors.items():
-                newform.errors[f]=err
-            return self.form_invalid(newform)
+########################################################################
 
     def get_medianames(self, form, comps):
-        ''' get or create a MediaNames object based on the form values.
+        '' get or create a MediaNames object based on the form values.
             If unable to create (eg, bad media compound), return None
             returns save()d MediaNames object.
-        '''
+        ''
 
 
         medid=form.cleaned_data.get('medid')
@@ -138,12 +198,16 @@ class NewMediaView(FormView):
                 raise e
 
         return mn
-        
+
+
+
+'''
+''' more scrap
     def get_compounds(self, form):
-        '''
+        ''
         Return a hash: k=compound key, v=compound
         Have to do this because apparently you can't query the db from within the transaction
-        '''
+        ''
         comps={}
         keys=[k for k in form.cleaned_data.keys() if k.startswith('comp')]
         for key in keys:
@@ -155,14 +219,5 @@ class NewMediaView(FormView):
                 comps[key]=None
         return comps
 
-    def get_context_data(self, **kwargs):
-        context=super(NewMediaView,self).get_context_data(**kwargs)
-        try: context['mn']=self.mn
-        except AttributeError: pass
-        return context
 
-    def get_success_url(self, *args, **kwargs):
-        return reverse('media_record', args=(self.mn.medid,))
-
-
-            
+'''

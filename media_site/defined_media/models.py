@@ -437,6 +437,10 @@ class MediaNames(models.Model):
 
 
     def media_compounds_dicts(self):
+        ''' 
+        return a list of hashlettes: d[compN]=compound name, d[amountN]=amount.
+        Used by medianames_form.html.
+        '''
         return [{'comp': mc.compid.name, 'amount': mc.amount_mm} for mc in self.mediacompounds_set.all()]
 
     def as_dict(self):

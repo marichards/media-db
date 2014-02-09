@@ -83,7 +83,7 @@ class TestMediaNames(TestCase):
         mn0=MediaNames.objects.first()
         gds=mn0.growthdata_set.all()
         log.debug('%d growth_data objects' % len(gds))
-        comps=MockPostDict(mn0, 0)
+        comps=MockPostDict(mn0)
         mc_changed=comps.random_changes(3)
         mc_added=comps.random_add(3)
         mc_deleted=comps.random_delete(3)

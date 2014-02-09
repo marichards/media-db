@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from defined_media.models import *
 from defined_media.forms import MediaNamesForm
 #from defined_media.tests.snapshot import *
+from defined_media.tests.models.media_names.mock_post_dict import MockPostDict
 
 class TestMediaNamesForm(TestCase):
     fixtures=['fixture.json']
@@ -18,28 +19,25 @@ class TestMediaNamesForm(TestCase):
     def tearDown(self):
         pass
 
-    def test_medid_field(self):
-        ''' why isn't {{ form.medid }} including the value of mn.medid? '''
-        mn=MediaNames.objects.first()
-        self.assertTrue(mn.medid > 0)
-        form=MediaNamesForm(mn.as_dict())
-        self.assertTrue(form.is_valid())
-        field=form.fields['medid']
-        widget=field.widget
-#        for d in dir(widget):
-#            log.debug('%s: %s' % (d, type(getattr(widget, d))))
-        self.fail(widget.render())
 
-    def test_add_medcomp_fields(self):
-        mn=MediaNames.objects.first()
-        form=MediaNamesForm(mn)
-        self.assertEqual(len(form.medcomp_fields()), mn.mediacompounds_set.count())
-        log.debug('medcomp_values: %s' % form.medcomp_values())
+    def test_is_valid_bad_comp(self):
+        '''
+        need to check that all compounds are findable and that amounts exist where needed
+        '''
+        mn0=MediaNames.objects.first()
+        comps=MockPostDict(mn0)
+        comps['comp2']='imaginary compound'
+        form=MediaNamesForm(comps)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['comp2'], 'Unknown compound "imaginary compound"', form.errors['comp2'])
+        self.assertEqual(len(form.errors), 1, form.errors)
 
-        log.debug('%d form.fields' % len(form.fields))
-        log.debug('form.fields(%s): %s' % (type(form.fields), form.fields))
-        for k,v in form.fields.items():
-            log.debug('form.fields[%s]: %s' % (k,v.label))
 
-        self.fail()             # just to insure we see the output
-
+    def test_is_valid_bad_amount(self):
+        mn0=MediaNames.objects.first()
+        comps=MockPostDict(mn0)
+        comps['comp2']='imaginary compound'
+        form=MediaNamesForm(comps)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['comp2'], 'Unknown compound "imaginary compound"', form.errors['comp2'])
+        self.assertEqual(len(form.errors), 1, form.errors)
