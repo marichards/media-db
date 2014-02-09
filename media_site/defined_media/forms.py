@@ -93,8 +93,9 @@ class MediaNamesForm(forms.Form):
             amt_key='amount'+compkey.split('comp')[1]
             amount=self.cleaned_data.get(amt_key)
             if amount is None:
-                self.errors[amt_key]='Amount needed for compound %s' % comp_name
-                log.debug('%s(%s): Amount needed for compound "%s"' % (compkey, amt_key, comp_name))
+                err_msg='%s: missing or invalid amount for compound "%s"' % (compkey, comp_name)
+                self.errors[amt_key]=err_msg
+                log.debug(err_msg)
                 valid=False
 
         log.debug('form.is_valid() returning %s' % valid)
