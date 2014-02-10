@@ -13,3 +13,4 @@ from django.shortcuts import redirect
 
 class CreateGrowthDataView(CreateView):
     model=GrowthData
+    form_class=GrowthDataForm

@@ -3,7 +3,16 @@
 
 <form action='' method='POST'>
 {% csrf_token %}
-
-<input type='submit' value='Submit' />
+{{ form.growthid }}
+<table>
+<tr><th>Organism</th></tr>
+<tr>
+  <td>{{ form.genus }}</td>
+  <td>{{ form.speies }}</td>
+  <td>{{ form.strain }}</td>
+</tr><tr>
+    <td><input type='submit' value='Submit' /></tr>
+<td>
+</table>
 </form>
 {% endblock %}
