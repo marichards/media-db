@@ -62,6 +62,10 @@ urlpatterns = patterns(view_prefix,
                        url(r'^api/organism/(?P<genus>\w+)/(?P<species>\w+)/$', views.api.OrganismsView.as_view(), name='organism_api'),
                        url(r'^api/organism/(?P<genus>\w+)/(?P<species>\w+)/(?P<strain>\w+)/$', views.api.OrganismsView.as_view(), name='organism_api'),
 
+                       url(r'^api/sources/$', views.api.SourcesView.as_view(), name='sources_api'),
+
+                       url(r'^api/medianames/$', views.api.MediaNamesView.as_view(), name='medianames_api'),
+
                        url(r'^api/pmid/$', views.api.efetch_pmid, name='efetch_pmid'),
                        url(r'^api/pmid/(?P<pmid>\d+)$', views.api.efetch_pmid, name='efetch_pmid'),
 

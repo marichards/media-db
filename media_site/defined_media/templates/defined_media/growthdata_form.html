@@ -1,15 +1,40 @@
 {% extends 'defined_media/base.html' %}
-{% block content %}
+<!-- page to edit GrowthData object -->
 
-<form action='' method='POST'>
+{% block js_files %}
+{% load static %}
+<script src='{% static 'defined_media/js/jquery-1.10.2.min.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/jquery-ui.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/growthdata.js' %}' type='text/javascript'></script>
+{% endblock %}
+
+{% block content %}
+<form id='id_growthdata_form' action='' method='POST'>
 {% csrf_token %}
 {{ form.growthid }}
 <table>
-<tr><th>Organism</th></tr>
 <tr>
-  <td>{{ form.genus }}</td>
-  <td>{{ form.speies }}</td>
-  <td>{{ form.strain }}</td>
+  <td>Organism:</td>
+  <td>{{ form.genus }}{{ form.species }}{{ form.strain }}</td>
+</tr><tr>
+  <td>{{ form.sourceid.label }}:</td>
+  <td>{{ form.sourceid }}</td>
+</tr><tr>
+  <td colspan='2'><span id='id_full_source'>&nbsp;</span></td>
+</tr><tr>
+  <td>{{ form.media_name.label }}:</td>
+  <td>{{ form.media_name }}</td>
+</tr><tr>
+  <td>&nbsp;</td>
+</tr><tr>
+  <td>{{ form.growth_rate.label }}</td>
+  <td>{{ form.growth_rate }}</td>
+</tr><tr>
+  <td>{{ form.temperature_c.label }}</td>
+  <td>{{ form.temperature_c }}</td>
+</tr><tr>
+  <td>{{ form.ph.label }}</td>
+  <td>{{ form.ph }}</td>
 </tr><tr>
     <td><input type='submit' value='Submit' /></tr>
 <td>

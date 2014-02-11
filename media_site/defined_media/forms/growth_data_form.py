@@ -22,7 +22,7 @@ class GrowthDataForm(forms.ModelForm):
     # regular fields
     growth_rate=forms.FloatField(min_value=0, required=False, label='Growth Rate',
                                  widget=forms.TextInput(attrs={'size':8}))
-    temperature=forms.FloatField(min_value=0, required=False, label='Temperature',
+    temperature_c=forms.FloatField(min_value=0, required=False, label='Temperature',
                                  widget=forms.TextInput(attrs={'size':8}))
     ph=forms.FloatField(min_value=0, required=False, label='ph',
                                  widget=forms.TextInput(attrs={'size':8}))
@@ -33,8 +33,8 @@ class GrowthDataForm(forms.ModelForm):
 
     media_name=forms.CharField(required=True, label='Media Name',
                                widget=forms.TextInput(attrs={'size': 75}))
-    first_author=forms.CharField(label='First Author', max_length=255,
-                                 widget=forms.TextInput(attrs={'size': 75}))
+    sourceid=forms.CharField(label='Source', max_length=255,
+                             widget=forms.TextInput(attrs={'size': 75}))
 
 
     def is_valid(self):
