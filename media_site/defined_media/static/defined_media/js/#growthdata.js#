@@ -1,7 +1,0 @@
-GrowthDataEditor=function(o) {
-    this.init_funcs=[]
-    this.urlmap={}
-    this.urlmap_url='/defined_media/api/urlmap'
-    this.sec_uptake_n=$('.compound_rm_button').length+1
-    this.uptake_n=$('.uptake_rm_button').length+1
-}
