@@ -12,5 +12,7 @@ from django.shortcuts import redirect
 
 
 class CreateGrowthDataView(CreateView):
-    model=GrowthData
     form_class=GrowthDataForm
+    
+    def get_success_url(self):
+        return reverse('growth_record', args=(self.object.growthid,))

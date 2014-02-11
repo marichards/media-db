@@ -2,7 +2,7 @@ import logging, argparse, copy
 log=logging.getLogger(__name__)
 
 from django.test import TestCase
-from defined_media.forms import NewCompoundMediaForm
+from defined_media.old_forms import NewCompoundMediaForm
 from defined_media.models import Organisms, Compounds
 from defined_media.tests.forms.test_cases import newmedia_inputs
 

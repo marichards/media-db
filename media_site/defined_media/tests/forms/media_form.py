@@ -6,7 +6,7 @@ from django.test.client import Client
 from django.core.urlresolvers import reverse
 
 from defined_media.models import *
-from defined_media.forms import MediaNamesForm
+from defined_media.forms.media_names_form import MediaNamesForm
 #from defined_media.tests.snapshot import *
 from defined_media.tests.models.media_names.mock_post_dict import MockPostDict
 

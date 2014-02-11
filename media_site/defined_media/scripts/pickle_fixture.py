@@ -87,6 +87,7 @@ def add_search_results(media_objs):
         add_obj(o, media_objs)
 
 def add_media_names(media_objs, compounds):
+    ''' Add all the media names ''' 
     mednames=set()
     for comp in compounds:
         for mc in comp.mediacompounds_set.all():
@@ -150,10 +151,10 @@ def main():
     add_biomass(media_objs)
     add_organisms(media_objs)
     add_search_results(media_objs)
-    add_media_names(media_objs, compounds)
     add_growth_data(media_objs)
     add_contributor(media_objs)
     add_measurements(media_objs)
+    add_media_names(media_objs, compounds)
 
 #    add_reactants(media_objs)
 
