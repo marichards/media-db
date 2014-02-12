@@ -10,6 +10,7 @@
 
 {% block content %}
 <form id='id_growthdata_form' action='' method='POST'>
+<h2>{% if gd %}Editing Growth Data Record{% else %}Create New Growth Data Record{% endif %}</h2>
 {% csrf_token %}
 <div>
 {% if form.errors %}Errors: {{form.errors}}{% endif %}

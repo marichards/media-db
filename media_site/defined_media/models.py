@@ -528,6 +528,9 @@ class SecretionUptake(models.Model):
     rate = models.FloatField(db_column='Rate') # Field name made lowercase.
     units = models.CharField(max_length=45L, db_column='Units') # Field name made lowercase.
     rateid = models.ForeignKey('SecretionUptakeKey', db_column='rateID') # Field name made lowercase.
+
+    units=['mmol/gDW/h', 'g/g glucose', '1/h']
+
     class Meta:
         db_table = 'secretion_uptake'
 
