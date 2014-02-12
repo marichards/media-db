@@ -1,5 +1,7 @@
 import django.forms as forms
-from defined_media.models import GrowthData, Organisms, MediaNames, Sources
+from defined_media.models import GrowthData, Organisms, MediaNames, Sources, SecretionUptake, SecretionUptakeKey
+import logging
+log=logging.getLogger(__name__)
 
 class GrowthDataForm(forms.Form):
     ''' Form holding create/edit info for GrowthData
@@ -34,7 +36,7 @@ class GrowthDataForm(forms.Form):
 
 
     def __init__(self, *args, **kwargs):
-        super(GrowthDataForm, self).__init__(*args, **kwargs):
+        super(GrowthDataForm, self).__init__(*args, **kwargs)
         self.uptakes_list=[]
         
         # add form sec-uptake fields if args[0] is a GrowthData object
@@ -66,26 +68,28 @@ class GrowthDataForm(forms.Form):
             
         # if nothing happened, we need to at least create the first uptake set:
         if 'uptake_comp1' not in self.fields:
-            self._add_medcomp_field(1, {'uptake_comp1': '', 
+            log.debug('adding first empty uptake row')
+            self._add_uptake_field(1, {'uptake_comp1': '', 
                                         'uptake_rate1': '',
                                         'uptake_units1' : '',
                                         'uptake_type1' : ''})
 
     def _add_uptake_field(self, n, hashlette):
         ''' add a field for compound, rate, unit, and uptake (from hashlette) '''
+        self.uptakes_list.append(hashlette)
         self.fields['uptake_comp%d' % n]=forms.CharField(label='Compound %d' % n, required=False, 
-                                                         initial=hashlette['uptake_comp'])
+                                                         initial=hashlette['uptake_comp%d'%n])
         self.fields['uptake_rate%d' % n]=forms.FloatField(label='Rate', 
                                                           required=False, 
-                                                          initial=hashlette['uptake_rate'])
-        self.fields['uptake_units%d' % n]=forms.FloatField(label='Units', 
+                                                          initial=hashlette['uptake_rate%d'%n])
+        self.fields['uptake_units%d' % n]=forms.ModelChoiceField(label='Units', 
                                                            required=False, 
-                                                           initial=hashlette['uptake_units'],
+                                                           initial=hashlette['uptake_units%d'%n],
                                                            queryset=SecretionUptake.units,
                                                            )
         self.fields['uptake_type%d' % n]=forms.ModelChoiceField(label='Type', 
                                                                 required=False, 
-                                                                initial=hashlette['uptake_type'],
+                                                                initial=hashlette['uptake_type%d'%n],
                                                                 queryset=SecretionUptakeKey.objects.all(),
                                                                 )
 
