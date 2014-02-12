@@ -198,25 +198,16 @@ class GrowthData(models.Model):
 
     def as_dict(gd):
         d={
-            'contributor_id': gd.contributor_id,
-            'genus':          gd.strainid.genus,
-            'species' :       gd.strainid.species,
-            'strain' :        gd.strainid.strain,
-
-            'media_name' :    gd.medid.media_name,
-            'is_defined' :    gd.medid.is_defined,
-            'is_minimal' :    gd.medid.is_minimal,
-
-            'first_author' :  gd.sourceid.first_author,
-            'journal' :       gd.sourceid.journal,
-            'year' :          gd.sourceid.year,
-            'title' :         gd.sourceid.title,
-            'link' :          gd.sourceid.link,
-             
-            'growth_rate' :   gd.growth_rate,
-            'temperature' :   gd.temperature_c,
-            'ph' :            gd.ph,
+            'contributor' : gd.contributor,
+            'strainid'    : gd.strainid_id,
+            'sourceid'    : gd.sourceid_id,
+            'growth_rate' : gd.growth_rate,
+            'temperature' : gd.temperature_c,
+            'ph'          : gd.ph,
             }
+
+        log.debug('as_dict so far: %s' % d)
+
 
         if hasattr(gd, 'growthid'):
             d['growthid']=gd.growthid # cloned gds lack this
@@ -364,9 +355,12 @@ class MediaNames(models.Model):
     media_name = models.CharField(max_length=255L, db_column='Media_name', blank=False, unique=True) # Field name made lowercase.
     is_defined = models.CharField(max_length=1L, db_column='Is_defined', blank=True) # Field name made lowercase.
     is_minimal = models.CharField(max_length=1L, db_column='Is_minimal', blank=True) # Field name made lowercase.
+
     class Meta:
         db_table = 'media_names'
 	verbose_name_plural = 'media names'
+        ordering=['media_name']
+
     def __unicode__(self):
         #Define a method that grabs everything in a given medium
         #compounds_list = MediaCompounds.objects.filter(medid=self.medid)
@@ -473,6 +467,8 @@ class Organisms(models.Model):
     class Meta:
         db_table = 'organisms'
         verbose_name_plural = 'organisms'
+        ordering=['genus', 'species', 'strain']
+
     #Call the Organisms object and return the Strain Name and such instead
     def __unicode__(self):
         return '%s %s %s' %(self.genus.capitalize(),self.species.lower(),self.strain)
@@ -572,6 +568,13 @@ class Sources(models.Model):
     link = models.CharField(max_length=255L, unique=False, db_column='Link', blank=True) # Field name made lowercase.
     pubmed_id = models.IntegerField(null=True, blank=True)
 
+    class Meta:
+        db_table = 'sources'
+        verbose_name_plural = 'sources'
+        unique_together='first_author journal title'.split(' ')
+
+        ordering=['first_author', 'title']
+
     def is_pdf(self):
         return self.link.lower().endswith('pdf')
 
@@ -580,11 +583,6 @@ class Sources(models.Model):
             return 'http://www.ncbi.nlm.nih.gov/pubmed/?term=%d' % self.pubmed_id
         else:
             return None
-
-    class Meta:
-        db_table = 'sources'
-        verbose_name_plural = 'sources'
-        unique_together='first_author journal title'.split(' ')
 
     def __unicode__(self):
         year=self.year or ''

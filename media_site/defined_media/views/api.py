@@ -50,8 +50,10 @@ class MediaNamesView(generics.ListAPIView):
         for arg in 'media_name'.split(' '):
             if arg in self.kwargs:
                 args[arg]=self.kwargs[arg]
-        return MediaNames.objects.filter(**args)
-
+        results=MediaNames.objects.filter(**args)
+        log.debug('MediaNamesView returning %d mns' % len(results))
+        return results
+        
 
 def growth_data_view(request, *args, **kwargs):
     ''' 

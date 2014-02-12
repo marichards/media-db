@@ -7,3 +7,4 @@ import os, sys
 
 from defined_media.models import *
 import defined_media.forms as forms
+import defined_media.views as views
