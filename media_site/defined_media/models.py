@@ -529,8 +529,6 @@ class SecretionUptake(models.Model):
     units = models.CharField(max_length=45L, db_column='Units') # Field name made lowercase.
     rateid = models.ForeignKey('SecretionUptakeKey', db_column='rateID') # Field name made lowercase.
 
-    units=['mmol/gDW/h', 'g/g glucose', '1/h']
-
     class Meta:
         db_table = 'secretion_uptake'
 
@@ -547,6 +545,11 @@ class SecretionUptakeKey(models.Model):
     rate_type = models.CharField(max_length=45L, unique=True, db_column='Rate_Type', blank=True) # Field name made lowercase.
     class Meta:
         db_table = 'secretion_uptake_key'
+
+class SecretionUptakeUnit(models.Model):
+    unit=models.CharField(max_length=12, unique=True, blank=False)
+    class Meta:
+        db_table='secretion_uptake_unit'
 
 '''
 class SeedCompounds(models.Model):

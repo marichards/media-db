@@ -30,6 +30,7 @@ class GrowthDataView(FormView):
             
     def post(self, request, *args, **kwargs):
         form=self.form_class(request.POST)
+        log.debug('request.POST: %s' % request.POST)
         if not form.is_valid():
             return self.form_invalid(form)
 
@@ -38,6 +39,7 @@ class GrowthDataView(FormView):
             growthid=form.cleaned_data.get('growthid')
             if growthid is not None:
                 gd=GrowthData.objects.get(growthid=growthid)
+                log.debug('got existing growth_record %s' % growthid)
         except GrowthData.DoesNotExist:
             raise Http404()
 
@@ -84,6 +86,12 @@ class GrowthDataView(FormView):
                       temperature_c=temperature_c,
                       ph=ph,
                       additional_notes=additional_notes)
+        growthid=fcd.get('growthid')
+        log.debug('about to save growth_record: growthid=%s' % growthid)
+        for k,v in fcd.items():
+            log.debug('fcd[%s]: %s' % (k,v))
+        if growthid is not None:
+            gd.growthid=growthid
         gd.save()
         return gd
 

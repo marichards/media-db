@@ -17,7 +17,8 @@
 {% if form.errors %}Errors: {{form.errors}}{% endif %}
 </div>
 <table>
-{{form.contributor}}
+<input id='id_contributor' name='contributor' type='hidden' value='{{request.user.contributor.id}}' />
+{% if gd %}<input id='id_growthid' name='growthid' type='hidden' value='{{gd.growthid}}' />{% endif %}
 <tr>
   <td>{{form.strainid.label}}</td>
   <td>{{form.strainid}}</td>
@@ -50,21 +51,28 @@
 
 <h3>Secretion Uptakes:</h3>
 <table>
+<tr>
+  <th>Compound</th>
+  <th>Rate</th>
+  <th>Units</th>
+  <th>Type</th>
+</tr>
+
 {% for d in form.uptakes_list %}
 <tr id='id_uptake_row{{ forloop.counter }}'>
     <td>
-      <input id="id_uptake_comp{{ forloop.counter }}" name="uptake_comp{{ forloop.counter }}" type="text" value="{{ d.uptake_comp }}" />
+      <input id="id_uptake_comp{{ forloop.counter }}" name="uptake_comp{{ forloop.counter }}" type="text" value="{{ d.comp }}" />
     </td>
 
     <td>
-      <input id="id_uptake_rate{{ forloop.counter }}" name="uptake_rate{{ forloop.counter }}" type="text" value="{{ d.uptake_rate }}" />
+      <input id="id_uptake_rate{{ forloop.counter }}" name="uptake_rate{{ forloop.counter }}" type="text" value="{{ d.rate }}" />
     </td>
 
     <td>
       <select id="id_uptake_unit{{ forloop.counter }}" name="uptake_unit{{ forloop.counter }}">
-	<option value="mmol/gDW/h" {% if d.units == 'mmol/dDW/h' %} selected='selected'{% endif %}>mmol/gDW/h</option>
-	<option value="g/g glucose" {% if d.units == 'g/g glucose' %} selected='selected'{% endif %}>g/g glucose</option>
-	<option value="1/h" {% if d.units == '1/h' %} selected='selected' {% endif %}>1/h</option>
+	<option value="1" {% if d.units == 1 %} selected='selected'{% endif %}>mmol/gDW/h</option>
+	<option value="2" {% if d.units == 2 %} selected='selected'{% endif %}>g/g glucose</option>
+	<option value="3" {% if d.units == 3 %} selected='selected' {% endif %}>1/h</option>
       </select>
     </td>
 
@@ -89,7 +97,7 @@
 
 
 </tr><tr>
-    <td><input type='submit' value='Submit' /></td></tr>
+    <td><input id='id_submit_button' type='submit' value='Submit' /></td></tr>
 </tr>
 </table>
 </form>

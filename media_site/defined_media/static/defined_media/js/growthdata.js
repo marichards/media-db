@@ -76,7 +76,7 @@ GrowthDataEditor.prototype={
 	document.editor.uptake_n+=1
 
 	// Can't populate new select until after it's been added to the DOM:
-	document.editor.populate_select_vv('#'+sel_unit_id, document.data['secretion_uptake_units'])
+	document.editor.populate_select_iv('#'+sel_unit_id, document.data['secretion_uptake_units'])
 	document.editor.populate_select_iv('#'+sel_type_id, document.data['secretion_uptake_types'], 1)
 	document.editor.compound_n+=1
 
@@ -104,6 +104,7 @@ GrowthDataEditor.prototype={
 	for (i in list) {
 	    val=list[i]
             $(id_sel).append($('<option>', { value: parseInt(i)+offset }).text(val))
+	    console.log('iv: value='+parseInt(i)+offset+', text='+val)
  	}	    
     },  
 
@@ -111,19 +112,22 @@ GrowthDataEditor.prototype={
 
 
     prevent_submission: function() {
-//        console.log('ha ha')
+        console.log('ha ha')
 	return false 
     }, 
 
     allow_submission: function() {
-//        console.log('away we go')
+        console.log('away we go')
         return true
     }, 
 
     submit: function(eventObj) {
 	// open the gate, allow submission, and close the gate:
+	console.log('submit: about to unbind')
 	$('#id_growthdata_form').unbind('submit')
+	console.log('submit: about to call submit')
 	$('#id_growthdata_form').submit()
+	console.log('submit: about to re-close the gate')
 	$('#id_growthdata_form').submit(document.editor.prevent_submission)
     },  
 }

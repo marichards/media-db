@@ -1,6 +1,6 @@
 import django.forms as forms
 from defined_media.models import GrowthData, Organisms, MediaNames, Sources, SecretionUptake, SecretionUptakeKey
-import logging
+import logging, re
 log=logging.getLogger(__name__)
 
 class GrowthDataForm(forms.Form):
@@ -26,6 +26,7 @@ class GrowthDataForm(forms.Form):
 
     # override so we can set the widget
     contributor=forms.CharField(widget=forms.HiddenInput())
+    growthid=forms.CharField(widget=forms.HiddenInput())
     additional_notes=forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':40}),
                                      required=False,
                                      )
@@ -52,13 +53,14 @@ class GrowthDataForm(forms.Form):
             for k,v in d.items():
                 if k.startswith('uptake_comp'):
                     # keys are uptake_comp, uptake_rate, uptake_unit, uptake_type
-                    haslette={'comp', v}
+                    hashlette={'comp':v}
 
                     for suffix in 'rate unit type'.split(' '):
                         field_key=re.sub('comp', suffix, k)
                         try: field_val=d[field_key]
                         except KeyError: field_val=''
-                        hashlette[field_key]=field_val
+                        hashlette[suffix]=field_val
+                    log.debug('about to add hashlette: %s' % hashlette)
                     self._add_uptake_field(n, hashlette)
                     n+=1
 
@@ -69,27 +71,27 @@ class GrowthDataForm(forms.Form):
         # if nothing happened, we need to at least create the first uptake set:
         if 'uptake_comp1' not in self.fields:
             log.debug('adding first empty uptake row')
-            self._add_uptake_field(1, {'uptake_comp1': '', 
-                                        'uptake_rate1': '',
-                                        'uptake_units1' : '',
-                                        'uptake_type1' : ''})
+            self._add_uptake_field(1, {'comp': '', 
+                                        'rate': '',
+                                        'unit' : '',
+                                        'type' : ''})
 
     def _add_uptake_field(self, n, hashlette):
         ''' add a field for compound, rate, unit, and uptake (from hashlette) '''
         self.uptakes_list.append(hashlette)
         self.fields['uptake_comp%d' % n]=forms.CharField(label='Compound %d' % n, required=False, 
-                                                         initial=hashlette['uptake_comp%d'%n])
+                                                         initial=hashlette['comp'])
         self.fields['uptake_rate%d' % n]=forms.FloatField(label='Rate', 
                                                           required=False, 
-                                                          initial=hashlette['uptake_rate%d'%n])
-        self.fields['uptake_units%d' % n]=forms.ModelChoiceField(label='Units', 
+                                                          initial=hashlette['rate'])
+        self.fields['uptake_unit%d' % n]=forms.ModelChoiceField(label='Units', 
                                                            required=False, 
-                                                           initial=hashlette['uptake_units%d'%n],
-                                                           queryset=SecretionUptake.units,
+                                                           initial=hashlette['unit'],
+                                                           queryset=SecretionUptake.objects.all(),
                                                            )
         self.fields['uptake_type%d' % n]=forms.ModelChoiceField(label='Type', 
                                                                 required=False, 
-                                                                initial=hashlette['uptake_type%d'%n],
+                                                                initial=hashlette['type'],
                                                                 queryset=SecretionUptakeKey.objects.all(),
                                                                 )
 
@@ -100,5 +102,3 @@ class GrowthDataForm(forms.Form):
         return valid
 
     
-#    class Meta:
-#        model=GrowthData
