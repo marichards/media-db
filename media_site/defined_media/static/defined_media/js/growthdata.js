@@ -96,6 +96,7 @@ GrowthDataEditor.prototype={
 	    val=list[i]
             $(id_sel).append($('<option>', { value: val }).text(val))
  	}	    
+	$('#'+id_sel).val(list[0])
     },  
 
     populate_select_iv: function(id_sel, list, offset) {
@@ -104,8 +105,8 @@ GrowthDataEditor.prototype={
 	for (i in list) {
 	    val=list[i]
             $(id_sel).append($('<option>', { value: parseInt(i)+offset }).text(val))
-	    console.log('iv: value='+parseInt(i)+offset+', text='+val)
  	}	    
+	$('#'+id_sel).val(offset)
     },  
 
 

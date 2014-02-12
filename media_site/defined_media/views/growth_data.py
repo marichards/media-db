@@ -49,6 +49,7 @@ class GrowthDataView(FormView):
                 if growthid is not None:
                     gd.delete()
                 gd=self.build_gd(form)
+                self.add_secretion_uptakes(form, gd)
                 self.gd=gd
         except IntegrityError:
             form.errors['error']=str(e)
@@ -88,12 +89,31 @@ class GrowthDataView(FormView):
                       additional_notes=additional_notes)
         growthid=fcd.get('growthid')
         log.debug('about to save growth_record: growthid=%s' % growthid)
-        for k,v in fcd.items():
-            log.debug('fcd[%s]: %s' % (k,v))
+
         if growthid is not None:
             gd.growthid=growthid
         gd.save()
         return gd
+
+    def add_secretion_uptakes(self, form, gd):
+        fcd=form.cleaned_data
+        upkeys=[k for k in fcd.keys() if k.startswith('uptake_comp')]
+        log.debug('gd.add_secs: upkeys: %s' % upkeys)
+        for upkey in upkeys:
+            n=upkey.split('uptake_comp')[1]
+            comp_name=fcd.get(upkey)
+            if comp_name is None or len(comp_name)==0:
+                continue
+            log.debug('%s: looking for %s' % (upkey, comp_name))
+            compound=Compounds.objects.with_name(comp_name)
+            rate=fcd.get('uptake_rate%s'%n)
+            units=fcd.get('uptake_units%s'%n)
+            rate_type=fcd.get('uptake_type%s'%n)
+            rateid=SecretionUptakeKey.objects.get(rate_type=rate_type)
+            uptake=SecretionUptake(compid=compound.compid, rate=rate, units=units, rateid=rateid)
+            gd.secretionuptake_set.add(uptake)
+
+
 
     def get_context_data(self, **kwargs):
         context=super(GrowthDataView,self).get_context_data(**kwargs)

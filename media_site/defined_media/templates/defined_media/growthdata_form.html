@@ -70,17 +70,17 @@
 
     <td>
       <select id="id_uptake_unit{{ forloop.counter }}" name="uptake_unit{{ forloop.counter }}">
-	<option value="1" {% if d.units == 1 %} selected='selected'{% endif %}>mmol/gDW/h</option>
-	<option value="2" {% if d.units == 2 %} selected='selected'{% endif %}>g/g glucose</option>
-	<option value="3" {% if d.units == 3 %} selected='selected' {% endif %}>1/h</option>
+	<option value="1" {% if d.unit == 1 %} selected='selected'{% endif %}>mmol/gDW/h</option>
+	<option value="2" {% if d.unit == 2 %} selected='selected'{% endif %}>g/g glucose</option>
+	<option value="3" {% if d.unit == 3 %} selected='selected'{% endif %}>1/h</option>
       </select>
     </td>
 
     <td>
       <select id="id_uptake_type{{ forloop.counter }}" name="uptake_type{{ forloop.counter }}">
-	<option value="1" {% if d.type == 1 %}selected='selected'{% endif %}>Secretion</option>
-	<option value="2" {% if d.type == 2 %}selected='selected'{% endif %}>Uptake</option>
-	<option value="3" {% if d.type == 3 %}selected='selected'{% endif %}>Yield Coefficient</option>
+	<option value="1" {% if d.type == 1 %} selected='selected'{% endif %}>Secretion</option>
+	<option value="2" {% if d.type == 2 %} selected='selected'{% endif %}>Uptake</option>
+	<option value="3" {% if d.type == 3 %} selected='selected'{% endif %}>Yield Coefficient</option>
       </select>
     </td>
 

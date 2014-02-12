@@ -1,5 +1,5 @@
 import django.forms as forms
-from defined_media.models import GrowthData, Organisms, MediaNames, Sources, SecretionUptake, SecretionUptakeKey
+from defined_media.models import GrowthData, Organisms, MediaNames, Sources, SecretionUptake, SecretionUptakeKey, Compounds
 import logging, re
 log=logging.getLogger(__name__)
 
@@ -84,21 +84,62 @@ class GrowthDataForm(forms.Form):
         self.fields['uptake_rate%d' % n]=forms.FloatField(label='Rate', 
                                                           required=False, 
                                                           initial=hashlette['rate'])
+        initial=hashlette['unit']
+        if initial is None or len(initial)==0:
+            initial=0
         self.fields['uptake_unit%d' % n]=forms.ModelChoiceField(label='Units', 
                                                            required=False, 
-                                                           initial=hashlette['unit'],
+                                                           initial=initial,
                                                            queryset=SecretionUptake.objects.all(),
                                                            )
+
+        initial=hashlette['type']
+        if initial is None or len(initial)==0:
+            initial=0
         self.fields['uptake_type%d' % n]=forms.ModelChoiceField(label='Type', 
                                                                 required=False, 
-                                                                initial=hashlette['type'],
+                                                                initial=initial,
                                                                 queryset=SecretionUptakeKey.objects.all(),
                                                                 )
 
 
+
     def is_valid(self):
+        log.debug('got here: gdf.is_valid')
         valid=super(GrowthDataForm,self).is_valid()
-        # check other stuff
+        log.debug('gdf.valid=%s' % valid)
+        cd=self.cleaned_data
+
+        # check uptakes:
+        upkeys=[k for k in self.fields.keys() if k.startswith('uptake_comp')]
+        log.debug('gdf.is_valid: upkeys: %s' % upkeys)
+        for key in upkeys:
+            try:
+                comp_name=cd.get(key)
+                if comp_name is None: continue
+                if len(comp_name)==0: continue
+                log.debug('is_valid: looking for compound "%s"' % comp_name)
+                compound=Compounds.objects.with_name(comp_name)
+                
+                # check that rate is present, and can be converted to float:
+                # (conversion check might not be necessary)
+                rate_key=re.sub(r'comp', 'rate', key)
+                rate=cd.get(rate_key)
+                if rate is None:
+                    self.errors[rate_key]='rate required for compound %s' % comp_name
+                    valid=False
+                else:
+                    try:
+                        r=float(rate)
+                    except (ValueError, TypeError) as e:
+                        self.errors[rate_key]='%s: must be a floating point number'
+                        valid=False
+
+            except Compounds.DoesNotExist as e:
+                log.debug('caught bad compound "%s"' % comp_name)
+                self.errors[key]='%s: no such compound' % comp_name
+                valid=False
+
         return valid
 
     

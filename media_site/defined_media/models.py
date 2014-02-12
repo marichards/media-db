@@ -79,7 +79,7 @@ class CompoundManager(models.Manager):
             pass
 
         
-        raise Compounds.DoesNotExist(e) 
+        raise Compounds.DoesNotExist(name)
 
 class Compounds(models.Model):
     compid = models.AutoField(primary_key=True, db_column='compID') # Field name made lowercase.
@@ -205,8 +205,6 @@ class GrowthData(models.Model):
             'temperature' : gd.temperature_c,
             'ph'          : gd.ph,
             }
-
-        log.debug('as_dict so far: %s' % d)
 
 
         if hasattr(gd, 'growthid'):
