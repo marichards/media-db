@@ -18,14 +18,14 @@ class NewSourceView(CreateView):
             source=Sources.objects.get(pubmed_id=pubmed_id)
         except (ValueError, Sources.DoesNotExist) as e:
             keys='first_author journal year title'.split(' ')
-            args={k:self.request.POST[k] for k in keys}
+            args=dict((k, self.request.POST[k]) for k in keys)
             source=get_object_or_404(Sources, **args)
         return reverse('source_record', args=(source.sourceid,))
 
     def post(self, request, *args, **kwargs):
         try:
             keys='first_author journal year title'.split(' ')
-            args={k:self.request.POST[k] for k in keys}
+            args=dict((k,self.request.POST[k]) for k in keys)
             n_sources=Sources.objects.filter(**args).count()
             if n_sources > 0:
                 log.debug('barf')
