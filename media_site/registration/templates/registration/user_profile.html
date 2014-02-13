@@ -61,8 +61,8 @@
 <table>
 {% for gd in gds %}
 <tr><td>{{ gd }}</td><td><a href="{% url 'growth_record' gd.growthid %}">View</a></td>
-    <td><a href="{% url 'new_media_form' gd.growthid %}">Edit</a></td>
-    <td><a href="{% url 'clone_growth_data' gd.growthid %}">Clone</a></td>
+    <td><a href="{% url 'edit_growth_data' gd.growthid %}">Edit</a></td>
+{% comment %}    <td><a href="{% url 'clone_growth_data' gd.growthid %}">Clone</a></td> {% endcomment %}
 </tr>
 {% endfor %}
 </table>
