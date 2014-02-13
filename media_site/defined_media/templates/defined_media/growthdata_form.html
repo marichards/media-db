@@ -14,7 +14,9 @@
 <h2>{% if gd %}Editing Growth Data Record{% else %}Create New Growth Data Record{% endif %}</h2>
 {% csrf_token %}
 <div>
-{% if form.errors %}Errors: {{form.errors}}{% endif %}
+{% if form.errors %}<ol>Errors: 
+{% for field,err in form.errors.items %}<li>{{ field }}: {{ err }}</li>{% endfor %}
+{% endif %}
 </div>
 <table>
 <input id='id_contributor' name='contributor' type='hidden' value='{{request.user.contributor.id}}' />

@@ -32,6 +32,8 @@ class GrowthDataView(FormView):
         form=self.form_class(request.POST)
         log.debug('request.POST: %s' % request.POST)
         if not form.is_valid():
+            for k,v in form.errors.items():
+                log.debug('early error: %s->%s' % (k,v))
             return self.form_invalid(form)
 
         # determine if this is a new creation or an update:
@@ -58,6 +60,8 @@ class GrowthDataView(FormView):
         if len(form.errors)==0:
             return redirect(self.get_success_url())
         else:
+            for k,v in form.errors.items():
+                log.debug('late error: %s->%s' % (k,v))
             newform=self.form_class(request.POST) # can't just return self.form_invalid(form)???
             newform.errors.update(form.errors)
             return self.form_invalid(newform)
