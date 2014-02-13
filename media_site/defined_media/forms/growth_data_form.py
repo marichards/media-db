@@ -25,8 +25,8 @@ class GrowthDataForm(forms.Form):
                                  widget=forms.TextInput(attrs={'size':8}))
 
     # override so we can set the widget
-    contributor=forms.CharField(widget=forms.HiddenInput())
-    growthid=forms.CharField(widget=forms.HiddenInput())
+    contributor=forms.IntegerField(widget=forms.HiddenInput())
+    growthid=forms.IntegerField(widget=forms.HiddenInput(), required=False)
     additional_notes=forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':40}),
                                      required=False,
                                      )
