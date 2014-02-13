@@ -1,4 +1,4 @@
-import logging
+import logging, re
 import django.forms as forms
 from defined_media.models import MediaNames, Compounds
 
@@ -24,10 +24,9 @@ class MediaNamesForm(forms.Form):
                 mn=args[0]
                 d=mn.as_dict()
                 self.mn=mn
-                log.debug('got args from mn %s' % mn)
             except AttributeError:
                 d=args[0]
-                log.debug('got args from args[0]')
+
             n=1
             for k,v in d.items():
                 if k.startswith('comp'):
@@ -38,7 +37,7 @@ class MediaNamesForm(forms.Form):
                     self._add_medcomp_field(n, comp_name, amount)
                     n+=1
 
-        except Exception as e:  # nevermind, maybe args[0] wasn't a MediaNames object or something
+        except (IndexError) as e:  # nevermind, maybe args[0] wasn't a MediaNames object or something
             log.debug('MediaNamesForm.__init__(): ignoring %s: %s' % (type(e), e))
             log.exception(e)
 
@@ -51,7 +50,7 @@ class MediaNamesForm(forms.Form):
         self.fields['comp%d' % n]=forms.CharField(label='Compound %d' % n, required=False, initial=comp_name)
         self.media_compounds_list.append({'comp': comp_name, 'amount': amount})
         self.fields['amount%d' % n]=forms.FloatField(label='Amount', required=False, initial=amount)
-        log.debug('form.medcomp field added: %s-%s' %(comp_name, amount))
+#        log.debug('form.medcomp field added: %s-%s' %(comp_name, amount))
         
 
     def is_valid(self):
@@ -81,7 +80,4 @@ class MediaNamesForm(forms.Form):
                 log.debug(err_msg)
                 valid=False
 
-        log.debug('form.is_valid() returning %s' % valid)
-        for k,v in self.errors.items():
-            log.debug('form.errors[%s]=%s' % (k,v))
         return valid

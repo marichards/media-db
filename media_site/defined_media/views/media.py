@@ -18,7 +18,6 @@ class NewMediaView(FormView):
         ''' serve up an empty edit page, or one initialized with a MediaNames object, for editing '''
         try:
             mn=MediaNames.objects.get(medid=kwargs['pk'])
-            log.debug('mn: %s' % mn)
             user=request.user
             if not user.contributor.can_edit_mn(mn):
                 return redirect('forbidden')
@@ -49,7 +48,7 @@ class NewMediaView(FormView):
             if medid is not None:
                 mn=MediaNames.objects.get(medid=medid)
         except MediaNames.DoesNotExist:
-            raise Http404
+            raise Http404()
 
         try:
             with transaction.atomic():
