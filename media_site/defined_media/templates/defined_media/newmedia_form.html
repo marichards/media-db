@@ -1,9 +1,11 @@
 {% extends 'defined_media/base.html' %}
+<!-- page to edit compound growth records; obsolete -->
+
 {% block js_files %}
 {% load static %}
 <script src='{% static 'defined_media/js/jquery-1.10.2.min.js' %}' type='text/javascript'></script>
 <script src='{% static 'defined_media/js/jquery-ui.js' %}' type='text/javascript'></script>
-<script src='{% static 'defined_media/js/newmedia.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/compound_media.js' %}' type='text/javascript'></script>
 <script src='{% static 'defined_media/js/data.js' %}' type='text/javascript'></script>
 {% endblock %}
 
@@ -93,6 +95,7 @@ Message: {{ msg }}
 <tr><td>{{ form.ph.label }}: </td><td>{{ form.ph }}</td><td><span class='error'>{{ form.my_errors.ph }}</span></td></tr>
 </table>
 
+
 <h4>Compounds:</h4>
 <table>
 <tr><th>Compound:</th><th>Amount (mM)</th></tr>
@@ -117,6 +120,7 @@ Message: {{ msg }}
 </tr>
 {% endif %}
 </table>
+
 
 <h4>Uptake/Secretion</h4>
 <table>
@@ -164,6 +168,9 @@ Message: {{ msg }}
   <td><input id='id_add_uptake1' type='button' value='Add' /></td>
 </tr>
 {% endif %}
+
+<tr><td>{{ form.additional_notes.label }}</td></tr>
+<tr><td>{{ form.additional_notes }}</td></tr>
 
 <tr><td><input id='id_submit_button' type='button' value='Submit' /></td></tr>
 </table>

@@ -2,7 +2,7 @@ import logging, argparse, copy
 log=logging.getLogger(__name__)
 
 from django.test import TestCase
-from defined_media.forms import NewMediaForm
+from defined_media.old_forms import NewCompoundMediaForm
 from defined_media.models import Organisms, Compounds
 from defined_media.tests.forms.test_cases import newmedia_inputs
 
@@ -45,7 +45,7 @@ class TestNewmedia_Form(TestCase):
         self._ran[input_key]=True
 
         input_d=newmedia_inputs[input_key]
-        form=NewMediaForm(input_d['args'])
+        form=NewCompoundMediaForm(input_d['args'])
         self._test_form(form, input_key, input_d['valid'])
 
     def _test_form(self, form, input_key, expected_valid):
@@ -60,7 +60,7 @@ class TestNewmedia_Form(TestCase):
             args=copy.copy(newmedia_inputs['full_valid']['args'])
             key='uptake_%s1' % part
             del args[key]
-            form=NewMediaForm(args)
+            form=NewCompoundMediaForm(args)
             self._test_form(form, 'incomplete_uptake: %s' % part, False)
             self.assertIn('uptake1', form.errors)
             expected='Uptake 1: These fields are required: %s' % part
@@ -81,7 +81,7 @@ class TestNewmedia_Form(TestCase):
         args=copy.copy(newmedia_inputs['full_valid']['args'])
         args['comp2']=['unobtanium']
         args['amount2']=1.0
-        form=NewMediaForm(args)
+        form=NewCompoundMediaForm(args)
         self._test_form(form, 'unknown_compound', False)
 
         self.assertEqual(len(form.errors), 1, 'got %d errors (should be 1)' % len(form.errors))
@@ -103,7 +103,7 @@ class TestNewmedia_Form(TestCase):
         args['uptake_type2']=1
         args['uptake_unit2']='1/h'
 
-        form=NewMediaForm(args)
+        form=NewCompoundMediaForm(args)
         self._test_form(form, 'unknown_uptake_comp', False)
 
         self.assertEqual(len(form.errors), 1, 'got %d errors (should be 1)' % len(form.errors))
@@ -124,6 +124,6 @@ class TestNewmedia_Form(TestCase):
         args['uptake_unit2']='1/h'
         args['uptake_type2']=1
 
-        form=NewMediaForm(args)
+        form=NewCompoundMediaForm(args)
         self._test_form(form, 'two_uptakes', True)
         self.assertEqual(len(form.errors), 0, 'got %d errors (should be 0)' % len(form.errors))

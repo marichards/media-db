@@ -1,5 +1,14 @@
+Next up: design and implement growth data editing page.  Maybe research the item below (CreateView vs. EditView)
+
+Impose uniqueness on MediaNames.media_name and test for it.
+
+
+         Ok, there's a reason there's a CreateView and an UpdateView.  You 
+	 do two separte urls for two different views, and you don't have to
+	 worry about whether or not you're updating or overwriting or whatevs
 
 * Todo:
+- Turn off debug, and create an error page.
 - Polish style
 - - Still getting color screw-up when right content div is shorter than left (eg, forbidden page)
 - help pages

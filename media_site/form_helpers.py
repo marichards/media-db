@@ -9,7 +9,6 @@ class ReformatsErrors(object):
         grrrrr...
         We strip away everything between the <ul ...>...</ul>
         '''
-        log.debug('reformatting %d errors' % len(self.errors))
         errors={}
         pattern=r'<ul[^>]+><li>(.*)</li></ul>'
         rep=r'\1'
@@ -35,7 +34,7 @@ class Gets1(object):
         except TypeError:
             is_scalar=True
         except IndexError as e: # could be an empty string...
-            log.debug('get1: caught %s: %s; key=%s, maybe_a_list(%s) is "%s"' % (type(e), e, key, type(maybe_a_list), maybe_a_list))
+#            log.debug('get1: caught %s: %s; key=%s, maybe_a_list(%s) is "%s"' % (type(e), e, key, type(maybe_a_list), maybe_a_list))
 #            if maybe_a_list=="": return ""
 #            if maybe_a_list==None: return None
             is_scalar=True      # this is untrue, but makes the logic below work...

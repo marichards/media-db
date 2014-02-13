@@ -1,0 +1,28 @@
+{% extends 'defined_media/base.html' %}
+
+{% block js_files %}
+{% load static %}
+<script src='{% static 'defined_media/js/jquery-1.10.2.min.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/jquery-ui.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/new_sources.js' %}' type='text/javascript'></script>
+{% endblock %}
+
+{% block content %}
+<form id='id_source_form' action='' method='POST'>
+{% csrf_token %}
+
+{% if Error %}Error: {{ Error }}{% endif %}
+
+<table>
+<tr><td>{{ form.pubmed_id.label }}:</td><td>{{ form.pubmed_id }}</td></tr>
+<tr><td>{{ form.first_author.label }}:</td><td>{{ form.first_author }}</td></tr>
+<tr><td>{{ form.journal.label }}:</td><td>{{ form.journal }}</td></tr>
+<tr><td>{{ form.year.label }}:</td><td>{{ form.year }}</td></tr>
+<tr><td>{{ form.title.label }}:</td><td>{{ form.title }}</td></tr>
+<tr><td>{{ form.link.label }}:</td><td>{{ form.link }}</td></tr>
+</table>
+
+<tr><td><input id='id_submit_button' type='button' value='Submit' /></td></tr>
+
+</form>
+{% endblock %}

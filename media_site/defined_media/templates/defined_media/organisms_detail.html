@@ -3,14 +3,14 @@
 {% block title %}Organism: {{ organisms }}{% endblock %}
 
 {% block content %}
-<h2>Organism: {{ organisms }}</h2>
+<h2>Organism: {{ organisms }} ({{ organisms.typeid }})</h2>
 
 {% with growth_data=organisms.growthdata_set.all %}
 
 <ol>{{ growth_data|length }} Growth Condition(s):
 {% for gd in growth_data %}
   <li>
-    Media: <a href='{% url 'growth_record' gd.medid_id %}'>{{ gd.medid.media_name }}</a><br/>
+    Media: <a href='{% url 'media_record' gd.medid_id %}'>{{ gd.medid.media_name }}</a><br/>
     Source: <a href='{% url 'source_record' gd.sourceid_id %}'>{{ gd.sourceid }}</a>  
     <br/>
   </li>

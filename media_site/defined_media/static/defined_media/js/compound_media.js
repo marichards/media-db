@@ -278,7 +278,7 @@ NewMediaEditor.prototype={
 
     submit: function(eventObj) {
 	$('#id_newmedia_form').unbind('submit')
-	$('#id_newmedia_form').submit()
+//	$('#id_newmedia_form').submit()
 	$('#id_newmedia_form').submit(document.editor.prevent_submission)
     },  
 }

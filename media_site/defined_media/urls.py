@@ -42,9 +42,18 @@ urlpatterns = patterns(view_prefix,
                        url(r'^search_results/$', views.search.SearchResultsView.as_view(), name='search_results'),
 
                        # New Media Contribution:
-                       url(r'^newmedia/$', login_required(views.contributors.NewMediaView.as_view()), name='new_media_form'),
-                       url(r'^newmedia/(?P<pk>\d+)/$', login_required(views.contributors.NewMediaView.as_view()), name='new_media_form'),
-                       url(r'^clone_newmedia/(?P<pk>\d+)/$', login_required(views.clone.CloneGrowthDataView.as_view()), name='clone_growth_data'),
+#                       url(r'^newmedia/$', login_required(views.growth_data.NewGrowthData.as_view()), name='new_growth_data'),
+#                       url(r'^newmedia/(?P<pk>\d+)/$', login_required(views.growth_data.NewGrowthData.as_view()), name='new_growth_data'),
+#                       url(r'^clone_newmedia/(?P<pk>\d+)/$', login_required(views.growth_data.CloneGrowthDataView.as_view()), name='clone_growth_data'),
+
+                       # Model Create/Edit views
+                       url(r'^neworg/$', login_required(views.organism.NewOrganismView.as_view()), name='new_org'),
+                       url(r'^newsource/$', login_required(views.source.NewSourceView.as_view()), name='new_source'),
+                       url(r'^newmedianame/$', login_required(views.media.NewMediaView.as_view()), name='new_media'),
+                       url(r'^newmedianame/(?P<pk>\d+)/$', login_required(views.media.NewMediaView.as_view()), name='new_media'),
+
+                       url(r'^newgrowthdata/$', login_required(views.growth_data.GrowthDataView.as_view()), name='create_growth_data'),
+                       url(r'^newgrowthdata/(?P<pk>\d+)/$', login_required(views.growth_data.GrowthDataView.as_view()), name='edit_growth_data'),
 
                        # REST api
                        url(r'^api/urlmap$', views.api.urlmap, name='urlmap'),
@@ -52,6 +61,10 @@ urlpatterns = patterns(view_prefix,
                        url(r'^api/organism/(?P<genus>\w+)$', views.api.OrganismsView.as_view(), name='organism_api'),
                        url(r'^api/organism/(?P<genus>\w+)/(?P<species>\w+)/$', views.api.OrganismsView.as_view(), name='organism_api'),
                        url(r'^api/organism/(?P<genus>\w+)/(?P<species>\w+)/(?P<strain>\w+)/$', views.api.OrganismsView.as_view(), name='organism_api'),
+
+                       url(r'^api/sources/$', views.api.SourcesView.as_view(), name='sources_api'),
+
+                       url(r'^api/medianames/$', views.api.MediaNamesView.as_view(), name='medianames_api'),
 
                        url(r'^api/pmid/$', views.api.efetch_pmid, name='efetch_pmid'),
                        url(r'^api/pmid/(?P<pmid>\d+)$', views.api.efetch_pmid, name='efetch_pmid'),

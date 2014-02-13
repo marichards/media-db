@@ -1,6 +1,6 @@
 from rest_framework import generics
-from defined_media.models import Organisms, GrowthData
-from defined_media.serializers import OrganismSerializer, GrowthDataSerializer
+from defined_media.models import Organisms, GrowthData, Sources, MediaNames
+from defined_media.serializers import OrganismSerializer, GrowthDataSerializer, SourcesSerializer, MediaNamesSerializer
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django.core import serializers
@@ -12,7 +12,7 @@ log=logging.getLogger(__name__)
 def urlmap(request):
     ''' make certain url mappings available as json, so jQuery can use them '''
     urlmap={}
-    for viewname in ['organism_api', 'efetch_pmid']:
+    for viewname in ['organism_api', 'sources_api', 'medianames_api', 'efetch_pmid']:
         urlmap[viewname]=reverse(viewname)
     return HttpResponse(json.dumps(urlmap), mimetype='application/json')
 
@@ -29,7 +29,37 @@ class OrganismsView(generics.ListAPIView):
         return Organisms.objects.filter(**args)
 
 
+class SourcesView(generics.ListAPIView):
+    model=Sources
+    serializer_class=SourcesSerializer
+    
+    def get_queryset(self):
+        args={}
+        for arg in 'sourced first_author title journal year'.split(' '):
+            if arg in self.kwargs:
+                args[arg]=self.kwargs[arg]
+        return Sources.objects.filter(**args)
+
+
+class MediaNamesView(generics.ListAPIView):
+    model=MediaNames
+    serializer_class=MediaNamesSerializer
+    
+    def get_queryset(self):
+        args={}
+        for arg in 'media_name'.split(' '):
+            if arg in self.kwargs:
+                args[arg]=self.kwargs[arg]
+        results=MediaNames.objects.filter(**args)
+        log.debug('MediaNamesView returning %d mns' % len(results))
+        return results
+        
+
 def growth_data_view(request, *args, **kwargs):
+    ''' 
+    Returns a single gd record, and it's strain, as json.  
+    Fairly certain it's not actually used anywhere. (but ref'd in urls.py)
+    '''
     gd=GrowthData.objects.get(pk=kwargs['pk'])
     strain=gd.strainid
     gd_json=serializers.serialize('json', [gd, strain], indent=4)
@@ -92,13 +122,11 @@ def efetch_pmid(request, *args, **kwargs):
                 mg=re.search(r'19\d\d|20\d\d', value) # this seems error-prone
                 if mg:
                     year=mg.group(0)
-                    print 'year is ' + year
                     data['year']=year
             elif code=='AU':
                 if not data['author']:
                     data['author']=value
             last_code=code
     
-    print 'efetch: data is %s' % data
     return HttpResponse(json.dumps(data), mimetype='application/json')
 

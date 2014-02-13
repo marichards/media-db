@@ -1,0 +1,12 @@
+{% extends 'defined_media/base.html' %}
+{% block content %}
+<form action='' method='POST'>
+{% csrf_token %}
+
+{% if Error %}Error: {{ Error }}{% endif %}
+
+{{ form.as_p }}
+
+<input type='submit' value='Submit' />
+</form>
+{% endblock %}

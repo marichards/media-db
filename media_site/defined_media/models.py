@@ -8,12 +8,12 @@
 # into your database.
 from __future__ import unicode_literals
 
-from django.db import models
+from django.db import models, IntegrityError
 import re, inspect, logging, copy
 from lazy import lazy
 
-log=logging.getLogger(__name__)
 
+log=logging.getLogger(__name__)
 
 from django.core.urlresolvers import reverse
 
@@ -79,7 +79,7 @@ class CompoundManager(models.Manager):
             pass
 
         
-        raise Compounds.DoesNotExist(e) 
+        raise Compounds.DoesNotExist(name)
 
 class Compounds(models.Model):
     compid = models.AutoField(primary_key=True, db_column='compID') # Field name made lowercase.
@@ -170,7 +170,7 @@ class GrowthData(models.Model):
 
 
     def media_compounds_dicts(self):
-        return [{'comp': mc.compid.name, 'amount': mc.amount_mm} for mc in self.medid.mediacompounds_set.all()]
+        return self.medid.media_compounds_dicts()
 
     def dump(self):
         '''
@@ -198,43 +198,29 @@ class GrowthData(models.Model):
 
     def as_dict(gd):
         d={
-            'contributor_id': gd.contributor_id,
-            'genus':          gd.strainid.genus,
-            'species' :       gd.strainid.species,
-            'strain' :        gd.strainid.strain,
-
-            'media_name' :    gd.medid.media_name,
-            'is_defined' :    gd.medid.is_defined,
-            'is_minimal' :    gd.medid.is_minimal,
-
-            'first_author' :  gd.sourceid.first_author,
-            'journal' :       gd.sourceid.journal,
-            'year' :          gd.sourceid.year,
-            'title' :         gd.sourceid.title,
-            'link' :          gd.sourceid.link,
-             
-            'growth_rate' :   gd.growth_rate,
-            'temperature' :   gd.temperature_c,
-            'ph' :            gd.ph,
+            'contributor' : gd.contributor,
+            'strainid'    : gd.strainid_id,
+            'sourceid'    : gd.sourceid_id,
+            'growth_rate' : gd.growth_rate,
+            'temperature' : gd.temperature_c,
+            'ph'          : gd.ph,
             }
 
+
         if hasattr(gd, 'growthid'):
-            d['growthid']=gd.growthid # clon3d gds lack this
+            d['growthid']=gd.growthid # cloned gds lack this
             
 
         # make comp1 and amount1 key/value pairs:
-        n=1
-        for medcomp in gd.medid.mediacompounds_set.all():
-           d['comp%d' % n]=medcomp.compid.name
-           d['amount%d' % n]=medcomp.amount_mm
-           n+=1
+        d.update(gd.medid.as_dict())
 
         n=1
         for su in gd.secretionuptake_set.all():
             comp=Compounds.objects.get(compid=su.compid)
             d['uptake_comp%d' % n]=comp.name
             d['uptake_rate%d' % n]=su.rate
-            d['uptake_unit%d' % n]=su.units
+            d['uptake_unit%d' % n]=SecretionUptakeUnit.id_of(su.units)
+#            d['uptake_unit%d' % n]=su.units_id
             d['uptake_type%d' % n]=su.rateid_id
             n+=1
         return d
@@ -268,11 +254,9 @@ class GrowthData(models.Model):
                 try:
                     args[f]=float(getattr(self, f))
                 except (ValueError, TypeError) as e:
-                    log.debug("can't convert %s to float, but nevermind" % getattr(self, f))
+#                    log.debug("can't convert %s to float, but nevermind" % getattr(self, f))
                     pass
 
-            for k,v in args.items():
-                log.debug('find_clone: %s=%s' % (k,v))
             return GrowthData.objects.get(**args)
         except GrowthData.DoesNotExist:
             return None
@@ -284,7 +268,7 @@ class GrowthData(models.Model):
         clones may share: medid, contributor, strainid, sourceid, or any of the basic
         info.  BUT: they can't share ALL of it.  So we create a new MediaNames object,
         change its media_name field (by appending ' (clone)', and use that to satisfy
-        the uniqueness constraint.
+        the uniqueness constraint).
         '''
         if contributor is None:
             contributor=Contributor.objects.get(id=self.contributor_id)
@@ -361,7 +345,8 @@ class MediaCompounds(models.Model):
         db_table = 'media_compounds'
 
     def __unicode__(self):
-        return '%s %gmm' % (self.compid.__unicode__(), self.amount_mm)
+#        return '%s %gmm' % (self.compid.__unicode__(), self.amount_mm)
+        return '%s %smm' % (self.compid.__unicode__(), self.amount_mm)
 
     def __repr__(self):
         return 'MediaCompound %d: medid=%s, compid=%s, amount_mm=%g' % (self.medcompid, self.medid, self.compid, self.amount_mm)
@@ -369,12 +354,15 @@ class MediaCompounds(models.Model):
 
 class MediaNames(models.Model):
     medid = models.AutoField(primary_key=True, db_column='medID') # Field name made lowercase.
-    media_name = models.CharField(max_length=255L, db_column='Media_name', blank=True) # Field name made lowercase.
+    media_name = models.CharField(max_length=255L, db_column='Media_name', blank=False, unique=True) # Field name made lowercase.
     is_defined = models.CharField(max_length=1L, db_column='Is_defined', blank=True) # Field name made lowercase.
     is_minimal = models.CharField(max_length=1L, db_column='Is_minimal', blank=True) # Field name made lowercase.
+
     class Meta:
         db_table = 'media_names'
 	verbose_name_plural = 'media names'
+        ordering=['media_name']
+
     def __unicode__(self):
         #Define a method that grabs everything in a given medium
         #compounds_list = MediaCompounds.objects.filter(medid=self.medid)
@@ -443,6 +431,23 @@ class MediaNames(models.Model):
             mc.save()
         return clone
 
+
+    def media_compounds_dicts(self):
+        ''' 
+        return a list of hashlettes: d[compN]=compound name, d[amountN]=amount.
+        Used by medianames_form.html.
+        '''
+        return [{'comp': mc.compid.name, 'amount': mc.amount_mm} for mc in self.mediacompounds_set.all()]
+
+    def as_dict(self):
+        d={attr:getattr(self, attr) for attr in 'medid media_name is_defined is_minimal'.split(' ')}
+
+        for n,medcomp in enumerate(self.mediacompounds_set.all()):
+           d['comp%d' % n]=medcomp.compid.name
+           d['amount%d' % n]=medcomp.amount_mm
+        return d
+
+
 class NamesOfCompounds(models.Model):
     nameid = models.AutoField(primary_key=True, db_column='nameID') # Field name made lowercase.
     compid = models.ForeignKey(Compounds, db_column='compID') # Field name made lowercase.
@@ -454,18 +459,34 @@ class NamesOfCompounds(models.Model):
         return '%s' %self.name
 
 class Organisms(models.Model):
-    strainid = models.AutoField(primary_key=True, db_column='strainID') # Field name made lowercase.
-    genus = models.CharField(max_length=255L, db_column='Genus', blank=True) # Field name made lowercase.
-    species = models.CharField(max_length=255L, db_column='Species', blank=True) # Field name made lowercase.
-    strain = models.CharField(max_length=255L, db_column='Strain', blank=True) # Field name made lowercase.
-#    contributorid = models.ForeignKey(Contributors, null=True, db_column='contributorID', blank=True) # Field name made lowercase.
-    typeid = models.ForeignKey('TypesOfOrganisms', null=True, db_column='typeID', blank=True) # Field name made lowercase.
+    strainid = models.AutoField(primary_key=True, db_column='strainID')
+    # Not sure about blank=False on these; might mess up newmediaform since species and strain added dynamically
+    genus = models.CharField(max_length=255L, db_column='Genus', blank=False, null=False)
+    species = models.CharField(max_length=255L, db_column='Species', blank=False, null=False)
+    strain = models.CharField(max_length=255L, db_column='Strain', blank=False, null=False) 
+    typeid = models.ForeignKey('TypesOfOrganisms', db_column='typeID')
+
     class Meta:
         db_table = 'organisms'
         verbose_name_plural = 'organisms'
+        ordering=['genus', 'species', 'strain']
+
     #Call the Organisms object and return the Strain Name and such instead
     def __unicode__(self):
         return '%s %s %s' %(self.genus.capitalize(),self.species.lower(),self.strain)
+
+    def save(self):
+        missing=[]
+        for attr in 'genus species strain'.split(' '):
+            try:
+                if len(getattr(self, attr))==0:
+                    missing.append('%s blank' % attr)
+            except AttributeError:
+                missing.append('%s missing' % attr)
+        if len(missing)>0:
+            raise IntegrityError(', '.join(missing))
+
+        return super(Organisms,self).save()
 
     #Define searchable terms
     def keywords(self):
@@ -509,12 +530,16 @@ class SecretionUptake(models.Model):
     rate = models.FloatField(db_column='Rate') # Field name made lowercase.
     units = models.CharField(max_length=45L, db_column='Units') # Field name made lowercase.
     rateid = models.ForeignKey('SecretionUptakeKey', db_column='rateID') # Field name made lowercase.
+
     class Meta:
         db_table = 'secretion_uptake'
 
+    def __unicode__(self):
+        return repr(self)
+
     def __repr__(self):
-        return 'SecretionUptake %s: growth=%s, compound=%s, rate=%s, units=%s, rateid=%s' \
-            %(self.secretionuptakeid, self.growthid, self.compid, self.rate, self.units, self.rateid)
+        return 'SecretionUptake %s: growth (%d)=%s, compound=%s, rate=%s, units=%s, rateid=%s' \
+            %(self.secretionuptakeid, self.growthid_id, self.growthid, self.compid, self.rate, self.units, self.rateid)
 
 
 class SecretionUptakeKey(models.Model):
@@ -522,6 +547,28 @@ class SecretionUptakeKey(models.Model):
     rate_type = models.CharField(max_length=45L, unique=True, db_column='Rate_Type', blank=True) # Field name made lowercase.
     class Meta:
         db_table = 'secretion_uptake_key'
+
+class SecretionUptakeUnit(models.Model):
+    unit=models.CharField(max_length=12, unique=True, blank=False)
+    class Meta:
+        db_table='secretion_uptake_unit'
+
+    
+    @classmethod
+    def _get_unit2id(self):
+        u2i={}
+        for suu in self.objects.all():
+            u2i[suu.unit]=suu.id
+        log.debug('lazy returning %s' % u2i)
+        return u2i
+
+    @classmethod
+    def id_of(self, unit):
+        try: return self._unit2id[unit]
+        except AttributeError:
+            self._unit2id=self._get_unit2id()
+            return self._unit2id[unit]
+            
 
 '''
 class SeedCompounds(models.Model):
@@ -541,10 +588,17 @@ class Sources(models.Model):
     sourceid = models.AutoField(primary_key=True, db_column='sourceID') # Field name made lowercase.
     first_author = models.CharField(max_length=255L, db_column='First_Author', blank=True) # Field name made lowercase.
     journal = models.CharField(max_length=255L, db_column='Journal', blank=True) # Field name made lowercase.
-    year = models.TextField(db_column='Year', blank=True) # Field name made lowercase. This field type is a guess.
+    year = models.CharField(db_column='Year', blank=True, max_length=4L) # Field name made lowercase. This field type is a guess.
     title = models.CharField(max_length=255L, unique=True, db_column='Title', blank=True) # Field name made lowercase.
-    link = models.CharField(max_length=255L, unique=True, db_column='Link', blank=True) # Field name made lowercase.
+    link = models.CharField(max_length=255L, unique=False, db_column='Link', blank=True) # Field name made lowercase.
     pubmed_id = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'sources'
+        verbose_name_plural = 'sources'
+        unique_together='first_author journal title'.split(' ')
+
+        ordering=['first_author', 'title']
 
     def is_pdf(self):
         return self.link.lower().endswith('pdf')
@@ -555,9 +609,6 @@ class Sources(models.Model):
         else:
             return None
 
-    class Meta:
-        db_table = 'sources'
-        verbose_name_plural = 'sources'
     def __unicode__(self):
         year=self.year or ''
         return '%s et al, %s' %(self.first_author.capitalize(),year)
@@ -578,9 +629,12 @@ class Sources(models.Model):
 class TypesOfOrganisms(models.Model):
     typeid = models.AutoField(primary_key=True, db_column='typeID') # Field name made lowercase.
     organism_type = models.CharField(max_length=255L, unique=True, db_column='Organism_type', blank=True) # Field name made lowercase.
+    
     class Meta:
         db_table = 'types_of_organisms'
 
+    def __unicode__(self):
+        return self.organism_type
 
 
 class SearchResult(models.Model):
@@ -640,13 +694,18 @@ class Contributor(models.Model):
         return '%s %s (%s, lab=%s)' % (self.first_name, self.last_name, self.user.username, self.lab)
 
     def can_edit_gd(self, gd):
-        return self.user.is_superuser or (self.user.is_active and self.id==gd.contributor_id)
+        return self.user.is_superuser
+#        return self.user.is_superuser or (self.user.is_active and self.id==gd.contributor_id)
 
     def editable_gds(self):
         if self.user.is_superuser:
             return GrowthData.objects.all()
         else:
-            return GrowthData.objects.filter(contributor_id=self.id)
+#            return GrowthData.objects.filter(contributor_id=self.id)
+            return []
+
+    def can_edit_mn(self, mn):
+        return self.user.is_superuser
 
     def name(self):
         return '%s %s' % (self.first_name, self.last_name)

@@ -131,3 +131,19 @@ class TestGrowthData(TestCase):
             self.assertEqual(n_comps0, n_comps1, 'Compounds: %d -> %d' % (n_comps0, n_comps1))
 
 
+    def test_save(self):
+        gd0=GrowthData.objects.first()
+        delattr(gd0, 'temperature_c')
+        try:
+            gd0.save()
+            self.assertTrue(True)
+        except IntegrityError as e:
+            self.fail(str(e))
+
+        gd0.temperature_c=None
+        try:
+            gd0.save()
+            self.assertTrue(True)
+        except IntegrityError as e:
+            self.fail(str(e))
+

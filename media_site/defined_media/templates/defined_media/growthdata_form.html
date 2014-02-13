@@ -1,0 +1,106 @@
+{% extends 'defined_media/base.html' %}
+<!-- page to edit GrowthData object -->
+
+{% block js_files %}
+{% load static %}
+<script src='{% static 'defined_media/js/jquery-1.10.2.min.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/jquery-ui.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/growthdata.js' %}' type='text/javascript'></script>
+<script src='{% static 'defined_media/js/data.js' %}' type='text/javascript'></script>
+{% endblock %}
+
+{% block content %}
+<form id='id_growthdata_form' action='' method='POST'>
+<h2>{% if gd %}Editing Growth Data Record{% else %}Create New Growth Data Record{% endif %}</h2>
+{% csrf_token %}
+<div>
+{% if form.errors %}<ol>Errors: 
+{% for field,err in form.errors.items %}<li>{{ field }}: {{ err }}</li>{% endfor %}
+{% endif %}
+</div>
+<table>
+<input id='id_contributor' name='contributor' type='hidden' value='{{request.user.contributor.id}}' />
+{% if gd %}<input id='id_growthid' name='growthid' type='hidden' value='{{gd.growthid}}' />{% endif %}
+<tr>
+  <td>{{form.strainid.label}}</td>
+  <td>{{form.strainid}}</td>
+</tr><tr>
+<tr>
+  <td>{{form.sourceid.label}}</td>
+  <td>{{form.sourceid}}</td>
+</tr><tr>
+<tr>
+  <td>{{form.medid.label}}</td>
+  <td>{{form.medid}}</td>
+</tr><tr>
+<tr>
+  <td>{{form.growth_rate.label}}</td>
+  <td>{{form.growth_rate}}</td>
+</tr><tr>
+<tr>
+  <td>{{form.temperature_c.label}}</td>
+  <td>{{form.temperature_c}}</td>
+</tr><tr>
+<tr>
+  <td>{{form.ph.label}}</td>
+  <td>{{form.ph}}</td>
+</tr><tr>
+<tr>
+  <td>{{form.additional_notes.label}}</td>
+  <td>{{form.additional_notes}}</td>
+</tr>
+</table>
+
+<h3>Secretion Uptakes:</h3>
+<table>
+<tr>
+  <th>Compound</th>
+  <th>Rate</th>
+  <th>Units</th>
+  <th>Type</th>
+</tr>
+
+{% for d in form.uptakes_list %}
+<tr id='id_uptake_row{{ forloop.counter }}'>
+    <td>
+      <input id="id_uptake_comp{{ forloop.counter }}" name="uptake_comp{{ forloop.counter }}" type="text" value="{{ d.comp }}" />
+    </td>
+
+    <td>
+      <input id="id_uptake_rate{{ forloop.counter }}" name="uptake_rate{{ forloop.counter }}" type="text" value="{{ d.rate }}" />
+    </td>
+
+    <td>
+      <select id="id_uptake_unit{{ forloop.counter }}" name="uptake_unit{{ forloop.counter }}">
+	<option value="1" {% if d.unit == 1 %} selected='selected'{% endif %}>mmol/gDW/h</option>
+	<option value="2" {% if d.unit == 2 %} selected='selected'{% endif %}>g/g glucose</option>
+	<option value="3" {% if d.unit == 3 %} selected='selected'{% endif %}>1/h</option>
+      </select>
+    </td>
+
+    <td>
+      <select id="id_uptake_type{{ forloop.counter }}" name="uptake_type{{ forloop.counter }}">
+	<option value="1" {% if d.type == 1 %} selected='selected'{% endif %}>Secretion</option>
+	<option value="2" {% if d.type == 2 %} selected='selected'{% endif %}>Uptake</option>
+	<option value="3" {% if d.type == 3 %} selected='selected'{% endif %}>Yield Coefficient</option>
+      </select>
+    </td>
+
+    <!-- add/remove button -->
+    {% if forloop.first %}
+    <td><input id='id_add_uptake1' type='button' value='Add' /></td>
+    {% else %}
+    <td><input type='button' value='Remove' id='id_rm_uptake{{ forloop.counter }}' class=uptake_rm_button' /></td>
+    {% endif %}
+  </tr>
+{% endfor %}
+
+
+
+
+</tr><tr>
+    <td><input id='id_submit_button' type='submit' value='Submit' /></td></tr>
+</tr>
+</table>
+</form>
+{% endblock %}

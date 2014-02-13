@@ -22,10 +22,12 @@ def add_100_compounds_with_formulas(media_objs):
     except KeyError:
         media_objs['Compounds']=c100s
         
-
+def add_measurements(media_objs):
+    media_objs['Measurements']=set(Measurements.objects.all())
+    
 
 def add_growth_data(media_objs):
-    growth_ids=[254, 265, 210]  # one for each unit type
+    growth_ids=[254, 265, 210, 258, 266]  # one for each unit type, and one that is ref'd by a sec-uptake
     gd_objs=set()
     bad_gds=[]
     attrs=['strainid', 'medid', 'sourceid', 'measureid']
@@ -85,6 +87,7 @@ def add_search_results(media_objs):
         add_obj(o, media_objs)
 
 def add_media_names(media_objs, compounds):
+    ''' Add all the media names ''' 
     mednames=set()
     for comp in compounds:
         for mc in comp.mediacompounds_set.all():
@@ -148,9 +151,10 @@ def main():
     add_biomass(media_objs)
     add_organisms(media_objs)
     add_search_results(media_objs)
-    add_media_names(media_objs, compounds)
     add_growth_data(media_objs)
     add_contributor(media_objs)
+    add_measurements(media_objs)
+    add_media_names(media_objs, compounds)
 
 #    add_reactants(media_objs)
 
@@ -253,7 +257,12 @@ def add_obj(a, media_objs):
     try:
         media_objs[classname].add(a)
     except KeyError:
-        media_objs[classname]=set(a)
+        try:
+            media_objs[classname]=set(a)
+        except TypeError as e:
+            print 'warning: unable to add %s: %s: %s' % (classname, a, e)
+            pass
+
 
 if __name__=='__main__':
     main()

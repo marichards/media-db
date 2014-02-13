@@ -12,13 +12,27 @@ class SearchForm(forms.Form):
     search_term=forms.CharField()
 
 
-class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
-    @classmethod
+class OrganismForm(forms.ModelForm):
+    class Meta:
+        model=Organisms
+        
+class SourceForm(forms.ModelForm):
+    class Meta:
+        model=Sources
+        widgets={'pubmed_id': forms.TextInput(attrs={})}
+
+                
+
+
+class NewCompoundMediaForm(forms.Form, ReformatsErrors, Gets1):
+    ''' this is obsolete! '''
+    ''' and really badly named! '''
+    @classmethod                # why can't we just NewCompoundMediaForm(gd)?  Because we need to follow lists
     def from_growth_data(self, gd):
-        return NewMediaForm(gd.as_dict())
+        return NewCompoundMediaForm(gd.as_dict())
             
     def __init__(self, *args, **kwargs):
-        super(NewMediaForm, self).__init__(*args, **kwargs)
+        super(NewCompoundMediaForm, self).__init__(*args, **kwargs)
 
         if len(args)>0:
             ''' Attach the original args (args[0]) if present so that
@@ -50,12 +64,17 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
     is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
     is_minimal=forms.CharField(label='Is minimal?', widget=forms.CheckboxInput)
 
-    pmid=forms.IntegerField(required=False, label='Pubmed ID')
-    first_author=forms.CharField(label='First Author')
-    journal=forms.CharField(label='Journal', max_length=255)
+    pmid=forms.IntegerField(required=False, label='Pubmed ID',
+                            widget=forms.TextInput(attrs={'size': 75}))
+    first_author=forms.CharField(label='First Author', max_length=255,
+                                 widget=forms.TextInput(attrs={'size': 75}))
+    journal=forms.CharField(label='Journal', max_length=255,
+                            widget=forms.TextInput(attrs={'size': 75}))
     year=forms.IntegerField(label='Year')
-    title=forms.CharField(label='Title', max_length=255)
-    link=forms.CharField(label='Link', max_length=255)
+    title=forms.CharField(label='Title', max_length=255,
+                          widget=forms.TextInput(attrs={'size': 75}))
+    link=forms.CharField(label='Link', max_length=255,
+                         widget=forms.TextInput(attrs={'size': 75}))
 
 
     comp1=forms.CharField(required=True, label='Compound')
@@ -74,9 +93,29 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
     uptake_unit1=forms.ChoiceField(label='Units', required=False, choices=unit_choices)
     type_choices=[(u.rateid,u.rate_type) for u in SecretionUptakeKey.objects.all()]
     uptake_type1=forms.ChoiceField(label='Type', required=False, choices=type_choices)
+    additional_notes=forms.CharField(required=False, 
+                                     widget=forms.Textarea(attrs={'rows':3, 'cols': 40}))
 
     def is_valid(self):
-        valid=super(NewMediaForm, self).is_valid()
+        '''
+        This method does several things (redflag!), besides call its super():
+        - removes false errors in the organism form that exist because initially 
+          they're blank (fix: could safely remove 'required' from form spec)
+        - updates self.cleaned_data with addition args passed to the form (really necessary?)
+        - checks for existence of amounts associated with compounds; can't do this
+          in super because of dynamically added (by client) form fields.
+        - should also call get_organism_name, but currently doesn't.  That method
+          has the logic to check validity of organism name correctly.
+
+        What the method should do:
+        - Attempt to guarantee, as far as possible, that the new growth data
+          record can be successfully saved.  That includes:
+        - Check for completeness: all compounds have amounts, all fields of source are specified, etc;
+        - Check for the existence of all named compounds;
+        - Check that organism name is valid;
+        - Check that floating point values are actually floating points;
+        '''
+        valid=super(NewCompoundMediaForm, self).is_valid()
         if not hasattr(self, 'orig_args'):
             return valid
 
@@ -198,6 +237,3 @@ class NewMediaForm(forms.Form, ReformatsErrors, Gets1):
 
         return genus, species, strain, new_org
 
-#class OrganismForm(forms.ModelForm):
-#    class Meta:
-#        model=Organisms
