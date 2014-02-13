@@ -12,8 +12,8 @@ from django.db import models, IntegrityError
 import re, inspect, logging, copy
 from lazy import lazy
 
-log=logging.getLogger(__name__)
 
+log=logging.getLogger(__name__)
 
 from django.core.urlresolvers import reverse
 
@@ -219,7 +219,8 @@ class GrowthData(models.Model):
             comp=Compounds.objects.get(compid=su.compid)
             d['uptake_comp%d' % n]=comp.name
             d['uptake_rate%d' % n]=su.rate
-            d['uptake_unit%d' % n]=su.units
+            d['uptake_unit%d' % n]=SecretionUptakeUnit.id_of(su.units)
+#            d['uptake_unit%d' % n]=su.units_id
             d['uptake_type%d' % n]=su.rateid_id
             n+=1
         return d
@@ -548,6 +549,23 @@ class SecretionUptakeUnit(models.Model):
     unit=models.CharField(max_length=12, unique=True, blank=False)
     class Meta:
         db_table='secretion_uptake_unit'
+
+    
+    @classmethod
+    def _get_unit2id(self):
+        u2i={}
+        for suu in self.objects.all():
+            u2i[suu.unit]=suu.id
+        log.debug('lazy returning %s' % u2i)
+        return u2i
+
+    @classmethod
+    def id_of(self, unit):
+        try: return self._unit2id[unit]
+        except AttributeError:
+            self._unit2id=self._get_unit2id()
+            return self._unit2id[unit]
+            
 
 '''
 class SeedCompounds(models.Model):

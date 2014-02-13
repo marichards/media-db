@@ -49,6 +49,7 @@ class GrowthDataForm(forms.Form):
             except AttributeError:
                 d=args[0]
             
+            # for all secretion-uptake fields in d, add a set of fields to the form:
             n=1
             for k,v in d.items():
                 if k.startswith('uptake_comp'):
@@ -85,8 +86,9 @@ class GrowthDataForm(forms.Form):
                                                           required=False, 
                                                           initial=hashlette['rate'])
         initial=hashlette['unit']
-        if initial is None or len(initial)==0:
-            initial=0
+        if initial is None:
+            initial=1
+        log.debug('sec-uptake unit_%d: initial type=%s (%s)' % (n, initial, type(initial)))
         self.fields['uptake_unit%d' % n]=forms.ModelChoiceField(label='Units', 
                                                            required=False, 
                                                            initial=initial,
@@ -94,8 +96,10 @@ class GrowthDataForm(forms.Form):
                                                            )
 
         initial=hashlette['type']
-        if initial is None or len(initial)==0:
-            initial=0
+        log.debug('sec-uptake type_%d: initial type=%s (%s)' % (n, initial, type(initial)))
+#        if initial is None or len(initial)==0:
+        if initial is None:
+            initial=1
         self.fields['uptake_type%d' % n]=forms.ModelChoiceField(label='Type', 
                                                                 required=False, 
                                                                 initial=initial,
