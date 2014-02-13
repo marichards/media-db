@@ -48,6 +48,11 @@ class OrganismDetail(DetailView):
 class MediaDetail(DetailView):
     model=MediaNames
 
+    def get_context_data(self, **kwargs):
+        context=super(MediaDetail,self).get_context_data(**kwargs)
+        context['can_edit']=self.request.user.contributor.can_edit_mn(context['medianames'])
+        return context
+
 class BiomassDetail(DetailView):
     model=Biomass
 

@@ -5,6 +5,12 @@
 {% block content %}
 <h2>Media: {{ medianames }}</h2>
 
+{% if can_edit %}
+<div>
+<a href='{% url 'new_media' medianames.medid %}'>Edit this record</a>
+</div>
+{% endif %}
+
 <div>
 {% with compound_list=medianames.sorted_compounds %}
 {{ compound_list|length }} Compounds:
