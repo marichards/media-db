@@ -208,7 +208,7 @@ GrowthDataEditor.prototype={
 	    keys.push(media_list[i].media_name)
 //	    console.log('pushed media_name '+media_list[i]['media_name'])
 	}
-	console.log(keys.length+' keys')
+	console.log(keys.length+' medianames keys')
 	$("#id_media_names").autocomplete({source: keys, minLength: 1})
     },
 
