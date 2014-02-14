@@ -25,7 +25,7 @@ class GrowthDataView(FormView):
             form=self.form_class.from_growth_data(gd)
         except (GrowthData.DoesNotExist, KeyError) as e:
             form=GrowthDataForm(initial={'contributor': request.user.contributor.id})
-        
+
         return self.form_invalid(form)
             
     def post(self, request, *args, **kwargs):

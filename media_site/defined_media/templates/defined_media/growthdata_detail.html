@@ -6,7 +6,8 @@
 <h2>Growth Data: {{ growthdata }}</h2>
 {% if request.user.is_authenticated %}<p>
   {% if can_edit %}
-  <a href='{% url 'edit_growth_data' growthdata.growthid %}'>Edit this record</a>
+  <a href='{% url 'edit_growth_data' growthdata.growthid %}'>Edit this record</a>&nbsp;&nbsp;&nbsp;
+  <a href='{% url 'clone_growth_data' growthdata.growthid %}'>Clone this record</a>
   {% endif %}
 </p>{% endif %}
 

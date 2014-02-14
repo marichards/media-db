@@ -200,7 +200,7 @@ class GrowthData(models.Model):
 
     def as_dict(gd):
         d={
-            'contributor' : gd.contributor,
+            'contributor' : gd.contributor.id,
             'strainid'    : gd.strainid_id,
             'sourceid'    : gd.sourceid_id,
             'growth_rate' : gd.growth_rate,
@@ -227,7 +227,7 @@ class GrowthData(models.Model):
             n+=1
         return d
 
-    def full_delete(self):
+    def full_delete1(self):     # fixme: get rid of this function
         log.debug('full_delete called')
         # delete secretion_uptakes
         # apparently this happens automatically...
@@ -256,7 +256,6 @@ class GrowthData(models.Model):
                 try:
                     args[f]=float(getattr(self, f))
                 except (ValueError, TypeError) as e:
-#                    log.debug("can't convert %s to float, but nevermind" % getattr(self, f))
                     pass
 
             return GrowthData.objects.get(**args)
@@ -566,7 +565,6 @@ class SecretionUptakeUnit(models.Model):
         u2i={}
         for suu in self.objects.all():
             u2i[suu.unit]=suu.id
-        log.debug('lazy returning %s' % u2i)
         return u2i
 
     @classmethod
