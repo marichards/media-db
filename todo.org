@@ -1,9 +1,12 @@
-Add in links to allow edit a media names object (from the detail page,
-when logged in as superuser)
+Re-install cloning options: weird bug with contributor is in template (?)
 
-Re-install cloning options.
+Add in approval functionality for medianames?  Or double check that only superuser
+is allowed to add/edit medianames, growthdata objects
 
 
+List all medianames objects on superuser profile page
+
+downloads page!
 
 
 

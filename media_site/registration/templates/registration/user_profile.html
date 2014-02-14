@@ -56,17 +56,37 @@
 <p>&nbsp;</p>
 <div>
 {% with gds=user.contributor.editable_gds %}
-{{ gds|length }} Growth Data records
+{% with mns=user.contributor.editable_mns %}
+<a href='#id_media_names_table'>{{ mns|length }} Media Name records</a><br />
+<a href='#id_growth_data_table'>{{ gds|length }} Growth Data records</a>
 {% if gds|length > 0 %}
-<table>
+<div>
+<h2>{{ gds|length }} Growth Data records</h2>
+<table id='id_growth_data_table'>
 {% for gd in gds %}
 <tr><td>{{ gd }}</td><td><a href="{% url 'growth_record' gd.growthid %}">View</a></td>
     <td><a href="{% url 'edit_growth_data' gd.growthid %}">Edit</a></td>
-{% comment %}    <td><a href="{% url 'clone_growth_data' gd.growthid %}">Clone</a></td> {% endcomment %}
+    <td><a href="{% url 'clone_growth_data' gd.growthid %}">Clone</a></td>
 </tr>
 {% endfor %}
 </table>
+</div>
 {% endif %}
+
+
+<div>
+<h2>{{ mns|length }} Media Name records</h2>
+{% if mns|length > 0 %}
+<table id='id_media_names_table'>
+{% for mn in mns %}
+<tr><td>{{ mn }}</td><td><a href="{% url 'media_record' mn.medid %}">View</a></td>
+    <td><a href="{% url 'new_media' mn.medid %}">Edit</a></td>
+    <td><a href="{% url 'clone_media_names' mn.medid %}">Clone</a></td> 
+</tr>
+{% endfor %}
+</table>
+</div>{% endif %}
+{% endwith %}
 {% endwith %}
 </div>
 {% endblock %}

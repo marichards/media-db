@@ -30,10 +30,7 @@ class GrowthDataView(FormView):
             
     def post(self, request, *args, **kwargs):
         form=self.form_class(request.POST)
-        log.debug('request.POST: %s' % request.POST)
         if not form.is_valid():
-            for k,v in form.errors.items():
-                log.debug('early error: %s->%s' % (k,v))
             return self.form_invalid(form)
 
         # determine if this is a new creation or an update:
@@ -41,7 +38,6 @@ class GrowthDataView(FormView):
             growthid=form.cleaned_data.get('growthid')
             if growthid is not None:
                 gd=GrowthData.objects.get(growthid=growthid)
-                log.debug('got existing growth_record %s' % growthid)
         except GrowthData.DoesNotExist:
             raise Http404()
 
@@ -53,15 +49,13 @@ class GrowthDataView(FormView):
                 gd=self.build_gd(form)
                 self.add_secretion_uptakes(form, gd)
                 self.gd=gd
-        except IntegrityError:
+        except IntegrityError as e:
             form.errors['error']=str(e)
 
         # are we happy?
         if len(form.errors)==0:
             return redirect(self.get_success_url())
         else:
-            for k,v in form.errors.items():
-                log.debug('late error: %s->%s' % (k,v))
             newform=self.form_class(request.POST) # can't just return self.form_invalid(form)???
             newform.errors.update(form.errors)
             return self.form_invalid(newform)
@@ -92,7 +86,6 @@ class GrowthDataView(FormView):
                       ph=ph,
                       additional_notes=additional_notes)
         growthid=fcd.get('growthid')
-        log.debug('about to save growth_record: growthid=%s' % growthid)
 
         if growthid is not None:
             gd.growthid=growthid
@@ -102,19 +95,17 @@ class GrowthDataView(FormView):
     def add_secretion_uptakes(self, form, gd):
         fcd=form.cleaned_data
         upkeys=[k for k in fcd.keys() if k.startswith('uptake_comp')]
-        log.debug('gd.add_secs: upkeys: %s' % upkeys)
         for upkey in upkeys:
             n=upkey.split('uptake_comp')[1]
             comp_name=fcd.get(upkey)
             if comp_name is None or len(comp_name)==0:
                 continue
-            log.debug('%s: looking for %s' % (upkey, comp_name))
             compound=Compounds.objects.with_name(comp_name)
             rate=fcd.get('uptake_rate%s'%n)
-            units=fcd.get('uptake_units%s'%n)
+            units=fcd.get('uptake_unit%s'%n)
             rate_type=fcd.get('uptake_type%s'%n)
             rateid=SecretionUptakeKey.objects.get(rate_type=rate_type)
-            uptake=SecretionUptake(compid=compound.compid, rate=rate, units=units, rateid=rateid)
+            uptake=SecretionUptake(compid=compound.compid, rate=rate, units=units, rateid=rate_type)
             gd.secretionuptake_set.add(uptake)
 
 
