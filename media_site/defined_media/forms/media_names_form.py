@@ -10,7 +10,7 @@ class MediaNamesForm(forms.Form):
         return MediaNamesForm(mn.as_dict())
             
     medid=forms.IntegerField(required=False, widget=forms.HiddenInput)
-    media_name=forms.CharField(label='Name', required=True)
+    media_name=forms.CharField(label='Name', required=True, widget=forms.TextInput(attrs={'size':60}))
     is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
     is_minimal=forms.CharField(label='Is minimal?', widget=forms.CheckboxInput) # we don't actually display this in the template, because it's always 'Y'
 
