@@ -547,11 +547,16 @@ class SecretionUptakeKey(models.Model):
     class Meta:
         db_table = 'secretion_uptake_key'
 
+    def __unicode__(self):
+        return '%s' % (self.rate_type)
+
 class SecretionUptakeUnit(models.Model):
     unit=models.CharField(max_length=12, unique=True, blank=False)
     class Meta:
         db_table='secretion_uptake_unit'
 
+    def __unicode__(self):
+        return '%s' % self.unit
     
     @classmethod
     def _get_unit2id(self):
