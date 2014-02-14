@@ -159,9 +159,11 @@ class GrowthData(models.Model):
     class Meta:
         db_table = 'growth_data'
 	verbose_name_plural = 'growth data'
+        ordering=['strainid__genus', 'strainid__species', 'strainid__strain', 'medid__media_name']
+        
     #Method: Python calls Growth Object and Returns the ID instead of just "GrowthData Object" 
     def __unicode__(self):
-        return '%s on %s' %(self.strainid,self.medid)   
+        return '%s on %s' %(self.strainid, self.medid)   
 
     def __repr__(self):
         return "GrowthData(%s) %s: org(%s)=%s, media_name(%s)=%s, sourceid(%s)=%s, measureid(%s)=%s approved=%s" % \
@@ -275,7 +277,7 @@ class GrowthData(models.Model):
         clone=copy.copy(self)
         clone.growthid=None
         clone.contributor_id=contributor.id
-        clone.medid=self.medid.clone_and_save()
+        clone.medid=self.medid.clone()
         clone.save()
 
         # have to copy medianames and secretionuptake objects:
@@ -416,7 +418,7 @@ class MediaNames(models.Model):
         return True
 
 
-    def clone_and_save(self):
+    def clone(self):
         '''
         make a clone of an existing MediaName object, store to db
         ''' 
@@ -424,11 +426,11 @@ class MediaNames(models.Model):
         clone.medid=None
         clone.media_name=self.media_name+' (clone)'
         clone.save()
-        
+
         for mc in self.mediacompounds_set.all():
-            mc.medcompid=None
-            mc.medid=clone
-            mc.save()
+            mc=MediaCompounds(compid=mc.compid, amount_mm=mc.amount_mm)
+            clone.mediacompounds_set.add(mc)
+
         return clone
 
 
@@ -548,11 +550,16 @@ class SecretionUptakeKey(models.Model):
     class Meta:
         db_table = 'secretion_uptake_key'
 
+    def __unicode__(self):
+        return '%s' % (self.rate_type)
+
 class SecretionUptakeUnit(models.Model):
     unit=models.CharField(max_length=12, unique=True, blank=False)
     class Meta:
         db_table='secretion_uptake_unit'
 
+    def __unicode__(self):
+        return '%s' % self.unit
     
     @classmethod
     def _get_unit2id(self):
@@ -702,6 +709,13 @@ class Contributor(models.Model):
             return GrowthData.objects.all()
         else:
 #            return GrowthData.objects.filter(contributor_id=self.id)
+            return []
+
+    def editable_mns(self):
+        if self.user.is_superuser:
+            return MediaNames.objects.all()
+        else:
+#            return MediaNames.objects.filter(contributor_id=self.id)
             return []
 
     def can_edit_mn(self, mn):

@@ -1,5 +1,5 @@
 import django.forms as forms
-from defined_media.models import GrowthData, Organisms, MediaNames, Sources, SecretionUptake, SecretionUptakeKey, Compounds
+from defined_media.models import *
 import logging, re
 log=logging.getLogger(__name__)
 
@@ -61,21 +61,20 @@ class GrowthDataForm(forms.Form):
                         try: field_val=d[field_key]
                         except KeyError: field_val=''
                         hashlette[suffix]=field_val
-                    log.debug('about to add hashlette: %s' % hashlette)
                     self._add_uptake_field(n, hashlette)
                     n+=1
 
         except (IndexError) as e:  # nevermind, maybe args[0] wasn't a GrowthData object or something
-            log.debug('GrowthDataForm.__init__(): ignoring %s: %s' % (type(e), e))
-            log.exception(e)
+            pass
+#            log.debug('GrowthDataForm.__init__(): ignoring %s: %s' % (type(e), e))
+#            log.exception(e)
             
         # if nothing happened, we need to at least create the first uptake set:
         if 'uptake_comp1' not in self.fields:
-            log.debug('adding first empty uptake row')
             self._add_uptake_field(1, {'comp': '', 
                                         'rate': '',
-                                        'unit' : '',
-                                        'type' : ''})
+                                        'unit' : 1,
+                                        'type' : 1})
 
     def _add_uptake_field(self, n, hashlette):
         ''' add a field for compound, rate, unit, and uptake (from hashlette) '''
@@ -88,16 +87,13 @@ class GrowthDataForm(forms.Form):
         initial=hashlette['unit']
         if initial is None:
             initial=1
-        log.debug('sec-uptake unit_%d: initial type=%s (%s)' % (n, initial, type(initial)))
         self.fields['uptake_unit%d' % n]=forms.ModelChoiceField(label='Units', 
                                                            required=False, 
                                                            initial=initial,
-                                                           queryset=SecretionUptake.objects.all(),
+                                                           queryset=SecretionUptakeUnit.objects.all(),
                                                            )
 
         initial=hashlette['type']
-        log.debug('sec-uptake type_%d: initial type=%s (%s)' % (n, initial, type(initial)))
-#        if initial is None or len(initial)==0:
         if initial is None:
             initial=1
         self.fields['uptake_type%d' % n]=forms.ModelChoiceField(label='Type', 
@@ -109,20 +105,16 @@ class GrowthDataForm(forms.Form):
 
 
     def is_valid(self):
-        log.debug('got here: gdf.is_valid')
         valid=super(GrowthDataForm,self).is_valid()
-        log.debug('gdf.valid=%s' % valid)
         cd=self.cleaned_data
 
         # check uptakes:
         upkeys=[k for k in self.fields.keys() if k.startswith('uptake_comp')]
-        log.debug('gdf.is_valid: upkeys: %s' % upkeys)
         for key in upkeys:
             try:
                 comp_name=cd.get(key)
                 if comp_name is None: continue
                 if len(comp_name)==0: continue
-                log.debug('is_valid: looking for compound "%s"' % comp_name)
                 compound=Compounds.objects.with_name(comp_name)
                 
                 # check that rate is present, and can be converted to float:
@@ -140,7 +132,6 @@ class GrowthDataForm(forms.Form):
                         valid=False
 
             except Compounds.DoesNotExist as e:
-                log.debug('caught bad compound "%s"' % comp_name)
                 self.errors[key]='%s: no such compound' % comp_name
                 valid=False
 

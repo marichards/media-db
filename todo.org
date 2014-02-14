@@ -1,11 +1,15 @@
-Next up: design and implement growth data editing page.  Maybe research the item below (CreateView vs. EditView)
+Re-install cloning options: weird bug with contributor is in template (?)
 
-Impose uniqueness on MediaNames.media_name and test for it.
+Add in approval functionality for medianames?  Or double check that only superuser
+is allowed to add/edit medianames, growthdata objects
 
 
-         Ok, there's a reason there's a CreateView and an UpdateView.  You 
-	 do two separte urls for two different views, and you don't have to
-	 worry about whether or not you're updating or overwriting or whatevs
+List all medianames objects on superuser profile page
+
+downloads page!
+
+
+
 
 * Todo:
 - Turn off debug, and create an error page.
@@ -183,3 +187,4 @@ X -Genus needs to be capitalized
 Z - Add link to newmedia when logged in
 Z - Display list of user's growth data records
 Z - Add link to login/user profile page to nav
+X -Impose uniqueness on MediaNames.media_name and test for it.

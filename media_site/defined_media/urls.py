@@ -34,7 +34,6 @@ urlpatterns = patterns(view_prefix,
                        url(r'^media/(?P<pk>\d+)/$', views.core.MediaDetail.as_view(), name='media_record'),
                        url(r'^biomass/(?P<pk>\d+)/$', views.core.BiomassDetail.as_view(), name='biomass_record'),
                        url(r'^sources/(?P<pk>\d+)/$', views.core.SourceDetail.as_view(), name='source_record'),
-
                        url(r'^growthdata/(?P<pk>\d+)/$', views.core.GrowthDataDetail.as_view(), name='growth_record'),
 
                        # Search views:
@@ -44,7 +43,8 @@ urlpatterns = patterns(view_prefix,
                        # New Media Contribution:
 #                       url(r'^newmedia/$', login_required(views.growth_data.NewGrowthData.as_view()), name='new_growth_data'),
 #                       url(r'^newmedia/(?P<pk>\d+)/$', login_required(views.growth_data.NewGrowthData.as_view()), name='new_growth_data'),
-#                       url(r'^clone_newmedia/(?P<pk>\d+)/$', login_required(views.growth_data.CloneGrowthDataView.as_view()), name='clone_growth_data'),
+                       url(r'^clone_growthdata/(?P<pk>\d+)/$', login_required(views.clone.CloneGrowthDataView.as_view()), name='clone_growth_data'),
+                       url(r'^clone_medianames/(?P<pk>\d+)/$', login_required(views.clone.CloneMediaNamesView.as_view()), name='clone_media_names'),
 
                        # Model Create/Edit views
                        url(r'^neworg/$', login_required(views.organism.NewOrganismView.as_view()), name='new_org'),
