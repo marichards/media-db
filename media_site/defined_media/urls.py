@@ -43,7 +43,8 @@ urlpatterns = patterns(view_prefix,
                        # New Media Contribution:
 #                       url(r'^newmedia/$', login_required(views.growth_data.NewGrowthData.as_view()), name='new_growth_data'),
 #                       url(r'^newmedia/(?P<pk>\d+)/$', login_required(views.growth_data.NewGrowthData.as_view()), name='new_growth_data'),
-#                       url(r'^clone_newmedia/(?P<pk>\d+)/$', login_required(views.growth_data.CloneGrowthDataView.as_view()), name='clone_growth_data'),
+                       url(r'^clone_growthdata/(?P<pk>\d+)/$', login_required(views.clone.CloneGrowthDataView.as_view()), name='clone_growth_data'),
+                       url(r'^clone_medianames/(?P<pk>\d+)/$', login_required(views.clone.CloneMediaNamesView.as_view()), name='clone_media_names'),
 
                        # Model Create/Edit views
                        url(r'^neworg/$', login_required(views.organism.NewOrganismView.as_view()), name='new_org'),
