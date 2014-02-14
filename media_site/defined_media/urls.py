@@ -52,7 +52,7 @@ urlpatterns = patterns(view_prefix,
                        url(r'^newmedianame/$', login_required(views.media.NewMediaView.as_view()), name='new_media'),
                        url(r'^newmedianame/(?P<pk>\d+)/$', login_required(views.media.NewMediaView.as_view()), name='new_media'),
 
-                       url(r'^newgrowthdata/$', login_required(views.growth_data.GrowthDataView.as_view()), name='create_growth_data'),
+                       url(r'^newgrowthdata/$',             login_required(views.growth_data.GrowthDataView.as_view()), name='create_growth_data'),
                        url(r'^newgrowthdata/(?P<pk>\d+)/$', login_required(views.growth_data.GrowthDataView.as_view()), name='edit_growth_data'),
 
                        # REST api

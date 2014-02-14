@@ -1,3 +1,5 @@
+import smtplib, socket
+from email.mime.text import MIMEText
 import logging
 log=logging.getLogger(__name__)
 
@@ -7,8 +9,8 @@ from defined_media.models import *
 from django.views.generic.edit import FormView, CreateView
 from django.db import transaction, IntegrityError
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.shortcuts import redirect, get_object_or_404
-
 
 class NewGrowthDataView(FormView):
     '''
@@ -248,3 +250,29 @@ class NewGrowthDataView(FormView):
         return uptakes
 
 
+    def notify_superuser(self, gd):
+        gd_url=self.request.build_absolute_uri(reverse('growth_record', args=(gd.growthid)))
+        
+        content='''
+Dear Media Database administrator %(admin_name)s,
+
+A new growth record has been submitted, and is awaiting your approval.
+
+It can be found <a href='%(gd_url)s'>here</a>.
+
+        ''' % { 'admin_name': settings.ADMINS[0][0],
+                'gd_url': gd_url }
+
+
+        msg = MIMEText(content)
+        
+        from_email=settings.ADMINS[0][1]
+        to_email=from_email
+
+        server = smtplib.SMTP('localhost')
+        server.sendmail(from_email, [to_email], msg.as_string())
+        server.quit()
+        # sure hope that worked!
+
+        
+        

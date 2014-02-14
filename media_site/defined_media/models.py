@@ -305,6 +305,9 @@ class GrowthData(models.Model):
         return clone
 
     def equals(self, other):
+        '''
+        Check various fields and lists in the growth record to determine equality.
+        '''
         if self.contributor_id != other.contributor_id:
             return False
         if self.strainid_id != other.strainid_id: 
