@@ -1,19 +1,12 @@
+{% extends 'defined_media/base.html' %}
+
+{% block content %}
+<h2>Downloads Page</h2>
 {% load staticfiles %}
+<div>
+<a href='{% static 'defined_media/downloads/data.latest.sql.gz' %}'>Latest data</a>.  This contains a gzipped dump of the entire Mysql database.  It was created on Feb 14, 2014.
+</div>
+{% endblock %}
 
-<link rel="stylesheet" type="text/css" href"{% static 'defined_media/style.css' %}" />
 
-<title>Schema Download</title>
 
-<head>Click on the link below</head>
-
-<ul>
-
-	
-<li><a href="{% url 'organisms' %}"> Organisms </a></li>
-<li><a href="{% url 'sources' %}"> Sources </a></li>
-<li><a href="{% url 'compounds' %}"> Compounds </a></li>
-<li><a href="{% url 'media' %}"> Media Formulations </a></li>
-<li><a href="{% url 'biomass' %}"> Biomass Compositions </a></li>
-<li><a href="{% url 'downloads' %}"> Download the Schema </a></li>
-
-</ul>

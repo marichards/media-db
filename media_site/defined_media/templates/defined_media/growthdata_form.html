@@ -11,7 +11,15 @@
 
 {% block content %}
 <form id='id_growthdata_form' action='' method='POST'>
-<h2>{% if gd %}Editing Growth Data Record{% else %}Create New Growth Data Record{% endif %}</h2>
+{% if gd %}
+<h2>Editing Growth Data Record</h2>
+<div>
+<a href='{% url 'clone_growth_data' gd.growthid %}'>Clone this record</a>
+<br />&nbsp;
+</div>
+{% else %}
+<h2>Create New Growth Data Record</h2>
+{% endif %}
 {% csrf_token %}
 <div>
 {% if form.errors %}<ol>Errors: 

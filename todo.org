@@ -1,10 +1,12 @@
-Re-install cloning options: weird bug with contributor is in template (?)
+Re-install cloning options: 
+- still need to add clone links on edit pages (maybe display pages as well)
+- need to un-check approved link?  Or make sure it's always approved, since only 
+  superusers can create/clone new records.
 
 Add in approval functionality for medianames?  Or double check that only superuser
 is allowed to add/edit medianames, growthdata objects
 
 
-List all medianames objects on superuser profile page
 
 downloads page!
 
@@ -188,3 +190,4 @@ Z - Add link to newmedia when logged in
 Z - Display list of user's growth data records
 Z - Add link to login/user profile page to nav
 X -Impose uniqueness on MediaNames.media_name and test for it.
+X - Edit growth record: weird error about contributor not being a whole number

@@ -88,7 +88,8 @@ def sources(request):
 
 #Define the downloads page
 def downloads(request):
-	
+	return render(request, 'defined_media/downloads.html')
+
 	#Return something dumb for now
 	return HttpResponse('This page houses the downloads')
 
