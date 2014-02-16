@@ -734,3 +734,22 @@ class Lab(models.Model):
     def __unicode__(self):
         return self.name
 
+class DatabaseSnapshot(models.Model):
+    timestamp=models.DateField(auto_now_add=True, unique=True)
+    template='media_database.%s.sql.gz'
+
+    class Meta:
+        ordering=['timestamp']
+
+    def __unicode__(self):
+        import datetime
+        return self.template % self.datestr()
+
+    def datestr(self):
+        return self.timestamp.strftime('%d%b%Y')
+
+    def datestr_long(self):
+        return self.timestamp.strftime('%d %B, %Y')
+    def get_absolute_url(self):
+        from django.templatetags.static import static
+        return static('defined_media/downloads/%s' % self)
