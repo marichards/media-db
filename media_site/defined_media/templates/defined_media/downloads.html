@@ -4,7 +4,7 @@
 <h2>Downloads Page</h2>
 {% load staticfiles %}
 <div>
-<a href='{% static 'defined_media/downloads/data.latest.sql.gz' %}'>Latest data</a>.  This contains a gzipped dump of the entire Mysql database.  It was created on Feb 14, 2014.
+<a href='{{ latest.get_absolute_url }}'>Latest data</a>.  This contains a gzipped dump of the entire Mysql database.  It was created on {{ latest.timestamp }}.
 </div>
 {% endblock %}
 
