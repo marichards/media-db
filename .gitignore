@@ -25,3 +25,6 @@ settings.py
 media_site/admin
 media_site/django_extensions
 ssl
+*.gz
+*.tgz
+*.tar
