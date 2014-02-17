@@ -44,8 +44,9 @@ class GrowthDataView(FormView):
         # make database changes:
         try:
             with transaction.atomic():
-                if growthid is not None:
-                    gd.delete()
+                gd=self.get_gd(form)
+                gd.secretionuptake_set.all().delete()
+                gd.save()
                 gd=self.build_gd(form)
                 self.add_secretion_uptakes(form, gd)
                 self.gd=gd
@@ -60,36 +61,32 @@ class GrowthDataView(FormView):
             newform.errors.update(form.errors)
             return self.form_invalid(newform)
 
-    def build_gd(self, form):
+    def get_gd(self, form):
+        fcd=form.cleaned_data
+        growthid=fcd.get('growthid')
+        if growthid is not None:
+            try:
+                gd=GrowthData.objects.get(growthid=growthid)
+            except GrowthData.DoesNotExist:
+                raise Http404()
+        else:
+            gd=GrowthData()
+
+    def build_gd(self, form, gd):
         '''
         build and save the growth_data object from the form, including secretion_uptakes (nyi)
         fixme: also does no error handling as yet.
         '''
         fcd=form.cleaned_data   # convenience
-        contributor=Contributor.objects.get(id=fcd.get('contributor'))
-        strainid=fcd.get('strainid')
-        sourceid=fcd.get('sourceid')
-        medid=medid=fcd.get('medid')
+        gd.contributor=Contributor.objects.get(id=fcd.get('contributor'))
+        gd.strainid=fcd.get('strainid')
+        gd.sourceid=fcd.get('sourceid')
+        gd.medid=medid=fcd.get('medid')
         
-        growth_rate=fcd.get('growth_rate')
-        temperature_c=fcd.get('temperature_c')
-        ph=fcd.get('ph')
-        additional_notes=fcd.get('additional_notes')
-
-        gd=GrowthData(contributor=contributor,
-                      strainid=strainid,
-                      sourceid=sourceid,
-                      medid=medid,
-
-                      growth_rate=growth_rate,
-                      temperature_c=temperature_c,
-                      ph=ph,
-                      additional_notes=additional_notes)
-        growthid=fcd.get('growthid')
-
-        if growthid is not None:
-            gd.growthid=growthid
-        gd.save()
+        gd.growth_rate=fcd.get('growth_rate')
+        gd.temperature_c=fcd.get('temperature_c')
+        gd.ph=fcd.get('ph')
+        gd.additional_notes=fcd.get('additional_notes')
         return gd
 
     def add_secretion_uptakes(self, form, gd):
