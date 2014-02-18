@@ -28,6 +28,7 @@ class NewMediaView(FormView):
         except (MediaNames.DoesNotExist, KeyError) as e:
             form=MediaNamesForm(initial={'contributor_id': request.user.contributor.id})
             
+        log.debug('get: form[is_minimal]=%s' % form.fields['is_minimal'].widget)
         return self.form_invalid(form) 
         
 
@@ -39,17 +40,11 @@ class NewMediaView(FormView):
             return self.form_invalid(form)
 
         try:
-            medid=form.cleaned_data.get('medid')
-            if medid is not None:
-                mn=MediaNames.objects.get(medid=medid)
-        except MediaNames.DoesNotExist:
-            raise Http404()
-
-        try:
             with transaction.atomic():
-                if medid is not None:
-                    mn.delete()
-                mn=self.build_mn(form) # saves everything
+                mn=self.get_mn(form)    
+                mn.mediacompounds_set.all().delete()
+                mn.save()
+                self.build_mn(form, mn) # saves everything
                 self.mn=mn
         except IntegrityError as e:
             form.errors['error']=str(e)
@@ -72,16 +67,28 @@ class NewMediaView(FormView):
 
 
 
-    def build_mn(self, form):
+    def get_mn(self, form):
         fcd=form.cleaned_data
-        media_name=fcd.get('media_name')
-        is_defined='Y'
-        is_minimal='Y' if fcd.get('is_minimal') else 'N'
-        mn=MediaNames(media_name=media_name, is_defined=is_defined, is_minimal=is_minimal)
         medid=fcd.get('medid')
         if medid is not None:
-            mn.medid=medid
-        mn.save()
+            try:
+                mn=MediaNames.objects.get(medid=medid)
+            except MediaNames.DoesNotExist:
+                raise Http404()
+        else:
+            mn=MediaNames()
+            
+        mn.media_name=fcd.get('media_name')
+        mn.is_defined='Y'
+        mn.is_minimal='Y' if fcd.get('is_minimal') else 'N'
+        return mn
+
+
+    def build_mn(self, form, mn):
+        ''' 
+        
+        '''
+        fcd=form.cleaned_data
 
         # build media compound objects (don't want to try and re-use existing ones?)
         for compkey in [k for k in fcd.keys() if k.startswith('comp')]:

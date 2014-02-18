@@ -1,6 +1,5 @@
 {% if compound_list %}
 	<p>{{ media_name }}</p>
-
 	<ul>
 	{% for compound in compound_list %}
 		<li><a href="{% url 'compound_record' compound.compid %}">{{compound.compid }}</a></li>

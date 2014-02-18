@@ -11,14 +11,16 @@ class MediaNamesForm(forms.Form):
             
     medid=forms.IntegerField(required=False, widget=forms.HiddenInput)
     media_name=forms.CharField(label='Name', required=True, widget=forms.TextInput(attrs={'size':60}))
-    is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)
-    is_minimal=forms.CharField(label='Is minimal?', widget=forms.CheckboxInput) # we don't actually display this in the template, because it's always 'Y'
+    is_defined=forms.CharField(label='Is defined?', widget=forms.CheckboxInput)# we don't actually display this in the template, because it's always 'Y'
+#    is_minimal=forms.CharField(label='Is minimal?', widget=forms.CheckboxInput) 
+    is_fart=forms.CharField(widget=forms.CheckboxInput, initial=True)
 
     def __init__(self, *args, **kwargs):
         super(MediaNamesForm,self).__init__(*args, **kwargs)
         self.media_compounds_list=[]
 
         # attempt to add form fields if args[0] is a MediaNames object:
+        # first get mn object:
         try:
             try:
                 mn=args[0]
@@ -27,6 +29,7 @@ class MediaNamesForm(forms.Form):
             except AttributeError:
                 d=args[0]
 
+            # then add media_comp fields:
             n=1
             for k,v in d.items():
                 if k.startswith('comp'):
@@ -36,6 +39,14 @@ class MediaNamesForm(forms.Form):
                     except KeyError: amount=''
                     self._add_medcomp_field(n, comp_name, amount)
                     n+=1
+
+            # initialize is_minimal field, since it's weird:
+            self.is_minimal=d['is_minimal']
+            self.fields['is_minimal']=forms.CharField(label='Is minimal?',
+                                                      widget=forms.CheckboxInput(check_test=self.my_check_test),
+                                                      initial=d['is_minimal'].upper() != 'N',
+                                                      )
+
 
         except (IndexError) as e:  # nevermind, maybe args[0] wasn't a MediaNames object or something
             log.debug('MediaNamesForm.__init__(): ignoring %s: %s' % (type(e), e))
@@ -81,3 +92,18 @@ class MediaNamesForm(forms.Form):
                 valid=False
 
         return valid
+
+
+    def my_check_test(self, value):
+        log.debug('my_check_test(%s) entered' % value)
+        try:
+            return self.mn.is_minimal.upper()=='Y'
+        except Exception as e:
+            pass
+            
+        try:
+            return self.is_minimal.upper()=='Y'
+        except Exception as e:
+            pass
+
+        return False

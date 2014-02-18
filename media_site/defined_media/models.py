@@ -154,7 +154,7 @@ class GrowthData(models.Model):
     temperature_c = models.FloatField(null=True, db_column='Temperature_C', blank=True) # Field name made lowercase.
     measureid = models.ForeignKey('Measurements', null=True, db_column='measureID', blank=True) # Field name made lowercase.
     additional_notes = models.CharField(max_length=255L, db_column='Additional_Notes', blank=True, null=True) # Field name made lowercase.
-    approved=models.BooleanField(default=False)
+    approved=models.BooleanField(default=True)
 
     class Meta:
         db_table = 'growth_data'
@@ -280,21 +280,6 @@ class GrowthData(models.Model):
         clone.save()
 
         # have to copy medianames and secretionuptake objects:
-        '''
-        goddamit
-        In order to make copies of secretionuptake objects,
-        we need to set their growthid reference to the new
-        gd's growthid.  But that doesn't exist, until we save 
-        the new gd.  But saving a clone is going to trip against
-        the 'unique_conditions' index, unless we change one of
-        the contraints.  media_name is the best candidate for that
-        (append a "clone of %growthdata_id" to the name), but then
-        we also have to copy all of the media_compound objects.
-        
-        So we're at the point of saving all new versions of media_compound
-        objects and secretionuptake objects....  AND we have to save the new
-        gd object as well, in order for all this to work.
-        '''
         for su in self.secretionuptake_set.all():
             new_su=copy.copy(su)
             new_su.secretionuptakeid=None
