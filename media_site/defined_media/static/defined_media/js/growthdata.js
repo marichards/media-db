@@ -39,6 +39,8 @@ GrowthDataEditor.prototype={
 	$('#id_growthdata_form').submit(document.editor.prevent_submission)
 	$('#id_submit_button').click(document.editor.submit)
 	$('#id_add_uptake1').click(document.editor.add_uptake)
+	$('input.uptake_rm_button').click(document.editor.remove_uptake)
+
     },
 
 
@@ -48,11 +50,9 @@ GrowthDataEditor.prototype={
     add_uptake : function(eventObj) {
 	// this is a callback for when an 'Add' button is clicked.
 	// It inserts a new uptake row into the document.
-	console.log('hi from add_uptake')
 
 	// create tr element and three td elements:
 	n=document.editor.uptake_n+1
-	console.log('n is '+n)
 	row=$('<tr></tr>', {id: 'id_uptake_row'+n})
 	row.append($('<td></td>').append($('<input>', {id:'id_uptake_comp'+n, name:'uptake_comp'+n, type: 'text'})))
 	row.append($('<td></td>').append($('<input>', {id:'id_uptake_rate'+n, name:'uptake_rate'+n, type: 'text'})))
@@ -68,67 +68,51 @@ GrowthDataEditor.prototype={
 	sel_type=$("<select>", {id: sel_type_id, name: sel_type_name})
 	row.append($('<td></td>').append(sel_type))
 
-	// add "Add" button
-	add_button=$('<input>', {type: 'button', value: 'Remove', id: 'id_rm_uptake'+n, 'class': 'uptake_rm_button'})
-	add_button.click(document.editor.remove_uptake)
-	row.append($('<td></td>').append(add_button))
+	// add "Remove" button
+	rm_button=$('<input>', {type: 'button', value: 'Remove', id: 'id_rm_uptake'+n, 'class': 'uptake_rm_button'})
+	rm_button.click(document.editor.remove_uptake)
+	row.append($('<td></td>').append(rm_button))
 	$('#id_uptake_row1').after(row)
 	document.editor.uptake_n+=1
 
 	// Can't populate new select until after it's been added to the DOM:
-	document.editor.populate_select_iv('#'+sel_unit_id, document.data['secretion_uptake_units'])
-	document.editor.populate_select_iv('#'+sel_type_id, document.data['secretion_uptake_types'], 1)
+	document.editor.populate_select_iv(sel_unit_id, document.data['secretion_uptake_units'], 1)
+	document.editor.populate_select_iv(sel_type_id, document.data['secretion_uptake_types'], 1)
 	document.editor.compound_n+=1
-
-	console.log('add_uptake done')
     },
 
     remove_uptake: function(eventObj) {
-	console.log('remove_uptake entered')
 	button_id=eventObj.target.id
 	n=button_id.split('uptake')[1]
 	row_id='#id_uptake_row'+n
 	$(row_id).remove()
     },
 
-    populate_select_vv: function(id_sel, list) {
-	for (i in list) {
-	    val=list[i]
-            $(id_sel).append($('<option>', { value: val }).text(val))
- 	}	    
-	$('#'+id_sel).val(list[0])
-    },  
-
     populate_select_iv: function(id_sel, list, offset) {
 	if (typeof(offset) != "number")
 	    offset=0
 	for (i in list) {
 	    val=list[i]
-            $(id_sel).append($('<option>', { value: parseInt(i)+offset }).text(val))
+            $('#'+id_sel).append($('<option>', { value: parseInt(i)+offset }).text(val))
  	}	    
 	$('#'+id_sel).val(offset)
     },  
 
 
-
-
     prevent_submission: function() {
-        console.log('ha ha')
+//        console.log('ha ha')
 	return false 
     }, 
 
     allow_submission: function() {
-        console.log('away we go')
+//        console.log('away we go')
         return true
     }, 
 
     submit: function(eventObj) {
 	// open the gate, allow submission, and close the gate:
-	console.log('submit: about to unbind')
 	$('#id_growthdata_form').unbind('submit')
-	console.log('submit: about to call submit')
 	$('#id_growthdata_form').submit()
-	console.log('submit: about to re-close the gate')
 	$('#id_growthdata_form').submit(document.editor.prevent_submission)
     },  
 }
