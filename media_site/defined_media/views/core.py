@@ -1,6 +1,7 @@
+from django.views.generic.base import View
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView
+from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from defined_media.models import *
 
@@ -52,6 +53,26 @@ class MediaDetail(DetailView):
         context=super(MediaDetail,self).get_context_data(**kwargs)
         context['can_edit']=self.request.user.contributor.can_edit_mn(context['medianames'])
         return context
+
+
+class MediaText(View):
+    template_name='defined_media/media_text.html'
+    def get(self, request, *args, **kwargs):
+#        log.debug('request: %s' % request)
+        if len(args) > 0:
+            log.debug('args: %s' % args)
+        if len(kwargs) > 0:
+            log.debug('kwargs: %s' % kwargs)
+
+        mn=get_object_or_404(MediaNames, **kwargs)
+        for pair in mn.media_compounds_dicts():
+            log.debug('pair[comp]: %s' % pair['comp'])
+            log.debug('pair[amount]: %s' % pair['amount'])
+        return render(request, 
+                      self.template_name, 
+                      {'mn': mn, 'mcs': mn.media_compounds_dicts()},
+                      content_type='text/plain',
+                      )
 
 class BiomassDetail(DetailView):
     model=Biomass

@@ -6,7 +6,7 @@
 <h2>Media: {{ medianames }}</h2>
 
 <p>Is minimal: {% if medianames.is_minimal != 'N' %}Yes{% else %}No{% endif %}</p>
-
+<p><a href='{% url 'media_text' medianames.medid %}'>Tab-delimited version</a></p>
 
 {% if can_edit %}
 <div>
