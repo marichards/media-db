@@ -46,11 +46,13 @@ class GrowthDataView(FormView):
             with transaction.atomic():
                 gd=self.get_gd(form)
                 gd.secretionuptake_set.all().delete()
+                self.build_gd(form, gd)
                 gd.save()
-                gd=self.build_gd(form)
                 self.add_secretion_uptakes(form, gd)
                 self.gd=gd
         except IntegrityError as e:
+#            log.debug('caught %s: %s' % (type(e), e))
+#            log.exception(e)
             form.errors['error']=str(e)
 
         # are we happy?
@@ -72,6 +74,9 @@ class GrowthDataView(FormView):
         else:
             gd=GrowthData()
 
+
+        return gd
+
     def build_gd(self, form, gd):
         '''
         build and save the growth_data object from the form, including secretion_uptakes (nyi)
@@ -87,7 +92,7 @@ class GrowthDataView(FormView):
         gd.temperature_c=fcd.get('temperature_c')
         gd.ph=fcd.get('ph')
         gd.additional_notes=fcd.get('additional_notes')
-        return gd
+
 
     def add_secretion_uptakes(self, form, gd):
         fcd=form.cleaned_data
