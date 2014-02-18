@@ -11,7 +11,7 @@
 <form id='id_newmedia_form' action='' method='POST'>
 {% csrf_token %}
 {{ form.medid }}
-
+<input type='hidden' name='fart21' value='3' />
 {% if form.errors %}{{ form.errors|length }} Error(s): 
 <ol>{% for k,v in form.errors.items %}
 <li>{{k}}: {{v}}</li>
@@ -20,7 +20,13 @@
 
 <table>
 <tr><td>{{form.media_name.label}}</td><td>{{form.media_name}}</td></tr>
-<tr><td>{{form.is_minimal.label}}</td><td>{{form.is_minimal}}</td></tr>
+{% comment %}<tr><td>{{form.is_minimal.label}}</td><td>{{form.is_minimal}}</td></tr>{% endcomment %}
+<tr>
+  <td>{{form.is_minimal.label}}</td>
+  <td><input type='checkbox' name='is_minimal' id='id_is_minimal' value='Y'
+	     {% if mn_is_minimal %}checked='checked'{% endif %} />
+	     </td>
+</tr>
 </table>
 
 <!-- copied and altered from newmedia_form.html -->
