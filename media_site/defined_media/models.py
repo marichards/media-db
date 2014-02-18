@@ -204,7 +204,7 @@ class GrowthData(models.Model):
             'strainid'    : gd.strainid_id,
             'sourceid'    : gd.sourceid_id,
             'growth_rate' : gd.growth_rate,
-            'temperature' : gd.temperature_c,
+            'temperature_c' : gd.temperature_c,
             'ph'          : gd.ph,
             }
 
@@ -218,7 +218,7 @@ class GrowthData(models.Model):
 
         n=1
         for su in gd.secretionuptake_set.all():
-            comp=Compounds.objects.get(compid=su.compid)
+            comp=Compounds.objects.get(compid=su.compid_id)
             d['uptake_comp%d' % n]=comp.name
             d['uptake_rate%d' % n]=su.rate
             d['uptake_unit%d' % n]=SecretionUptakeUnit.id_of(su.units)
@@ -226,19 +226,6 @@ class GrowthData(models.Model):
             d['uptake_type%d' % n]=su.rateid_id
             n+=1
         return d
-
-    def full_delete1(self):     # fixme: get rid of this function
-        log.debug('full_delete called')
-        # delete secretion_uptakes
-        # apparently this happens automatically...
-#        for su in self.secretionuptake_set.all():
-#            su.delete()
-
-        # delete media_name
-        self.medid.delete()
-
-        # delete self
-        self.delete()
 
     def find_clone(self):
         '''
