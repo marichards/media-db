@@ -28,6 +28,7 @@ class NewMediaView(FormView):
         except (MediaNames.DoesNotExist, KeyError) as e:
             form=MediaNamesForm(initial={'contributor_id': request.user.contributor.id})
             
+        log.debug('get: form[is_minimal]=%s' % form.fields['is_minimal'].widget)
         return self.form_invalid(form) 
         
 

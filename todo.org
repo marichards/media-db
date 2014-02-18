@@ -6,7 +6,7 @@ Re-install cloning options:
 remove approval functionality for medianames?  Or double check that only superuser
 is allowed to add/edit medianames, growthdata objects
 
-compound ids
+Matt's compound ids
 
 user sheet (recipies)
 
