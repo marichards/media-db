@@ -14,6 +14,8 @@
 </div>
 {% endif %}
 
+<p>&nbsp;</p>
+
 <div>
 {% with compound_list=medianames.sorted_compounds %}
 {{ compound_list|length }} Compounds:
@@ -48,6 +50,17 @@
 <ol>
 {% for src in sources %}
 <li><a href='{% url 'source_record' src.sourceid %}'>{{ src }}</a></li>
+{% endfor %}
+</ol>
+{% endwith %}
+</div>
+
+<div>
+{% with gds=medianames.growthdata_set.all %}
+{{ gds|length }} Growth Data Record(s):
+<ol>
+{% for gd in gds %}
+<li><a href='{% url 'growth_record' gd.growthid %}'>{{ gd }}</a></li>
 {% endfor %}
 </ol>
 {% endwith %}
