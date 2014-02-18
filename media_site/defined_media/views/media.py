@@ -79,7 +79,8 @@ class NewMediaView(FormView):
             
         mn.media_name=fcd.get('media_name')
         mn.is_defined='Y'
-        mn.is_minimal='Y' if fcd.get('is_minimal') else 'N'
+        is_minimal=fcd.get('is_minimal')
+        mn.is_minimal='Y' if is_minimal else 'N' 
         return mn
 
 
@@ -110,8 +111,11 @@ class NewMediaView(FormView):
         
     def get_context_data(self, **kwargs):
         context=super(NewMediaView,self).get_context_data(**kwargs)
-        try: context['mn']=self.mn
-        except AttributeError: pass
+        try: 
+            context['mn']=self.mn
+            context['mn_is_minimal']=self.mn.is_minimal.upper()=='Y'
+        except AttributeError: 
+            pass
         return context
 
     def get_success_url(self, *args, **kwargs):
