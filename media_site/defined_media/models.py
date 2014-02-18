@@ -18,10 +18,10 @@ log=logging.getLogger(__name__)
 from django.core.urlresolvers import reverse
 
 class Biomass(models.Model):
-    biomassid = models.AutoField(primary_key=True, db_column='biomassID') # Field name made lowercase.
-    genus = models.CharField(max_length=255L, db_column='Genus') # Field name made lowercase.
-    species = models.CharField(max_length=255L, db_column='Species') # Field name made lowercase.
-    sourceid = models.ForeignKey('Sources', null=True, db_column='sourceID', blank=True) # Field name made lowercase.
+    biomassid = models.AutoField(primary_key=True, db_column='biomassID') 
+    genus = models.CharField(max_length=255L, db_column='Genus') 
+    species = models.CharField(max_length=255L, db_column='Species') 
+    sourceid = models.ForeignKey('Sources', null=True, db_column='sourceID', blank=True) 
     class Meta:
         db_table = 'biomass'
         verbose_name_plural = 'biomass compositions'
@@ -35,10 +35,10 @@ class Biomass(models.Model):
 	return [self.genus, self.species]
 
 class BiomassCompounds(models.Model):
-    biocompid = models.AutoField(primary_key=True, db_column='biocompID') # Field name made lowercase.
-    biomassid = models.ForeignKey(Biomass, db_column='biomassID') # Field name made lowercase.
-    compid = models.ForeignKey('Compounds', db_column='compID') # Field name made lowercase.
-    coefficient = models.FloatField(null=True, db_column='Coefficient', blank=True) # Field name made lowercase.
+    biocompid = models.AutoField(primary_key=True, db_column='biocompID') 
+    biomassid = models.ForeignKey(Biomass, db_column='biomassID') 
+    compid = models.ForeignKey('Compounds', db_column='compID') 
+    coefficient = models.FloatField(null=True, db_column='Coefficient', blank=True) 
     class Meta:
         db_table = 'biomass_compounds'
 
@@ -47,16 +47,16 @@ class BiomassCompounds(models.Model):
 
 class CompoundExceptions(models.Model):
     pk = models.AutoField(primary_key=True)
-    compid = models.ForeignKey('Compounds', db_column='compID') # Field name made lowercase.
-    keggorgid = models.CharField(max_length=12L, db_column='keggOrgID', blank=True) # Field name made lowercase.
+    compid = models.ForeignKey('Compounds', db_column='compID') 
+    keggorgid = models.CharField(max_length=12L, db_column='keggOrgID', blank=True) 
     class Meta:
         db_table = 'compound_exceptions'
 
 class CompoundReplacements(models.Model):
     pk = models.AutoField(primary_key=True)
-    compid = models.ForeignKey('Compounds', db_column='compID') # Field name made lowercase.
-    biggid = models.CharField(max_length=12L, db_column='biggID') # Field name made lowercase.
-    keggorgid = models.CharField(max_length=12L, db_column='keggOrgID', blank=True) # Field name made lowercase.
+    compid = models.ForeignKey('Compounds', db_column='compID') 
+    biggid = models.CharField(max_length=12L, db_column='biggID') 
+    keggorgid = models.CharField(max_length=12L, db_column='keggOrgID', blank=True) 
     class Meta:
         db_table = 'compound_replacements'
 
@@ -82,10 +82,10 @@ class CompoundManager(models.Manager):
         raise Compounds.DoesNotExist(name)
 
 class Compounds(models.Model):
-    compid = models.AutoField(primary_key=True, db_column='compID') # Field name made lowercase.
-    kegg_id = models.CharField(max_length=255L, unique=True, db_column='KEGG_ID', blank=True, null=True) # Field name made lowercase.
-    bigg_id = models.CharField(max_length=255L, db_column='BiGG_ID', blank=True, null=True) # Field name made lowercase.
-    seed_id = models.CharField(max_length=45L, db_column='seed_id') # Field name made lowercase.
+    compid = models.AutoField(primary_key=True, db_column='compID') 
+    kegg_id = models.CharField(max_length=255L, unique=True, db_column='KEGG_ID', blank=True, null=True) 
+    bigg_id = models.CharField(max_length=255L, db_column='BiGG_ID', blank=True, null=True) 
+    seed_id = models.CharField(max_length=45L, db_column='seed_id') 
     pubchem_ids = models.CharField(max_length=255L, db_column='pubchem_ids', null=True, blank=True) # csv
     chebi_ids = models.CharField(max_length=255L, db_column='chebi_ids', null=True, blank=True) # csv
     user_identifier = models.CharField(max_length=255L, blank=True, null=True)
@@ -134,8 +134,8 @@ class Compounds(models.Model):
     
 
 class Contributors(models.Model):
-    contributorid = models.IntegerField(primary_key=True, db_column='contributorID') # Field name made lowercase.
-    last_name = models.CharField(max_length=255L, unique=True, db_column='Last_Name', blank=True) # Field name made lowercase.
+    contributorid = models.IntegerField(primary_key=True, db_column='contributorID') 
+    last_name = models.CharField(max_length=255L, unique=True, db_column='Last_Name', blank=True) 
     class Meta:
         db_table = 'contributors'
         verbose_name_plural = 'contributors'
@@ -143,17 +143,17 @@ class Contributors(models.Model):
         return self.last_name
 
 class GrowthData(models.Model):
-    growthid = models.AutoField(primary_key=True, db_column='growthID') # Field name made lowercase.
+    growthid = models.AutoField(primary_key=True, db_column='growthID') 
     contributor=models.ForeignKey('Contributor')
-    strainid = models.ForeignKey('Organisms', db_column='strainID') # Field name made lowercase.
-    medid = models.ForeignKey('MediaNames', db_column='medID') # Field name made lowercase.
-    sourceid = models.ForeignKey('Sources', db_column='sourceID') # Field name made lowercase.
-    growth_rate = models.FloatField(null=True, db_column='Growth_Rate', blank=True) # Field name made lowercase.
-    growth_units = models.CharField(max_length=45L, db_column='Growth_Units', blank=True) # Field name made lowercase.
-    ph = models.FloatField(null=True, db_column='pH', blank=True) # Field name made lowercase.
-    temperature_c = models.FloatField(null=True, db_column='Temperature_C', blank=True) # Field name made lowercase.
-    measureid = models.ForeignKey('Measurements', null=True, db_column='measureID', blank=True) # Field name made lowercase.
-    additional_notes = models.CharField(max_length=255L, db_column='Additional_Notes', blank=True, null=True) # Field name made lowercase.
+    strainid = models.ForeignKey('Organisms', db_column='strainID') 
+    medid = models.ForeignKey('MediaNames', db_column='medID') 
+    sourceid = models.ForeignKey('Sources', db_column='sourceID') 
+    growth_rate = models.FloatField(null=True, db_column='Growth_Rate', blank=True) 
+    growth_units = models.CharField(max_length=45L, db_column='Growth_Units', blank=True) 
+    ph = models.FloatField(null=True, db_column='pH', blank=True) 
+    temperature_c = models.FloatField(null=True, db_column='Temperature_C', blank=True) 
+    measureid = models.ForeignKey('Measurements', null=True, db_column='measureID', blank=True) 
+    additional_notes = models.CharField(max_length=255L, db_column='Additional_Notes', blank=True, null=True) 
     approved=models.BooleanField(default=True)
 
     class Meta:
@@ -315,18 +315,18 @@ class GrowthData(models.Model):
         return not self.equals(other)
 
 class Measurements(models.Model):
-    measureid = models.AutoField(primary_key=True, db_column='measureID') # Field name made lowercase.
-    measurement_technique = models.CharField(max_length=255L, unique=True, db_column='Measurement_Technique', blank=True) # Field name made lowercase.
+    measureid = models.AutoField(primary_key=True, db_column='measureID') 
+    measurement_technique = models.CharField(max_length=255L, unique=True, db_column='Measurement_Technique', blank=True) 
     class Meta:
         db_table = 'measurements'
     def __unicode__(self):
         return '%s' %self.measurement_technique
 
 class MediaCompounds(models.Model):
-    medcompid = models.AutoField(primary_key=True, db_column='medcompID') # Field name made lowercase.
-    medid = models.ForeignKey('MediaNames', db_column='medID') # Field name made lowercase.
-    compid = models.ForeignKey(Compounds, db_column='compID') # Field name made lowercase.
-    amount_mm = models.FloatField(null=True, db_column='Amount_mM', blank=True) # Field name made lowercase.
+    medcompid = models.AutoField(primary_key=True, db_column='medcompID') 
+    medid = models.ForeignKey('MediaNames', db_column='medID') 
+    compid = models.ForeignKey(Compounds, db_column='compID') 
+    amount_mm = models.FloatField(null=True, db_column='Amount_mM', blank=True) 
     class Meta:
         db_table = 'media_compounds'
 
@@ -339,10 +339,10 @@ class MediaCompounds(models.Model):
 
 
 class MediaNames(models.Model):
-    medid = models.AutoField(primary_key=True, db_column='medID') # Field name made lowercase.
-    media_name = models.CharField(max_length=255L, db_column='Media_name', blank=False, unique=True) # Field name made lowercase.
-    is_defined = models.CharField(max_length=1L, db_column='Is_defined', blank=True) # Field name made lowercase.
-    is_minimal = models.CharField(max_length=1L, db_column='Is_minimal', blank=True) # Field name made lowercase.
+    medid = models.AutoField(primary_key=True, db_column='medID') 
+    media_name = models.CharField(max_length=255L, db_column='Media_name', blank=False, unique=True) 
+    is_defined = models.CharField(max_length=1L, db_column='Is_defined', blank=True) 
+    is_minimal = models.CharField(max_length=1L, db_column='Is_minimal', blank=True) 
 
     class Meta:
         db_table = 'media_names'
@@ -435,9 +435,9 @@ class MediaNames(models.Model):
 
 
 class NamesOfCompounds(models.Model):
-    nameid = models.AutoField(primary_key=True, db_column='nameID') # Field name made lowercase.
-    compid = models.ForeignKey(Compounds, db_column='compID') # Field name made lowercase.
-    name = models.CharField(max_length=255L, unique=True, db_column='Name', blank=True) # Field name made lowercase.
+    nameid = models.AutoField(primary_key=True, db_column='nameID') 
+    compid = models.ForeignKey(Compounds, db_column='compID') 
+    name = models.CharField(max_length=255L, unique=True, db_column='Name', blank=True) 
     class Meta:
         db_table = 'names_of_compounds'
     #Return the name, not the name ID or compound ID
@@ -486,36 +486,37 @@ class Organisms(models.Model):
         return 0
 
 class OrganismsSources(models.Model):
-    strainsourceid = models.AutoField(primary_key=True, db_column='strainsourceID') # Field name made lowercase.
-    strainid = models.ForeignKey(Organisms, null=True, db_column='strainID', blank=True) # Field name made lowercase.
-    sourceid = models.ForeignKey('Sources', null=True, db_column='sourceID', blank=True) # Field name made lowercase.
+    strainsourceid = models.AutoField(primary_key=True, db_column='strainsourceID') 
+    strainid = models.ForeignKey(Organisms, null=True, db_column='strainID', blank=True) 
+    sourceid = models.ForeignKey('Sources', null=True, db_column='sourceID', blank=True) 
     class Meta:
         db_table = 'organisms_sources'
 
 class Products(models.Model):
-    prodid = models.AutoField(primary_key=True, db_column='prodID') # Field name made lowercase.
-    rxntid = models.ForeignKey('Reactants', db_column='rxntID') # Field name made lowercase.
+    prodid = models.AutoField(primary_key=True, db_column='prodID') 
+    rxntid = models.ForeignKey('Reactants', db_column='rxntID') 
     coeff = models.FloatField()
-    compid = models.ForeignKey(Compounds, db_column='compID') # Field name made lowercase.
+    compid = models.ForeignKey(Compounds, db_column='compID') 
     class Meta:
         db_table = 'products'
 # some comment
 
 class Reactants(models.Model):
-    rxntid = models.AutoField(primary_key=True, db_column='rxntID') # Field name made lowercase.
-    compid = models.ForeignKey(Compounds, db_column='compID',related_name='compound_id') # Field name made lowercase.
-    similar_compounds = models.ForeignKey(Compounds, null=True, db_column='Similar Compounds',related_name='similar_id', blank=True) # Field name made lowercase. Field renamed to remove unsuitable characters.
+    rxntid = models.AutoField(primary_key=True, db_column='rxntID') 
+    compid = models.ForeignKey(Compounds, db_column='compID',related_name='compound_id') 
+    similar_compounds = models.ForeignKey(Compounds, null=True, db_column='Similar Compounds',related_name='similar_id', blank=True)  
     class Meta:
         db_table = 'reactants'
 
 
 class SecretionUptake(models.Model):
-    secretionuptakeid = models.AutoField(primary_key=True, db_column='secretionuptakeID') # Field name made lowercase.
-    growthid = models.ForeignKey(GrowthData, db_column='growthID') # Field name made lowercase.
-    compid = models.IntegerField(null=True, db_column='compID', blank=True) # Field name made lowercase.
-    rate = models.FloatField(db_column='Rate') # Field name made lowercase.
-    units = models.CharField(max_length=45L, db_column='Units') # Field name made lowercase.
-    rateid = models.ForeignKey('SecretionUptakeKey', db_column='rateID') # Field name made lowercase.
+    secretionuptakeid = models.AutoField(primary_key=True, db_column='secretionuptakeID') 
+    growthid = models.ForeignKey(GrowthData, db_column='growthID') 
+#    compid = models.IntegerField(null=True, db_column='compID', blank=True) 
+    compid = models.ForeignKey(Compounds, null=True, db_column='compID', blank=True) 
+    rate = models.FloatField(db_column='Rate') 
+    units = models.CharField(max_length=45L, db_column='Units') 
+    rateid = models.ForeignKey('SecretionUptakeKey', db_column='rateID') 
 
     class Meta:
         db_table = 'secretion_uptake'
@@ -529,8 +530,8 @@ class SecretionUptake(models.Model):
 
 
 class SecretionUptakeKey(models.Model):
-    rateid = models.AutoField(primary_key=True, db_column='rateID') # Field name made lowercase.
-    rate_type = models.CharField(max_length=45L, unique=True, db_column='Rate_Type', blank=True) # Field name made lowercase.
+    rateid = models.AutoField(primary_key=True, db_column='rateID') 
+    rate_type = models.CharField(max_length=45L, unique=True, db_column='Rate_Type', blank=True) 
     class Meta:
         db_table = 'secretion_uptake_key'
 
@@ -562,10 +563,10 @@ class SecretionUptakeUnit(models.Model):
 
 '''
 class SeedCompounds(models.Model):
-    seedkeggid = models.AutoField(primary_key=True, db_column='seedkeggID') # Field name made lowercase.
-    kegg_id = models.CharField(max_length=45L, db_column='KEGG_ID') # Field name made lowercase.
-#    kegg_id = models.ForeignKey(Compounds, db_column='KEGG_ID') # Field name made lowercase.
-    seed_id = models.CharField(max_length=45L, db_column='Seed_ID') # Field name made lowercase.
+    seedkeggid = models.AutoField(primary_key=True, db_column='seedkeggID') 
+    kegg_id = models.CharField(max_length=45L, db_column='KEGG_ID') 
+#    kegg_id = models.ForeignKey(Compounds, db_column='KEGG_ID') 
+    seed_id = models.CharField(max_length=45L, db_column='Seed_ID') 
     class Meta:
         db_table = 'seed_compounds'
 
@@ -575,12 +576,12 @@ class SeedCompounds(models.Model):
     
 
 class Sources(models.Model):
-    sourceid = models.AutoField(primary_key=True, db_column='sourceID') # Field name made lowercase.
-    first_author = models.CharField(max_length=255L, db_column='First_Author', blank=True) # Field name made lowercase.
-    journal = models.CharField(max_length=255L, db_column='Journal', blank=True) # Field name made lowercase.
-    year = models.CharField(db_column='Year', blank=True, max_length=4L) # Field name made lowercase. This field type is a guess.
-    title = models.CharField(max_length=255L, unique=True, db_column='Title', blank=True) # Field name made lowercase.
-    link = models.CharField(max_length=255L, unique=False, db_column='Link', blank=True) # Field name made lowercase.
+    sourceid = models.AutoField(primary_key=True, db_column='sourceID') 
+    first_author = models.CharField(max_length=255L, db_column='First_Author', blank=True) 
+    journal = models.CharField(max_length=255L, db_column='Journal', blank=True) 
+    year = models.CharField(db_column='Year', blank=True, max_length=4L)  
+    title = models.CharField(max_length=255L, unique=True, db_column='Title', blank=True) 
+    link = models.CharField(max_length=255L, unique=False, db_column='Link', blank=True) 
     pubmed_id = models.IntegerField(null=True, blank=True)
 
     class Meta:
@@ -617,8 +618,8 @@ class Sources(models.Model):
         return ' '.join([x.capitalize() for x in self.journal.split(' ')])
 
 class TypesOfOrganisms(models.Model):
-    typeid = models.AutoField(primary_key=True, db_column='typeID') # Field name made lowercase.
-    organism_type = models.CharField(max_length=255L, unique=True, db_column='Organism_type', blank=True) # Field name made lowercase.
+    typeid = models.AutoField(primary_key=True, db_column='typeID') 
+    organism_type = models.CharField(max_length=255L, unique=True, db_column='Organism_type', blank=True)
     
     class Meta:
         db_table = 'types_of_organisms'

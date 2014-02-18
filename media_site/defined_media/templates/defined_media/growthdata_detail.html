@@ -30,18 +30,34 @@ This record <b>{% if growthdata.approved %}is{% else %}is not yet{% endif %}</b>
 <tr><td>Temperature: </td>
 <td>{{ growthdata.temperature_c  }}</td></tr>
 
-<!-- this needs to be a list! 
-- One <li> for each secretion/uptake/yield rate:
-<compound name> @ <rate>/<units>
--->
-
-
 <tr><td>Rate measurement technique: </td>
 <td>{{ growthdata.measureid  }}</td></tr>
 
 <tr><td>Additional notes: </td>
 <td>{{ growthdata.additional_notes  }}</td></tr>
+
+<tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>Secretion/Uptake Compounds</td><td>{{ growthdata.secretionuptake_set.count }}</td></tr>
 </table>
 
+
+{% if growthdata.secretionuptake_set.count > 0 %}
+<table>
+<tr>
+  <th>Compound</th>
+  <th>Rate</th>
+  <th>Units</th>
+  <th>Type</th>
+</tr>
+{% for uptake in growthdata.secretionuptake_set.all %}
+<tr>
+  <td>{{ uptake.compid }}</td>
+  <td>{{ uptake.rate }}</td>
+  <td>{{ uptake.units }}</td>
+  <td>{{ uptake.rateid }}</td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
 
 {% endblock %}
