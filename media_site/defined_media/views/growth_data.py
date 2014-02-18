@@ -107,7 +107,7 @@ class GrowthDataView(FormView):
             units=fcd.get('uptake_unit%s'%n)
             rate_type=fcd.get('uptake_type%s'%n)
             rateid=SecretionUptakeKey.objects.get(rate_type=rate_type)
-            uptake=SecretionUptake(compid=compound.compid, rate=rate, units=units, rateid=rate_type)
+            uptake=SecretionUptake(compid=compound, rate=rate, units=units, rateid=rate_type)
             gd.secretionuptake_set.add(uptake)
 
 
