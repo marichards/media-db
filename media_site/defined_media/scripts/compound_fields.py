@@ -3,6 +3,7 @@ from django_env import init_django_env
 root_dir=os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'))
 init_django_env(root_dir, 'media_site', 'defined_media')
 import django
+from django.db import IntegrityError
 from defined_media.models import *
 
 '''
@@ -36,7 +37,7 @@ f2re={
     'formula': r'^[()\w]+$',
 }
 
-stats={1:0, 2:0, 3:0, 'n_comps':0, 'n_missing':0}
+stats={1:0, 2:0, 3:0, 'n_comps':0, 'n_missing':0, 'n_save_errors':0}
 
 
 
@@ -154,15 +155,19 @@ def update_compounds(f12f2, opts):
                 or_not='(not) ' if opts.n else ''
                 print '%sabout to save %r (%s=%s): set %s to %s' % (or_not, comp, opts.lookup, lu, opts.novel, nvs)
             if not opts.n: 
-                comp.save()
+                try:
+                    comp.save()     # this can throw an IntegrityError sometimes
+                except IntegrityError as e:
+                    print 'Unable to save compound "%s" (%d): %s' % (comp, comp.compid, e)
+                    stats['n_save_errors']+=1
+
             stats['n_comps']+=1
 
             # compile stats "histogram":
             n=len(nv)
-            try:
-                stats[n]+=1
-            except KeyError:
-                stats[n]=1
+            try: stats[n]+=1
+            except KeyError: stats[n]=1
+                
 
 def report(stats):
     for n in sorted(stats.keys()):
