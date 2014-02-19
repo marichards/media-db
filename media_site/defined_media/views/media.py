@@ -34,6 +34,7 @@ class NewMediaView(FormView):
     def post(self, request, *args, **kwargs):
         ''' accept edits to a MediaNames object (either existing or new) '''
         form=MediaNamesForm(request.POST)
+
         if not form.is_valid():
             # maybe do something about reformatting errors....
             return self.form_invalid(form)
@@ -86,7 +87,7 @@ class NewMediaView(FormView):
 
     def build_mn(self, form, mn):
         ''' 
-        
+        Add the media compounds to the mn record
         '''
         fcd=form.cleaned_data
 
@@ -98,12 +99,13 @@ class NewMediaView(FormView):
             amt_key='amount'+compkey.split('comp')[1]
             amount=fcd.get(amt_key)
             if amount is None:
-                form.errors[amt_key]='Amount needed for compound %s!' % comp_name # should have already been checked in form.is_valid()
+                msg='Amount needed for compound %s!' % comp_name # should have already been checked in form.is_valid()
+#                log.debug(msg)
+                form.errors[amt_key]=msg
                 continue
             comp=Compounds.objects.with_name(comp_name)
             medcomp=MediaCompounds(compid=comp, amount_mm=amount)
             mn.mediacompounds_set.add(medcomp) # should save medcomp
-
 
         return mn
 
