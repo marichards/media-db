@@ -1,3 +1,7 @@
+'''
+Merge the contents of the SeedCompounds table with the Compounds table.
+Depends on adding a new column 'seed_id' to compounds.
+'''
 import os, sys
 
 from django_env import init_django_env
