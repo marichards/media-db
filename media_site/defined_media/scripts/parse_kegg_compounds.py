@@ -1,3 +1,7 @@
+'''
+Add Kegg formula to compounds.
+Sample input: keggcompounds.txt
+'''
 import sys, os, argparse
 from keggcompounds_parser import KeggCompoundsParser
 

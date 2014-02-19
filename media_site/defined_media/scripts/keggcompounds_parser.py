@@ -1,5 +1,9 @@
 import re
 
+'''
+Parses dumps/keggcompounds.txt
+'''
+
 class KeggCompoundsParser(object):
     def __init__(self, kegg_fn):
         self.kegg_fn=kegg_fn
