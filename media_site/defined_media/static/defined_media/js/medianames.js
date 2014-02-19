@@ -49,11 +49,9 @@ MediaNamesEditor.prototype={
     add_compound : function(eventObj) {
 	// this is a callback for when an 'Add' button is clicked.
 	// It inserts a new compound row into the document.
-	console.log('hi from add_compound')
 
 	// create tr element and three td elements:
 	n=document.editor.compound_n+1
-	console.log('n is '+n)
 	row=$('<tr></tr>', {id: 'id_comp_row'+n})
 	row.append($('<td></td>').append($('<input>', {id:'id_comp'+n, name:'comp'+n, type: 'text'})))
 	row.append($('<td></td>').append($('<input>', {id:'id_amount'+n, name:'amount'+n, type: 'text'})))
@@ -63,11 +61,9 @@ MediaNamesEditor.prototype={
 	row.append($('<td></td>').append(add_button))
 	$('#id_comp_row1').after(row)
 	document.editor.compound_n+=1
-	console.log('add_compound done')
     },
 
     remove_compound: function(eventObj) {
-	console.log('remove_compound entered')
 	button_id=eventObj.target.id
 	n=button_id.split('compound')[1]
 	row_id='#id_comp_row'+n
@@ -91,24 +87,20 @@ MediaNamesEditor.prototype={
     },  
 
     prevent_submission: function() {
-        console.log('ha ha')
+//        console.log('ha ha')
 	return false 
     }, 
 
     allow_submission: function() {
-        console.log('away we go')
+//        console.log('away we go')
         return true
     }, 
 
     submit: function(eventObj) {
 	// open the gate, allow submission, and close the gate:
-	console.log('submit() entered')
 	$('#id_newmedia_form').unbind('submit')
-	console.log('submit() gate opened')
 	$('#id_newmedia_form').submit()
-	console.log('submit() submit called')
 	$('#id_newmedia_form').submit(document.editor.prevent_submission)
-	console.log('submit() leaving')
     },  
 }
 

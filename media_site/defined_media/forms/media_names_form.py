@@ -30,22 +30,14 @@ class MediaNamesForm(forms.Form):
                 d=args[0]
 
             # then add media_comp fields:
-            n=1
             for k,v in d.items():
                 if k.startswith('comp'):
                     comp_name=v
+                    m=int(k.split('comp')[1])
                     amount_key=re.sub('comp', 'amount', k)
                     try: amount=d[amount_key]
                     except KeyError: amount=''
-                    self._add_medcomp_field(n, comp_name, amount)
-                    n+=1
-
-            # initialize is_minimal field, since it's weird:
-#            self.is_minimal=d['is_minimal']
-#            self.fields['is_minimal']=forms.CharField(label='Is minimal?',
-#                                                      widget=forms.CheckboxInput(check_test=self.my_check_test),
-#                                                      initial=d['is_minimal'].upper() != 'N',
-#                                                      )
+                    self._add_medcomp_field(m, comp_name, amount)
 
 
         except (IndexError) as e:  # nevermind, maybe args[0] wasn't a MediaNames object or something
@@ -61,7 +53,7 @@ class MediaNamesForm(forms.Form):
         self.fields['comp%d' % n]=forms.CharField(label='Compound %d' % n, required=False, initial=comp_name)
         self.media_compounds_list.append({'comp': comp_name, 'amount': amount})
         self.fields['amount%d' % n]=forms.FloatField(label='Amount', required=False, initial=amount)
-#        log.debug('form.medcomp field added: %s-%s' %(comp_name, amount))
+#        log.debug('form.medcomp field added (n=%s): %s-%s' %(n, comp_name, amount))
         
 
     def is_valid(self):
@@ -88,7 +80,7 @@ class MediaNamesForm(forms.Form):
             if amount is None:
                 err_msg='%s: missing or invalid amount for compound "%s"' % (compkey, comp_name)
                 self.errors[amt_key]=err_msg
-                log.debug(err_msg)
+#                log.debug(err_msg)
                 valid=False
 
         return valid

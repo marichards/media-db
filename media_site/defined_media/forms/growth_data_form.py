@@ -50,19 +50,18 @@ class GrowthDataForm(forms.Form):
                 d=args[0]
             
             # for all secretion-uptake fields in d, add a set of fields to the form:
-            n=1
             for k,v in d.items():
                 if k.startswith('uptake_comp'):
                     # keys are uptake_comp, uptake_rate, uptake_unit, uptake_type
                     hashlette={'comp':v}
+                    m=int(k.split('uptake_comp')[1])
 
                     for suffix in 'rate unit type'.split(' '):
                         field_key=re.sub('comp', suffix, k)
                         try: field_val=d[field_key]
                         except KeyError: field_val=''
                         hashlette[suffix]=field_val
-                    self._add_uptake_field(n, hashlette)
-                    n+=1
+                    self._add_uptake_field(m, hashlette)
 
         except (IndexError) as e:  # nevermind, maybe args[0] wasn't a GrowthData object or something
             pass
