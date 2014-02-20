@@ -51,8 +51,6 @@ class GrowthDataView(FormView):
                 self.add_secretion_uptakes(form, gd)
                 self.gd=gd
         except IntegrityError as e:
-#            log.debug('caught %s: %s' % (type(e), e))
-#            log.exception(e)
             form.errors['error']=str(e)
 
         # are we happy?
@@ -80,7 +78,6 @@ class GrowthDataView(FormView):
     def build_gd(self, form, gd):
         '''
         build and save the growth_data object from the form, including secretion_uptakes (nyi)
-        fixme: also does no error handling as yet.
         '''
         fcd=form.cleaned_data   # convenience
         gd.contributor=Contributor.objects.get(id=fcd.get('contributor'))

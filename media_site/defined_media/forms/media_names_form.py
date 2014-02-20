@@ -72,7 +72,6 @@ class MediaNamesForm(forms.Form):
                 comp=Compounds.objects.with_name(comp_name)
             except Compounds.DoesNotExist:
                 self.errors[compkey]='Unknown compound "%s"' % comp_name
-                log.debug('%s: Unknown compound "%s"' % (compkey, comp_name))
                 valid=False
 
             amt_key='amount'+compkey.split('comp')[1]
@@ -80,7 +79,6 @@ class MediaNamesForm(forms.Form):
             if amount is None:
                 err_msg='%s: missing or invalid amount for compound "%s"' % (compkey, comp_name)
                 self.errors[amt_key]=err_msg
-#                log.debug(err_msg)
                 valid=False
 
         return valid

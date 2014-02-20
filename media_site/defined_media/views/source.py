@@ -28,7 +28,6 @@ class NewSourceView(CreateView):
             args=dict((k,self.request.POST[k]) for k in keys)
             n_sources=Sources.objects.filter(**args).count()
             if n_sources > 0:
-                log.debug('barf')
                 self.object=None
                 raise IntegrityError('This message is not used')
 

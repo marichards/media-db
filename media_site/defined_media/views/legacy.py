@@ -27,7 +27,6 @@ def growth(request):
 
 #Define the compounds index
 def compounds(request):
-	print 'compounds() called'
 	#List all the compounds, limit to 50 for now!
 	compound_list = Compounds.objects.order_by('compid')[:50]
 

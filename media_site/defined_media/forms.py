@@ -3,6 +3,11 @@ from django import forms
 from defined_media.models import *
 from form_helpers import ReformatsErrors, Gets1
 
+
+'''
+THIS FILE IS DEPRECATED AND OBSOLETE.  IT IS NO LONGER USED IN ANY WAY.
+'''
+
 #from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 #from defined_media.models import Contributor
 
@@ -160,10 +165,8 @@ class NewCompoundMediaForm(forms.Form, ReformatsErrors, Gets1):
             try: 
                 comp_name=self.cleaned_data.get(uckey)[0]
                 if not comp_name or len(comp_name)==0: 
-                    log.debug('no compound for %s, skipping' % uckey)
                     continue
             except: 
-                log.debug('no compound for %s, skipping' % uckey)
                 continue
 
             n=uckey.split('uptake_comp')[1]
@@ -173,7 +176,6 @@ class NewCompoundMediaForm(forms.Form, ReformatsErrors, Gets1):
                 comp=Compounds.objects.with_name(comp_name)
             except Compounds.DoesNotExist:
                 self.errors['uptake%s' % n]='Uptake %s: Unknown compound "%s"' % (n, comp_name)
-                log.debug('skipping unknown compound %s: %s' % (uckey, comp_name))
                 continue
 
             missing=[]
@@ -188,8 +190,6 @@ class NewCompoundMediaForm(forms.Form, ReformatsErrors, Gets1):
             if len(missing)>0:
                 self.errors['uptake%s' % n]='Uptake %s: These fields are required: %s' % (n, ', '.join(missing))
 
-        for k,v in self.errors.items():
-            log.debug('is_valid: errors: %s -> %s' % (k,v))
         return len(self.errors)==0
 
 

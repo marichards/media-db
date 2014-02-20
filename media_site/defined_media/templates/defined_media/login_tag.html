@@ -22,7 +22,7 @@ Logged in as {{ request.user }}
 <input type='submit' value='Login' />
     <div>
       <a href='{% url 'login' %}'>Register New User</a>
-      <a href=''>fixme! Forgot Username/Password?</a>
+{% comment %}      <a href=''>fixme! Forgot Username/Password?</a>{% comment %}
     </div>
 {% endif %}
 </form>

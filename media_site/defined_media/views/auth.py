@@ -19,7 +19,6 @@ class CreateContributor(CreateView):
 	form_class=CreateContributorForm
 
 	def render_to_response1(context, **kwargs):
-		print 'got here'
 		return super(CreateContributor, self).render_to_response(context, **kwargs)
 
 '''

@@ -61,16 +61,7 @@ class MediaDetail(DetailView):
 class MediaText(View):
     template_name='defined_media/media_text.html'
     def get(self, request, *args, **kwargs):
-#        log.debug('request: %s' % request)
-        if len(args) > 0:
-            log.debug('args: %s' % args)
-        if len(kwargs) > 0:
-            log.debug('kwargs: %s' % kwargs)
-
         mn=get_object_or_404(MediaNames, **kwargs)
-        for pair in mn.media_compounds_dicts():
-            log.debug('pair[comp]: %s' % pair['comp'])
-            log.debug('pair[amount]: %s' % pair['amount'])
         return render(request, 
                       self.template_name, 
                       {'mn': mn, 'mcs': mn.media_compounds_dicts()},
