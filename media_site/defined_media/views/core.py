@@ -51,7 +51,10 @@ class MediaDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context=super(MediaDetail,self).get_context_data(**kwargs)
-        context['can_edit']=self.request.user.contributor.can_edit_mn(context['medianames'])
+        try:
+            context['can_edit']=self.request.user.contributor.can_edit_mn(context['medianames'])
+        except:
+            context['can_edit']=False
         return context
 
 
@@ -98,6 +101,9 @@ class GrowthDataDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context=super(GrowthDataDetail,self).get_context_data(**kwargs)
-        context['can_edit']=self.request.user.contributor.can_edit_gd(context['growthdata'])
+        try:
+            context['can_edit']=self.request.user.contributor.can_edit_gd(context['growthdata'])
+        except:
+            context['can_edit']=False
         return context
 
