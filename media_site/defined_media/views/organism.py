@@ -7,7 +7,7 @@ from defined_media.models import *
 from django.views.generic.edit import CreateView
 from django.db import IntegrityError
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 
 class NewOrganismView(CreateView):
     model=Organisms
@@ -19,7 +19,16 @@ class NewOrganismView(CreateView):
                               strain=self.request.POST['strain'])
         return reverse('organism_record', args=(org.strainid,))
 
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return redirect('forbidden')
+        return super(NewOrganismView,self).get(request, *args, **kwargs)
+
+
     def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return redirect('forbidden')
+
         try:
             return super(NewOrganismView,self).post(request, *args, **kwargs)
         except IntegrityError:

@@ -671,7 +671,7 @@ class Contributor(models.Model):
     def __repr__(self):
         return '%s %s (%s, lab=%s)' % (self.first_name, self.last_name, self.user.username, self.lab)
 
-    def can_edit_gd(self, gd):
+    def can_edit_gd(self, gd=None):
         return self.user.is_superuser
 #        return self.user.is_superuser or (self.user.is_active and self.id==gd.contributor_id)
 
@@ -689,7 +689,7 @@ class Contributor(models.Model):
 #            return MediaNames.objects.filter(contributor_id=self.id)
             return []
 
-    def can_edit_mn(self, mn):
+    def can_edit_mn(self, mn=None):
         return self.user.is_superuser
 
     def name(self):

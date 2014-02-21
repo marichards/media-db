@@ -16,11 +16,11 @@ class GrowthDataView(FormView):
 
     def get(self, request, *args, **kwargs):
         ''' serve up an edit page, either empty of filled out with the gd: '''
+        if not request.user.contributor.can_edit_gd():
+            return redirect('forbidden')
+
         try:
             gd=GrowthData.objects.get(growthid=kwargs['pk'])
-            user=request.user
-            if not user.contributor.can_edit_gd(gd):
-                return redirect('forbidden')
             self.gd=gd
             form=self.form_class.from_growth_data(gd)
         except (GrowthData.DoesNotExist, KeyError) as e:
@@ -29,6 +29,9 @@ class GrowthDataView(FormView):
         return self.form_invalid(form)
             
     def post(self, request, *args, **kwargs):
+        if not request.user.contributor.can_edit_gd():
+            return redirect('forbidden')
+
         form=self.form_class(request.POST)
         if not form.is_valid():
             return self.form_invalid(form)

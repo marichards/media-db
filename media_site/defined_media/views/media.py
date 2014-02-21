@@ -16,12 +16,11 @@ class NewMediaView(FormView):
 
     def get(self, request, *args, **kwargs):
         ''' serve up an empty edit page, or one initialized with a MediaNames object, for editing '''
+        if not request.user.contributor.can_edit_mn():
+            return redirect('forbidden')
+
         try:
             mn=MediaNames.objects.get(medid=kwargs['pk'])
-            user=request.user
-            if not user.contributor.can_edit_mn(mn):
-                return redirect('forbidden')
-
             self.mn=mn
             form=MediaNamesForm.from_media_name(mn)
 
@@ -33,6 +32,9 @@ class NewMediaView(FormView):
 
     def post(self, request, *args, **kwargs):
         ''' accept edits to a MediaNames object (either existing or new) '''
+        if not request.user.contributor.can_edit_mn():
+            return redirect('forbidden')
+
         form=MediaNamesForm(request.POST)
 
         if not form.is_valid():

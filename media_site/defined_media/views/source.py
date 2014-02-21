@@ -7,7 +7,7 @@ from defined_media.models import *
 from django.views.generic.edit import CreateView
 from django.db import IntegrityError
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 
 class NewSourceView(CreateView):
     model=Sources
@@ -22,7 +22,18 @@ class NewSourceView(CreateView):
             source=get_object_or_404(Sources, **args)
         return reverse('source_record', args=(source.sourceid,))
 
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return redirect('forbidden')
+
+        return super(NewSourceView,self).get(request, *args, **kwargs)
+
+
     def post(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return redirect('forbidden')
+
         try:
             keys='first_author journal year title'.split(' ')
             args=dict((k,self.request.POST[k]) for k in keys)
