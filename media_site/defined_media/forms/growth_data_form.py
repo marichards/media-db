@@ -65,8 +65,6 @@ class GrowthDataForm(forms.Form):
 
         except (IndexError) as e:  # nevermind, maybe args[0] wasn't a GrowthData object or something
             pass
-#            log.debug('GrowthDataForm.__init__(): ignoring %s: %s' % (type(e), e))
-#            log.exception(e)
             
         # if nothing happened, we need to at least create the first uptake set:
         if 'uptake_comp1' not in self.fields:

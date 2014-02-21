@@ -12,6 +12,13 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.shortcuts import redirect, get_object_or_404
 
+
+'''
+THIS FILE IS OBSOLETE, DEPRECATED, AND NO LONGER USED IN ANY WAY.
+'''
+
+
+
 class NewGrowthDataView(FormView):
     '''
     Basic "goal" is to store one GrowthData record, with as many attendent 

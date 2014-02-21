@@ -102,7 +102,6 @@ class NewMediaView(FormView):
             amount=fcd.get(amt_key)
             if amount is None:
                 msg='Amount needed for compound %s!' % comp_name # should have already been checked in form.is_valid()
-#                log.debug(msg)
                 form.errors[amt_key]=msg
                 continue
             comp=Compounds.objects.with_name(comp_name)

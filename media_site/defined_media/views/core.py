@@ -51,23 +51,17 @@ class MediaDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context=super(MediaDetail,self).get_context_data(**kwargs)
-        context['can_edit']=self.request.user.contributor.can_edit_mn(context['medianames'])
+        try:
+            context['can_edit']=self.request.user.contributor.can_edit_mn(context['medianames'])
+        except:
+            context['can_edit']=False
         return context
 
 
 class MediaText(View):
     template_name='defined_media/media_text.html'
     def get(self, request, *args, **kwargs):
-#        log.debug('request: %s' % request)
-        if len(args) > 0:
-            log.debug('args: %s' % args)
-        if len(kwargs) > 0:
-            log.debug('kwargs: %s' % kwargs)
-
         mn=get_object_or_404(MediaNames, **kwargs)
-        for pair in mn.media_compounds_dicts():
-            log.debug('pair[comp]: %s' % pair['comp'])
-            log.debug('pair[amount]: %s' % pair['amount'])
         return render(request, 
                       self.template_name, 
                       {'mn': mn, 'mcs': mn.media_compounds_dicts()},
@@ -98,6 +92,9 @@ class GrowthDataDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context=super(GrowthDataDetail,self).get_context_data(**kwargs)
-        context['can_edit']=self.request.user.contributor.can_edit_gd(context['growthdata'])
+        try:
+            context['can_edit']=self.request.user.contributor.can_edit_gd(context['growthdata'])
+        except:
+            context['can_edit']=False
         return context
 

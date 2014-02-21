@@ -1,5 +1,6 @@
 import sys, os, subprocess, time, django
 from django.core.management.base import BaseCommand, CommandError
+from django.db import IntegrityError
 import defined_media.models as models
 import media_site.settings as settings
 
@@ -31,8 +32,11 @@ class Command(BaseCommand):
             retcode=subprocess.call(('gzip',), stdin=mysqldump.stdout, stdout=new_stdout)
             if retcode==0:
                 print '%s created (%s)' % (self.dump_path(), retcode)
-                ss=models.DatabaseSnapshot()
-                ss.save()
+                try:
+                    ss=models.DatabaseSnapshot()
+                    ss.save()
+                except IntegrityError as e:
+                    ss=models.DatabaseSnapshot.objects.latest('timestamp')
                 return ss
             else:
                 print 'failed: %s' % ' '.join(cmd)
