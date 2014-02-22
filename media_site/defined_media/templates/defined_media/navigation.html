@@ -9,7 +9,7 @@
 <li><a href="{% url 'growthdata' %}">Growth Data</a></li>
 </ul>
 
-{% if user.is_authenticated %}
+{% if user.is_superuser %}
 <ul>
 <li>User: {{ user }}</li>
 <li><a href="{% url 'user_profile' user %}">User Profile</a></li>
