@@ -1,3 +1,4 @@
 # tab-delimited compounds/amounts for: {{ mn }}
-{% for pair in mcs %}{{ pair.comp }}	{{ pair.amount }}
+#compound	amount	kegg_id bigg_id	seed_id	pubchem_ids	chebi_ids
+{% for pair in mcs %}{{ pair.comp }}	{{ pair.amount }}	{{ pair.kegg_id}}	{{ pair.bigg_id}}	{{ pair.seed_id}}	{{ pair.pubchem_ids}}	{{ pair.chebi_ids}}
 {% endfor %}
