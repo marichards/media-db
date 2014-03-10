@@ -45,15 +45,10 @@ def main():
     opts,parser=get_args()
     if opts.v: print 'opts: %s' % opts
     
+
+
     try:
-        fields=get_fs(opts)         # can throw
-        for i,f in enumerate([f.lower() for f in fields]):
-            if f==opts.lookup:
-                lookup_f=f.lower()
-                lookup_idx=i
-            elif f==opts.novel:
-                novel_f=f.lower()
-                novel_idx=i
+        lookup_f, lookup_idx, novel_f, novel_idx=get_fieldnames(opts)
     except RuntimeError as e:
         print str(e)
         parser.print_help()
@@ -78,22 +73,30 @@ def main():
     return 0
 
 
+def get_fieldnames(opts):
+    fields=get_fs(opts)         # can throw
+    for i,f in enumerate([f.lower() for f in fields]):
+        if f==opts.lookup:
+            lookup_f=f.lower()
+            lookup_idx=i
+        elif f==opts.novel:
+            novel_f=f.lower()
+            novel_idx=i
+    return lookup_f, lookup_idx, novel_f, novel_idx
+
+
+
 def get_fs(opts):
     ''' return the list of field names as obtained from the first line of the file '''
     try:
         return opts.fields.split(',')
     except AttributeError:
-        pass 
-
-    with open(opts.in_fn) as f:
-        line1=f.readline()
-        print 'line1 is %s' % line1
-        fs=[x.strip() for x in re.split(r'\s+', line1)]
-        print 'fs is %s' % fs
-        if fs[0].startswith('#'):
-            del fs[0]
-            print 'fs is %s' % fs
-        return fs
+        with open(opts.in_fn) as f:
+            line1=f.readline()
+            fs=[x.strip() for x in re.split(r'\s+', line1)]
+            if fs[0].startswith('#'):
+                del fs[0]
+            return fs
 
 
 def parse_file(lu_idx, val_idx, opts):
@@ -114,7 +117,7 @@ def parse_file(lu_idx, val_idx, opts):
 
     f12f2={}
     with open(opts.in_fn) as f:
-        reader=csv.reader(f, delimiter='\t')
+        reader=csv.reader(f, delimiter=opts.delimiter)
         for row in reader:
             if row[0].startswith('#'):
                 continue
@@ -182,6 +185,7 @@ def get_args():
     parser.add_argument('-fields', help='comma-separated list of field names (if unable to auto-detect from file)')
     parser.add_argument('-v', action='store_true', help='verbose output')
     parser.add_argument('-n', action='store_true', help="dryrun; don't make any changes to database")
+    parser.add_argument('-d', help='input file delimiter', default='\t')
 
     opts=parser.parse_args()
     opts.lookup=opts.lookup.lower()
