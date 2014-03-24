@@ -447,6 +447,10 @@ class Organisms(models.Model):
     #Call the Organisms object and return the Strain Name and such instead
     def __unicode__(self):
         return '%s %s %s' %(self.genus.capitalize(),self.species.lower(),self.strain)
+    
+    #Return link to NCBI genome project
+    def ncbi_link(self):
+	return 'http://www.ncbi.nlm.nih.gov/genome/?term=%s+%s' %(self.genus,self.species)
 
     def save(self):
         missing=[]
