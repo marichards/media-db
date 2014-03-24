@@ -18,10 +18,13 @@ class TestGrowthData(TestCase):
                 try:
                     comp=Compounds.objects.with_name(d['comp'])
                     amount=float(d['amount'])
+                    bigg_id=d['bigg_id']
+                    seed_id=d['seed_id']
+                    pubchem_ids=d['pubchem_ids']
+                    chebi_ids=d['chebi_ids']
                 except:
                     self.fail()
         self.assertTrue(True)
-                
 
     def test_fixture_integrity_uptakes(self):
         for gd in GrowthData.objects.all():

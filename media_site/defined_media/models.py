@@ -408,9 +408,16 @@ class MediaNames(models.Model):
     def media_compounds_dicts(self):
         ''' 
         return a list of hashlettes: d[compN]=compound name, d[amountN]=amount.
-        Used by medianames_form.html.
+        Used by medianames_form.html and core.MediaText
         '''
-        return [{'comp': mc.compid.name, 'amount': mc.amount_mm} for mc in self.mediacompounds_set.all()]
+        return [{'comp': mc.compid.name, 
+                 'amount': mc.amount_mm,
+                 'kegg_id' : mc.compid.kegg_id or None,
+                 'bigg_id': mc.compid.bigg_id or None,
+                 'seed_id': mc.compid.seed_id or None,
+                 'pubchem_ids': mc.compid.pubchem_ids or None,
+                 'chebi_ids': mc.compid.chebi_ids or None,
+                 } for mc in self.mediacompounds_set.all()]
 
     def as_dict(self):
         d=dict((attr, getattr(self, attr)) for attr in 'medid media_name is_defined is_minimal'.split(' '))
