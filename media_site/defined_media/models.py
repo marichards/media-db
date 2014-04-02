@@ -137,7 +137,6 @@ class GrowthData(models.Model):
     growth_units = models.CharField(max_length=45L, db_column='Growth_Units', blank=True) 
     ph = models.FloatField(null=True, db_column='pH', blank=True) 
     temperature_c = models.FloatField(null=True, db_column='Temperature_C', blank=True) 
-    measureid = models.ForeignKey('Measurements', null=True, db_column='measureID', blank=True) 
     additional_notes = models.CharField(max_length=255L, db_column='Additional_Notes', blank=True, null=True) 
     approved=models.BooleanField(default=True)
 
@@ -151,9 +150,9 @@ class GrowthData(models.Model):
         return '%s on %s' %(self.strainid, self.medid)   
 
     def __repr__(self):
-        return "GrowthData(%s) %s: org(%s)=%s, media_name(%s)=%s, sourceid(%s)=%s, measureid(%s)=%s approved=%s" % \
+        return "GrowthData(%s) %s: org(%s)=%s, media_name(%s)=%s, sourceid(%s)=%s, approved=%s" % \
             (self.growthid, self.contributor, self.strainid_id, self.strainid, self.medid_id, 
-             self.medid, self.sourceid_id, self.sourceid, self.measureid_id, self.measureid, self.approved)
+             self.medid, self.sourceid_id, self.sourceid, self.approved)
 
 
     def media_compounds_dicts(self):
@@ -285,14 +284,6 @@ class GrowthData(models.Model):
 
     def not_equals(self, other):
         return not self.equals(other)
-
-class Measurements(models.Model):
-    measureid = models.AutoField(primary_key=True, db_column='measureID') 
-    measurement_technique = models.CharField(max_length=255L, unique=True, db_column='Measurement_Technique', blank=True) 
-    class Meta:
-        db_table = 'measurements'
-    def __unicode__(self):
-        return '%s' %self.measurement_technique
 
 class MediaCompounds(models.Model):
     medcompid = models.AutoField(primary_key=True, db_column='medcompID') 
