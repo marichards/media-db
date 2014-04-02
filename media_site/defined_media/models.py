@@ -45,21 +45,6 @@ class BiomassCompounds(models.Model):
     def __repr__(self):
         return 'biomass compound: biocompid=%d, biomassid=%s, compid=%s, coef=%g' % (self.biocompid, self.biomassid, self.compid, self.coefficient)
 
-class CompoundExceptions(models.Model):
-    pk = models.AutoField(primary_key=True)
-    compid = models.ForeignKey('Compounds', db_column='compID') 
-    keggorgid = models.CharField(max_length=12L, db_column='keggOrgID', blank=True) 
-    class Meta:
-        db_table = 'compound_exceptions'
-
-class CompoundReplacements(models.Model):
-    pk = models.AutoField(primary_key=True)
-    compid = models.ForeignKey('Compounds', db_column='compID') 
-    biggid = models.CharField(max_length=12L, db_column='biggID') 
-    keggorgid = models.CharField(max_length=12L, db_column='keggOrgID', blank=True) 
-    class Meta:
-        db_table = 'compound_replacements'
-
 class CompoundManager(models.Manager):
     def with_name(self, name):
         try:
@@ -489,23 +474,6 @@ class OrganismsSources(models.Model):
     sourceid = models.ForeignKey('Sources', null=True, db_column='sourceID', blank=True) 
     class Meta:
         db_table = 'organisms_sources'
-
-class Products(models.Model):
-    prodid = models.AutoField(primary_key=True, db_column='prodID') 
-    rxntid = models.ForeignKey('Reactants', db_column='rxntID') 
-    coeff = models.FloatField()
-    compid = models.ForeignKey(Compounds, db_column='compID') 
-    class Meta:
-        db_table = 'products'
-# some comment
-
-class Reactants(models.Model):
-    rxntid = models.AutoField(primary_key=True, db_column='rxntID') 
-    compid = models.ForeignKey(Compounds, db_column='compID',related_name='compound_id') 
-    similar_compounds = models.ForeignKey(Compounds, null=True, db_column='Similar Compounds',related_name='similar_id', blank=True)  
-    class Meta:
-        db_table = 'reactants'
-
 
 class SecretionUptake(models.Model):
     secretionuptakeid = models.AutoField(primary_key=True, db_column='secretionuptakeID') 
