@@ -73,7 +73,6 @@ class Compounds(models.Model):
     seed_id = models.CharField(max_length=45L, db_column='seed_id') 
     pubchem_ids = models.CharField(max_length=255L, db_column='pubchem_ids', null=True, blank=True) # csv
     chebi_ids = models.CharField(max_length=255L, db_column='chebi_ids', null=True, blank=True) # csv
-    user_identifier = models.CharField(max_length=255L, blank=True, null=True)
     name = models.CharField(max_length=255L, unique=True)
     formula=models.CharField(max_length=255L, null=True, blank=True)
 
@@ -87,8 +86,8 @@ class Compounds(models.Model):
         return self.name
 
     def __repr__(self):
-        return 'compound %s (%d): kegg_id=%s, bigg_id=%s, seed_id=%s, user_identifier=%s formula=%s' % \
-        (self.name, self.compid, self.kegg_id, self.bigg_id, self.seed_id, self.user_identifier, self.formula)
+        return 'compound %s (%d): kegg_id=%s, bigg_id=%s, seed_id=%s, formula=%s' % \
+        (self.name, self.compid, self.kegg_id, self.bigg_id, self.seed_id, self.formula)
 
     def keywords(self):
         nocs=[noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
@@ -304,7 +303,6 @@ class MediaCompounds(models.Model):
 class MediaNames(models.Model):
     medid = models.AutoField(primary_key=True, db_column='medID') 
     media_name = models.CharField(max_length=255L, db_column='Media_name', blank=False, unique=True) 
-    is_defined = models.CharField(max_length=1L, db_column='Is_defined', blank=True) 
     is_minimal = models.CharField(max_length=1L, db_column='Is_minimal', blank=True) 
 
     class Meta:
@@ -322,9 +320,8 @@ class MediaNames(models.Model):
 	return '%s' % self.media_name.capitalize()
 
     def __repr__(self):
-        return 'MediaNames: (medid=%s, %s, %s, %s)' % (self.medid, 
+        return 'MediaNames: (medid=%s, %s, %s)' % (self.medid, 
                                                        self.media_name, 
-                                                       self.is_defined, 
                                                        self.is_minimal)
 
     #Define searchable terms
@@ -396,7 +393,7 @@ class MediaNames(models.Model):
                  } for mc in self.mediacompounds_set.all()]
 
     def as_dict(self):
-        d=dict((attr, getattr(self, attr)) for attr in 'medid media_name is_defined is_minimal'.split(' '))
+        d=dict((attr, getattr(self, attr)) for attr in 'medid media_name is_minimal'.split(' '))
 
         for n,medcomp in enumerate(self.mediacompounds_set.all()):
            d['comp%d' % n]=medcomp.compid.name
