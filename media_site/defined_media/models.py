@@ -45,21 +45,6 @@ class BiomassCompounds(models.Model):
     def __repr__(self):
         return 'biomass compound: biocompid=%d, biomassid=%s, compid=%s, coef=%g' % (self.biocompid, self.biomassid, self.compid, self.coefficient)
 
-class CompoundExceptions(models.Model):
-    pk = models.AutoField(primary_key=True)
-    compid = models.ForeignKey('Compounds', db_column='compID') 
-    keggorgid = models.CharField(max_length=12L, db_column='keggOrgID', blank=True) 
-    class Meta:
-        db_table = 'compound_exceptions'
-
-class CompoundReplacements(models.Model):
-    pk = models.AutoField(primary_key=True)
-    compid = models.ForeignKey('Compounds', db_column='compID') 
-    biggid = models.CharField(max_length=12L, db_column='biggID') 
-    keggorgid = models.CharField(max_length=12L, db_column='keggOrgID', blank=True) 
-    class Meta:
-        db_table = 'compound_replacements'
-
 class CompoundManager(models.Manager):
     def with_name(self, name):
         try:
@@ -88,7 +73,6 @@ class Compounds(models.Model):
     seed_id = models.CharField(max_length=45L, db_column='seed_id') 
     pubchem_ids = models.CharField(max_length=255L, db_column='pubchem_ids', null=True, blank=True) # csv
     chebi_ids = models.CharField(max_length=255L, db_column='chebi_ids', null=True, blank=True) # csv
-    user_identifier = models.CharField(max_length=255L, blank=True, null=True)
     name = models.CharField(max_length=255L, unique=True)
     formula=models.CharField(max_length=255L, null=True, blank=True)
 
@@ -102,8 +86,8 @@ class Compounds(models.Model):
         return self.name
 
     def __repr__(self):
-        return 'compound %s (%d): kegg_id=%s, bigg_id=%s, seed_id=%s, user_identifier=%s formula=%s' % \
-        (self.name, self.compid, self.kegg_id, self.bigg_id, self.seed_id, self.user_identifier, self.formula)
+        return 'compound %s (%d): kegg_id=%s, bigg_id=%s, seed_id=%s, formula=%s' % \
+        (self.name, self.compid, self.kegg_id, self.bigg_id, self.seed_id, self.formula)
 
     def keywords(self):
         nocs=[noc.name for noc in NamesOfCompounds.objects.filter(compid=self.compid)]
@@ -152,7 +136,6 @@ class GrowthData(models.Model):
     growth_units = models.CharField(max_length=45L, db_column='Growth_Units', blank=True) 
     ph = models.FloatField(null=True, db_column='pH', blank=True) 
     temperature_c = models.FloatField(null=True, db_column='Temperature_C', blank=True) 
-    measureid = models.ForeignKey('Measurements', null=True, db_column='measureID', blank=True) 
     additional_notes = models.CharField(max_length=255L, db_column='Additional_Notes', blank=True, null=True) 
     approved=models.BooleanField(default=True)
 
@@ -166,9 +149,9 @@ class GrowthData(models.Model):
         return '%s on %s' %(self.strainid, self.medid)   
 
     def __repr__(self):
-        return "GrowthData(%s) %s: org(%s)=%s, media_name(%s)=%s, sourceid(%s)=%s, measureid(%s)=%s approved=%s" % \
+        return "GrowthData(%s) %s: org(%s)=%s, media_name(%s)=%s, sourceid(%s)=%s, approved=%s" % \
             (self.growthid, self.contributor, self.strainid_id, self.strainid, self.medid_id, 
-             self.medid, self.sourceid_id, self.sourceid, self.measureid_id, self.measureid, self.approved)
+             self.medid, self.sourceid_id, self.sourceid, self.approved)
 
 
     def media_compounds_dicts(self):
@@ -301,14 +284,6 @@ class GrowthData(models.Model):
     def not_equals(self, other):
         return not self.equals(other)
 
-class Measurements(models.Model):
-    measureid = models.AutoField(primary_key=True, db_column='measureID') 
-    measurement_technique = models.CharField(max_length=255L, unique=True, db_column='Measurement_Technique', blank=True) 
-    class Meta:
-        db_table = 'measurements'
-    def __unicode__(self):
-        return '%s' %self.measurement_technique
-
 class MediaCompounds(models.Model):
     medcompid = models.AutoField(primary_key=True, db_column='medcompID') 
     medid = models.ForeignKey('MediaNames', db_column='medID') 
@@ -328,7 +303,6 @@ class MediaCompounds(models.Model):
 class MediaNames(models.Model):
     medid = models.AutoField(primary_key=True, db_column='medID') 
     media_name = models.CharField(max_length=255L, db_column='Media_name', blank=False, unique=True) 
-    is_defined = models.CharField(max_length=1L, db_column='Is_defined', blank=True) 
     is_minimal = models.CharField(max_length=1L, db_column='Is_minimal', blank=True) 
 
     class Meta:
@@ -346,9 +320,8 @@ class MediaNames(models.Model):
 	return '%s' % self.media_name.capitalize()
 
     def __repr__(self):
-        return 'MediaNames: (medid=%s, %s, %s, %s)' % (self.medid, 
+        return 'MediaNames: (medid=%s, %s, %s)' % (self.medid, 
                                                        self.media_name, 
-                                                       self.is_defined, 
                                                        self.is_minimal)
 
     #Define searchable terms
@@ -420,7 +393,7 @@ class MediaNames(models.Model):
                  } for mc in self.mediacompounds_set.all()]
 
     def as_dict(self):
-        d=dict((attr, getattr(self, attr)) for attr in 'medid media_name is_defined is_minimal'.split(' '))
+        d=dict((attr, getattr(self, attr)) for attr in 'medid media_name is_minimal'.split(' '))
 
         for n,medcomp in enumerate(self.mediacompounds_set.all()):
            d['comp%d' % n]=medcomp.compid.name
@@ -489,23 +462,6 @@ class OrganismsSources(models.Model):
     sourceid = models.ForeignKey('Sources', null=True, db_column='sourceID', blank=True) 
     class Meta:
         db_table = 'organisms_sources'
-
-class Products(models.Model):
-    prodid = models.AutoField(primary_key=True, db_column='prodID') 
-    rxntid = models.ForeignKey('Reactants', db_column='rxntID') 
-    coeff = models.FloatField()
-    compid = models.ForeignKey(Compounds, db_column='compID') 
-    class Meta:
-        db_table = 'products'
-# some comment
-
-class Reactants(models.Model):
-    rxntid = models.AutoField(primary_key=True, db_column='rxntID') 
-    compid = models.ForeignKey(Compounds, db_column='compID',related_name='compound_id') 
-    similar_compounds = models.ForeignKey(Compounds, null=True, db_column='Similar Compounds',related_name='similar_id', blank=True)  
-    class Meta:
-        db_table = 'reactants'
-
 
 class SecretionUptake(models.Model):
     secretionuptakeid = models.AutoField(primary_key=True, db_column='secretionuptakeID') 
