@@ -115,17 +115,6 @@ class Compounds(models.Model):
     def seed_url(self):
         return 'http://seed-viewer.theseed.org/seedviewer.cgi?page=CompoundViewer&compound=%s&model=' % self.seed_id
 
-    
-
-class Contributors(models.Model):
-    contributorid = models.IntegerField(primary_key=True, db_column='contributorID') 
-    last_name = models.CharField(max_length=255L, unique=True, db_column='Last_Name', blank=True) 
-    class Meta:
-        db_table = 'contributors'
-        verbose_name_plural = 'contributors'
-    def __unicode__(self):
-        return self.last_name
-
 class GrowthData(models.Model):
     growthid = models.AutoField(primary_key=True, db_column='growthID') 
     contributor=models.ForeignKey('Contributor')
@@ -456,13 +445,6 @@ class Organisms(models.Model):
             if getattr(self, attr).capitalize() < getattr(other,attr).capitalize(): return -1
         return 0
 
-class OrganismsSources(models.Model):
-    strainsourceid = models.AutoField(primary_key=True, db_column='strainsourceID') 
-    strainid = models.ForeignKey(Organisms, null=True, db_column='strainID', blank=True) 
-    sourceid = models.ForeignKey('Sources', null=True, db_column='sourceID', blank=True) 
-    class Meta:
-        db_table = 'organisms_sources'
-
 class SecretionUptake(models.Model):
     secretionuptakeid = models.AutoField(primary_key=True, db_column='secretionuptakeID') 
     growthid = models.ForeignKey(GrowthData, db_column='growthID') 
@@ -513,21 +495,6 @@ class SecretionUptakeUnit(models.Model):
         except AttributeError:
             self._unit2id=self._get_unit2id()
             return self._unit2id[unit]
-            
-
-'''
-class SeedCompounds(models.Model):
-    seedkeggid = models.AutoField(primary_key=True, db_column='seedkeggID') 
-    kegg_id = models.CharField(max_length=45L, db_column='KEGG_ID') 
-#    kegg_id = models.ForeignKey(Compounds, db_column='KEGG_ID') 
-    seed_id = models.CharField(max_length=45L, db_column='Seed_ID') 
-    class Meta:
-        db_table = 'seed_compounds'
-
-    def __repr__(self):
-        return 'SeedCompound %s: kegg_id=%s, seed_id=%s' % (self.seedkeggid, self.kegg_id, self.seed_id)
-'''
-    
 
 class Sources(models.Model):
     sourceid = models.AutoField(primary_key=True, db_column='sourceID') 
