@@ -75,6 +75,8 @@ def main():
 
 def get_fieldnames(opts):
     fields=get_fs(opts)         # can throw
+    lookup_f = novel_f = ''
+    lookup_idx = novel_idx = 0
     for i,f in enumerate([f.lower() for f in fields]):
         if f==opts.lookup:
             lookup_f=f.lower()
@@ -117,7 +119,7 @@ def parse_file(lu_idx, val_idx, opts):
 
     f12f2={}
     with open(opts.in_fn) as f:
-        reader=csv.reader(f, delimiter=opts.delimiter)
+        reader=csv.reader(f, delimiter=opts.d)
         for row in reader:
             if row[0].startswith('#'):
                 continue
