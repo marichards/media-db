@@ -93,9 +93,9 @@ div.header2 {
 
 div.login {
     position: absolute;
-    left: 0px;
-    bottom: 0px;
-    vertical-align: bottom;
+    left: 10px;
+    bottom: 17px;
+    /*vertical-align: bottom;*/
 }
 
 
