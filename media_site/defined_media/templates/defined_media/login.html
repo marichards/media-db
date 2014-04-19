@@ -10,10 +10,14 @@ Logged in as {{ request.user }}
 {{ form.username.label }}: {{ form.username }}
 {{ form.password.label }}: {{ form.password }}
 <input type='submit' value='Login' />
-    <div>
+{# comment out the user stuff #}
+{% comment %}
+<!--    <div>
       <a href=''>Register New User</a>
       <a href=''>Forgot Username/Password</a>
     </div>
+-->
+{% endcomment %}
 {% endif %}
 </form>
 </div>

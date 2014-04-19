@@ -20,10 +20,10 @@ Logged in as {{ request.user }}
 {{ login_tag_form.username.label }}: {{ login_tag_form.username }}
 {{ login_tag_form.password.label }}: {{ login_tag_form.password }}
 <input type='submit' value='Login' />
-    <div>
+ <!--   <div>
       <a href='{% url 'login' %}'>Register New User</a>
 {% comment %}      <a href=''>fixme! Forgot Username/Password?</a>{% endcomment %}
-    </div>
+    </div> -->
 {% endif %}
 </form>
 </div>
