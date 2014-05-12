@@ -8,8 +8,8 @@
 <li>Journal: {{ sources.journal_cap }}</li>
 <li>Year: {{ sources.year }}</li>
 <li>Title: {{ sources.title }}</li>
-{% if sources.link %}<li>Link to <a href='{{ sources.link }}'>Article</a>{% endif %}
-{% if sources.pubmed_link %}<li>Link to <a href='{{ sources.pubmed_link }}'>Pubmed</a>{% endif %}
+{% if sources.link %}<li>Link to <a href='{{ sources.link }}' target='_blank'>Article</a>{% endif %}
+{% if sources.pubmed_link %}<li>Link to <a href='{{ sources.pubmed_link }}' target='blank'>Pubmed</a>{% endif %}
 </ul>
 
 <ol>Associated Growth Data:

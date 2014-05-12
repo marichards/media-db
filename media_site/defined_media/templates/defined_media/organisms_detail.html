@@ -5,7 +5,7 @@
 {% block content %}
 <h2>Organism: {{ organisms }} ({{ organisms.typeid }})</h2>
 
-<li>Link to <a href='{{ organisms.ncbi_link }}'>NCBI Genome Projects</a></li>
+<li>Link to <a href='{{ organisms.ncbi_link }}' target='_blank'>NCBI Genome Projects</a></li>
 
 {% with growth_data=organisms.growthdata_set.all %}
 
