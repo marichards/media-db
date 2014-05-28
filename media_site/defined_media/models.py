@@ -115,6 +115,12 @@ class Compounds(models.Model):
     def seed_url(self):
         return 'http://seed-viewer.theseed.org/seedviewer.cgi?page=CompoundViewer&compound=%s&model=' % self.seed_id
 
+    def pubchem_url(self):
+	return 'https://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=%s' %self.pubchem_ids
+
+    def chebi_url(self):
+	return 'http://www.ebi.ac.uk/chebi/searchId.do;?chebiId=CHEBI:%s' %self.chebi_ids
+
 class GrowthData(models.Model):
     growthid = models.AutoField(primary_key=True, db_column='growthID') 
     contributor=models.ForeignKey('Contributor')
