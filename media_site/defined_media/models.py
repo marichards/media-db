@@ -34,6 +34,20 @@ class Biomass(models.Model):
     def keywords(self):
 	return [self.genus, self.species]
 
+    def biomass_compounds_dicts(self):
+	'''
+	return list of hashlettes: d[compN]=compound name, d[amountN]=amount]
+	Replicates media_compounds_dicts
+	'''
+	return [{'comp': bc.compid.name,
+		 'amount': bc.coefficient,
+		 'kegg_id': bc.compid.kegg_id or None,
+		 'bigg_id': bc.compid.bigg_id or None,
+		 'seed_id': bc.compid.seed_id or None,
+		 'pubchem_ids': bc.compid.pubchem_ids or None,
+		 'chebi_ids': bc.compid.chebi_ids or None,
+		 } for bc in self.biomasscompounds_set.all()]
+
 class BiomassCompounds(models.Model):
     biocompid = models.AutoField(primary_key=True, db_column='biocompID') 
     biomassid = models.ForeignKey(Biomass, db_column='biomassID') 
@@ -120,6 +134,8 @@ class Compounds(models.Model):
 
     def chebi_url(self):
 	return 'http://www.ebi.ac.uk/chebi/searchId.do;?chebiId=CHEBI:%s' %self.chebi_ids
+
+    
 
 class GrowthData(models.Model):
     growthid = models.AutoField(primary_key=True, db_column='growthID') 
@@ -386,6 +402,7 @@ class MediaNames(models.Model):
                  'pubchem_ids': mc.compid.pubchem_ids or None,
                  'chebi_ids': mc.compid.chebi_ids or None,
                  } for mc in self.mediacompounds_set.all()]
+
 
     def as_dict(self):
         d=dict((attr, getattr(self, attr)) for attr in 'medid media_name is_minimal'.split(' '))

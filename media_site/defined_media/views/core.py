@@ -7,14 +7,23 @@ from defined_media.models import *
 
 class CompoundsListView(ListView):
     model=Compounds
-    paginate_by=100
+    paginate_by=50
     template_name='defined_media/compounds_list.html'
     def get_queryset(self, *args, **kwargs):
         ''' Trying to sort compounds by their first name '''
-        comps=list(Compounds.objects.all())
+        #comps=list(Compounds.objects.all())
 #        comps=list(Compounds.objects.all()[:50])
-        return sorted(comps, key=lambda c: c.name)
 
+	#All compound IDs in media
+	in_media = MediaCompounds.objects.values('compid').distinct()
+	#Make a list of them
+	id_list = []
+	for item in in_media:
+		id_list.append(item['compid'])
+	#Filter for only those compounds
+	comps = Compounds.objects.filter(pk__in=id_list)
+
+        return sorted(comps, key=lambda c: c.name)
 
 
 class MediaList(ListView):
@@ -73,7 +82,16 @@ class BiomassDetail(DetailView):
 
 class BiomassList(ListView):
     model=Biomass
-    
+
+class BiomassText(View):
+    template_name='defined_media/biomass_text.html'
+    def get(self,request, *args, **kwargs):
+	bn=get_object_or_404(Biomass, **kwargs)
+	return render(request,
+		      self.template_name,
+		      {'bn': bn, 'bcs': bn.biomass_compounds_dicts()},
+		      content_type='text/plain',
+		      )    
 
 class SourceDetail(DetailView):
     model=Sources

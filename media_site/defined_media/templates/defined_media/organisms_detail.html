@@ -12,6 +12,7 @@
 <ol>{{ growth_data|length }} Growth Condition(s):
 {% for gd in growth_data %}
   <li>
+    Growth Data Record: <a href='{% url 'growth_record' gd.growthid %}'>{{ gd }}</a><br/>
     Media: <a href='{% url 'media_record' gd.medid_id %}'>{{ gd.medid.media_name }}</a><br/>
     Source: <a href='{% url 'source_record' gd.sourceid_id %}'>{{ gd.sourceid }}</a>  
     <br/>

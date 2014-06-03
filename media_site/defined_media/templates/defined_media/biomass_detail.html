@@ -5,6 +5,8 @@
 {% block content %}
 Biomass: {{ biomass }}  (<a href="{{ biomass.sourceid.link }}">Source</a>)
 
+<p><a href='{% url 'biomass_text' biomass.biomassid %}'>Tab-delimited version</a></p>
+
 <div>
 {% with biocompound_list=biomass.biomasscompounds_set.all %}
 

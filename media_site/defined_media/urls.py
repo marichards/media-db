@@ -34,7 +34,8 @@ urlpatterns = patterns(view_prefix,
                        url(r'^media/(?P<pk>\d+)/$', views.core.MediaDetail.as_view(), name='media_record'),
                        url(r'^media_text/(?P<pk>\d+)/$', views.core.MediaText.as_view(), name='media_text'),
                        url(r'^biomass/(?P<pk>\d+)/$', views.core.BiomassDetail.as_view(), name='biomass_record'),
-                       url(r'^sources/(?P<pk>\d+)/$', views.core.SourceDetail.as_view(), name='source_record'),
+                       url(r'^biomass_text/(?P<pk>\d+)/$',views.core.BiomassText.as_view(), name='biomass_text'),
+		       url(r'^sources/(?P<pk>\d+)/$', views.core.SourceDetail.as_view(), name='source_record'),
                        url(r'^growthdata/(?P<pk>\d+)/$', views.core.GrowthDataDetail.as_view(), name='growth_record'),
 
                        # Search views:
