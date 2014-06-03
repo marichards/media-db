@@ -430,6 +430,7 @@ class Organisms(models.Model):
     species = models.CharField(max_length=255L, db_column='Species', blank=False, null=False)
     strain = models.CharField(max_length=255L, db_column='Strain', blank=False, null=False) 
     typeid = models.ForeignKey('TypesOfOrganisms', db_column='typeID')
+    has_model = models.BooleanField(default=False ,db_column='has_model', blank=False)
 
     class Meta:
         db_table = 'organisms'
