@@ -8,12 +8,12 @@ Biomass: {{ biomass }}  (<a href='{{ biomass.sourceid.link }}' target='_blank'>S
 <p><a href='{% url 'biomass_text' biomass.biomassid %}'>Tab-delimited version</a></p>
 
 <div>
-{% with biocompound_list=biomass.biomasscompounds_set.all %}
+{% with biocompound_list=biomass.sorted_compounds %}
 
 	<table class='biocompounds'>{{ biocompound_list|length }} Bio-Compounds:
 	{% for bio_compound in biocompound_list %} <tr>
 	    {% with compound=bio_compound.compid %}
-	  <td><a href="{% url 'compound_record' compound.compid %}">{{ compound.namesofcompounds_set.all|first }}</a></td>
+	  <td><a href="{% url 'compound_record' compound.compid %}">{{ compound.name }}</a></td>
 	  <td>{{ bio_compound.coefficient }}</td>
 	      {% endwith %}
 

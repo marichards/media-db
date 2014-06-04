@@ -48,6 +48,12 @@ class Biomass(models.Model):
 		 'chebi_ids': bc.compid.chebi_ids or None,
 		 } for bc in self.biomasscompounds_set.all()]
 
+    def sorted_compounds(self):
+        ''' return a list of compounds for the BiomassCompound, sorted on name '''
+        # return sorted(self.mediacompounds_set.all(), key=lambda c: c.compid.keywords()[0]) # some compounds have no keywords, so keywords()[0] barfs
+        return sorted(self.biomasscompounds_set.all(), key=lambda c: c.compid.name) # some compounds have no keywords, so keywords()[0] barfs
+#        for mc in self.mediacompounds_set.all():
+
 class BiomassCompounds(models.Model):
     biocompid = models.AutoField(primary_key=True, db_column='biocompID') 
     biomassid = models.ForeignKey(Biomass, db_column='biomassID') 
