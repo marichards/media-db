@@ -3,7 +3,7 @@
 {% block title %}Biomass {{ biomass }}{% endblock %}
 
 {% block content %}
-Biomass: {{ biomass }}  (<a href="{{ biomass.sourceid.link }}">Source</a>)
+Biomass: {{ biomass }}  (<a href='{{ biomass.sourceid.link }}' target='_blank'>Source</a>)
 
 <p><a href='{% url 'biomass_text' biomass.biomassid %}'>Tab-delimited version</a></p>
 
