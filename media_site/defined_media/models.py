@@ -437,6 +437,7 @@ class Organisms(models.Model):
     strain = models.CharField(max_length=255L, db_column='Strain', blank=False, null=False) 
     typeid = models.ForeignKey('TypesOfOrganisms', db_column='typeID')
     has_model = models.BooleanField(default=False ,db_column='has_model', blank=False)
+    biomassid = models.ForeignKey(Biomass, db_column='biomassID')
 
     class Meta:
         db_table = 'organisms'

@@ -22,5 +22,6 @@
 {% endfor %}</ol>
 {% endwith %}
 
-
+{% if organisms.biomassid %}<li>Biomass: <a href='{% url 'biomass_record' organisms.biomassid.biomassid %}'>{{ organisms.biomassid }}</a></li>
+{% endif %}
 {% endblock %}

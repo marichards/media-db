@@ -8,7 +8,7 @@
         <h2>{{ compounds.name }}</h2>
 	<!-- Compound ID: {{ compounds.compid }} -->
 	<p>Formula: {% if compounds.formula %}{{ compounds.formula }}{% else %}<i>&lt;No Data&gt;</i>{% endif %}
-	<p>KEGG ID: {% if compounds.kegg_id %}<a href='{{ compounds.kegg_url }}' target='_blank'>{{ compounds.kegg_id }}</a>{% else %}<i>&lt;None&gt;</i> }}{% endif %}</p>
+	<p>KEGG ID: {% if compounds.kegg_id %}<a href='{{ compounds.kegg_url }}' target='_blank'>{{ compounds.kegg_id }}</a>{% else %}<i>&lt;None&gt;</i> {% endif %}</p>
 	<p>BiGG ID: {% if compounds.bigg_id %}{{ compounds.bigg_id }}{% else %}<i>&lt;None&gt;</i>{% endif %}</p>
 	<p>SEED ID: {% if compounds.seed_id %}<a href='{{ compounds.seed_url }}' target='_blank'>{{ compounds.seed_id }}</a>{% else %}<i>&lt;None&gt;</i>{% endif %}
 	<p>Chebi ID(s): {% if compounds.chebi_ids %}<a href='{{ compounds.chebi_url }}' target='_blank'>{{ compounds.chebi_ids }}</a>{% else %}<i>&lt;None&gt;</i>{% endif %}
