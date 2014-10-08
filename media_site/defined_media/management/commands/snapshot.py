@@ -14,7 +14,11 @@ class Command(BaseCommand):
 
     def create_dump(self):
         ''' effect a 'mysqldump media_database  >dump_dir/media_database.<ts>.sql '''
-        cmd=['mysqldump', settings.DATABASES['default']['NAME']]
+        #cmd=['mysqldump', settings.DATABASES['default']['NAME']]
+	if settings.DATABASES['default']['PASSWORD']:
+            cmd=['mysqldump', settings.DATABASES['default']['NAME'], '-u', settings.DATABASES['default']['USER'], '-p', settings.DATABASES['default']['PASSWORD']]	
+	else:
+            cmd=['mysqldump', settings.DATABASES['default']['NAME'], '-u', settings.DATABASES['default']['USER']]	
         clss=[]
         forbidden=[models.User, models.DatabaseSnapshot, models.Lab]
         for attr in dir(models):
@@ -25,7 +29,6 @@ class Command(BaseCommand):
             except TypeError as e:
                 pass
 #                print '%s is not a class, skipping' % attr
-
 
         with open(self.dump_path(), 'w') as new_stdout:
             mysqldump=subprocess.Popen(cmd, stdout=subprocess.PIPE)
