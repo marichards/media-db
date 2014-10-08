@@ -16,7 +16,8 @@ class NewOrganismView(CreateView):
         org=get_object_or_404(Organisms,
                               genus=self.request.POST['genus'],
                               species=self.request.POST['species'],
-                              strain=self.request.POST['strain'])
+                              strain=self.request.POST['strain'],
+			      has_model=self.request.POST['has_model'])
         return reverse('organism_record', args=(org.strainid,))
 
     def get(self, request, *args, **kwargs):
